@@ -1,0 +1,153 @@
+{
+  "hero": {
+    "title": "CV Genie",
+    "description": "Your magical assistant for crafting the perfect resume that lands your dream job",
+    "primaryButton": "Get Started",
+    "secondaryButton": "Learn More"
+  },
+  "features": {
+    "title": "Unlock Your Career Potential",
+    "items": [
+      {
+        "id": 1,
+        "iconType": "lightbulb",
+        "title": "AI Resume Analysis",
+        "description": "Our AI analyzes your CV, provides smart suggestions, and highlights areas for improvement."
+      },
+      {
+        "id": 2,
+        "iconType": "edit",
+        "title": "Professional Templates",
+        "description": "Choose from dozens of industry-specific, ATS-friendly templates designed to impress."
+      },
+      {
+        "id": 3,
+        "iconType": "shield",
+        "title": "Keyword Optimization",
+        "description": "Automatically match your resume with job descriptions to boost your chances of getting noticed."
+      },
+      {
+        "id": 4,
+        "iconType": "bar-chart",
+        "title": "Performance Tracking",
+        "description": "Monitor how your resume performs and get insights on how to improve your application success rate."
+      },
+      {
+        "id": 5,
+        "iconType": "zap",
+        "title": "Quick Generation",
+        "description": "Generate a professional CV in minutes with our intuitive builder and AI-powered suggestions."
+      },
+      {
+        "id": 6,
+        "iconType": "globe",
+        "title": "Multi-language Support",
+        "description": "Create resumes in multiple languages to apply for international positions with confidence."
+      }
+    ]
+  },
+  "howItWorks": {
+    "title": "How CV Genie Works",
+    "steps": [
+      {
+        "id": 1,
+        "step": "01",
+        "title": "Upload Your Current CV",
+        "description": "Start by uploading your existing resume or create one from scratch using our intuitive builder."
+      },
+      {
+        "id": 2,
+        "step": "02",
+        "title": "AI Analysis & Recommendations",
+        "description": "Our magical AI analyzes your content and provides personalized recommendations to enhance your CV."
+      },
+      {
+        "id": 3,
+        "step": "03",
+        "title": "Edit & Customize",
+        "description": "Make changes with our easy-to-use editor and customize your resume for specific job applications."
+      },
+      {
+        "id": 4,
+        "step": "04",
+        "title": "Download & Apply",
+        "description": "Download your polished CV in multiple formats and start applying to your dream jobs with confidence."
+      }
+    ]
+  },
+  "testimonials": {
+    "title": "What Users Are Saying",
+    "items": [
+      {
+        "id": 1,
+        "name": "Sarah Johnson",
+        "position": "Marketing Manager",
+        "company": "TechCorp",
+        "text": "CV Genie helped me land my dream job after just 3 applications. The AI suggestions made my resume stand out from the competition!",
+        "avatar": "/testimonials/sarah.jpg"
+      },
+      {
+        "id": 2,
+        "name": "Michael Chen",
+        "position": "Software Engineer",
+        "company": "StartupLabs",
+        "text": "I was struggling to highlight my technical skills effectively. CV Genie's industry-specific suggestions transformed my resume completely.",
+        "avatar": "/testimonials/michael.jpg"
+      },
+      {
+        "id": 3,
+        "name": "Emma Rodriguez",
+        "position": "Financial Analyst",
+        "company": "Global Finance",
+        "text": "The keyword optimization feature ensured my resume passed through the ATS systems. I got 5 interview calls within a week!",
+        "avatar": "/testimonials/emma.jpg"
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to Transform Your Resume?",
+    "description": "Join thousands of job seekers who have landed their dream jobs with CV Genie's magical assistance.",
+    "buttonText": "Get Started For Free"
+  },
+  "footer": {
+    "links": [
+      {
+        "text": "Privacy",
+        "url": "#"
+      },
+      {
+        "text": "Terms",
+        "url": "#"
+      },
+      {
+        "text": "Contact",
+        "url": "#"
+      },
+      {
+        "text": "About",
+        "url": "#"
+      }
+    ],
+    "copyright": "© 2023 CV Genie. All rights reserved."
+  },
+  "stats": {
+    "items": [
+      {
+        "value": "85%",
+        "label": "Interview Success Rate"
+      },
+      {
+        "value": "50K+",
+        "label": "Resumes Created"
+      },
+      {
+        "value": "2X",
+        "label": "Application Success"
+      },
+      {
+        "value": "24/7",
+        "label": "AI Support"
+      }
+    ]
+  }
+}

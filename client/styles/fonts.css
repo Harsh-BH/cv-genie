@@ -1,0 +1,22 @@
+/* Direct font classes that don't rely on Tailwind's processing */
+.font-outfit {
+  font-family: var(--font-outfit), system-ui, -apple-system, sans-serif !important;
+}
+
+.font-space-grotesk {
+  font-family: var(--font-space-grotesk), system-ui, -apple-system, sans-serif !important;
+}
+
+.font-inter {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif !important;
+}
+
+/* Headings should use Space Grotesk by default */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space-grotesk), system-ui, -apple-system, sans-serif !important;
+}
+
+/* Body text should use Outfit by default */
+body {
+  font-family: var(--font-outfit), system-ui, -apple-system, sans-serif !important;
+}
