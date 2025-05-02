@@ -22,4 +22,18 @@ model User {
   password  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relation to Resume
+  resumes Resume[]
+}
+
+model Resume {
+  id         Int      @id @default(autoincrement())
+  fileUrl    String
+  fileName   String
+  uploadedAt DateTime @default(now())
+
+  // Foreign key relation
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 }
