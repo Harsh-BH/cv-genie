@@ -1,0 +1,6 @@
+cv-genie/node_modules
+cv-genie/dist
+cv-genie/.env
+cv-genie/.env.local
+cv-genie/.env.development.local
+cv-genie/.env.test.local
