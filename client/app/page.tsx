@@ -16,6 +16,10 @@ export default function Home() {
   
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "200%"]);
+  const svg1Y = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const svg2Y = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const svg3Y = useTransform(scrollYProgress, [0, 1], [0, -20]);
+  const wavyY = useTransform(scrollYProgress, [0, 1], [0, 30]);
   
   const [mounted, setMounted] = useState(false);
   
@@ -40,9 +44,15 @@ export default function Home() {
       </div>
       
       {/* Decorative dots floating across the screen */}
-      <AnimatedSvg type="floatingDots" className="top-20 left-10 z-10 opacity-50" />
-      <AnimatedSvg type="floatingDots" className="top-40 right-10 z-10 opacity-40" />
-      <AnimatedSvg type="floatingDots" className="bottom-20 left-20 z-10 opacity-30" />
+      <motion.div style={{ y: svg1Y }} className="absolute top-20 left-10 z-10 opacity-50">
+        <AnimatedSvg type="floatingDots" />
+      </motion.div>
+      <motion.div style={{ y: svg2Y }} className="absolute top-40 right-10 z-10 opacity-40">
+        <AnimatedSvg type="floatingDots" />
+      </motion.div>
+      <motion.div style={{ y: svg3Y }} className="absolute bottom-20 left-20 z-10 opacity-30">
+        <AnimatedSvg type="floatingDots" />
+      </motion.div>
 
       {/* Hero Section with Parallax */}
       <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
@@ -147,7 +157,9 @@ export default function Home() {
 
       {/* Wavy line separator */}
       <div className="relative">
-        <AnimatedSvg type="wavyLine" className="w-full h-20 -mt-10" />
+        <motion.div style={{ y: wavyY }} className="w-full h-20 -mt-10">
+          <AnimatedSvg type="wavyLine" />
+        </motion.div>
       </div>
 
       {/* Stats Section with Animated Circular Progress */}
@@ -164,9 +176,13 @@ export default function Home() {
                 viewport={{ once: true }}
               >
                 {/* Add animated circle behind the stats for visual interest */}
-                <div className="absolute -right-4 -bottom-4 opacity-20">
+                <motion.div
+                  className="absolute -right-4 -bottom-4 opacity-20"
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+                >
                   <AnimatedSvg type="circularProgress" />
-                </div>
+                </motion.div>
                 
                 <motion.div 
                   className="text-3xl md:text-4xl font-bold text-white mb-2 relative z-10 font-space-grotesk"
