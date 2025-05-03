@@ -72,44 +72,52 @@ async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
 
 // Main POST handler
 export async function POST(req: NextRequest) {
-  // Get auth token from cookies
-  const cookieStore = cookies();
-  const token = cookieStore.get('auth_token')?.value;
-  
-  // Verify authentication
-  if (!token) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-  }
-  
   try {
-    // Authenticate user
-    const user = await authenticateToken(token);
+    // Get auth_token cookie
+    const authToken = req.cookies.get('auth_token')?.value;
+    
+    if (!authToken) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    // Parse the file and check validations
-    const uploadedFile = await parseMultipartForm(req);
+    // Verify token
+    let userId;
+    try {
+      const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET || "fallback-secret-not-for-production") as { userId: number };
+      userId = decodedToken.userId;
+    } catch (jwtError: any) {
+      if (jwtError.name === "TokenExpiredError") {
+        return NextResponse.json({ error: "Token expired" }, { status: 401 });
+      }
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
-    // Upload the file to Cloudinary
-    const cloudRes = await cloudinary.uploader.upload(uploadedFile.filepath, {
-      folder: "cv-reviewer",
-      resource_type: "raw",
-      public_id: uploadedFile.originalFilename.replace(/\.[^/.]+$/, ""),
+    if (!userId) {
+      return NextResponse.json({ error: "Invalid token payload" }, { status: 401 });
+    }
+
+    // Process the uploaded file
+    const formData = await req.formData();
+    const file = formData.get('resume') as File | null;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    // Success response
+    return NextResponse.json({
+      success: true,
+      message: "File uploaded successfully",
+      fileName: file.name,
+      fileSize: file.size,
+      userId: userId // Include the userId from the token
     });
-
-    // Cleanup local file
-    await fs.unlink(uploadedFile.filepath);
-
-    // Store in DB
-    await prisma.resume.create({
-      data: {
-        fileUrl: cloudRes.secure_url,
-        fileName: uploadedFile.originalFilename,
-        userId: user.id,
-      },
-    });
-
-    return NextResponse.json({ success: true });
+    
   } catch (err: any) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: err.message || "Server error occurred" }, { status: 500 });
+    return NextResponse.json({ 
+      error: "Internal Server Error",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    }, { status: 500 });
   }
 }
