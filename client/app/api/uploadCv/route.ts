@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import prisma from "@/lib/prisma";
-import fs from "fs";
+import fs from "fs/promises";
 import os from "os";
-import jwt from "jsonwebtoken";
 import path from "path";
 import { cookies } from "next/headers";
 
-// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
@@ -117,33 +115,24 @@ export async function POST(req: NextRequest) {
     const cloudRes = await cloudinary.uploader.upload(uploadedFile.filepath, {
       folder: "cv-reviewer",
       resource_type: "raw",
-      public_id: `cv-${user.id}-${Date.now()}`,
+      public_id: file.name.replace(/\.[^/.]+$/, ""),
     });
 
-    // Save the resume entry in the database
-    const resume = await prisma.resume.create({
+    // Cleanup local file
+    await fs.unlink(tempPath);
+
+    // Store in DB
+    await prisma.resume.create({
       data: {
-        userId: user.id,
-        fileUrl: cloudRes.secure_url,
-        fileName: uploadedFile.originalFilename,
+        fileUrl: uploadResult.secure_url,
+        fileName: file.name,
+        userId,
       },
     });
 
-    // Send successful response with the file information
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: resume.id,
-        fileUrl: cloudRes.secure_url,
-        fileName: uploadedFile.originalFilename,
-      },
-    });
+    return NextResponse.json({ success: true });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Upload failed" }, { status: 400 });
-  } finally {
-    // Clean up temporary file after upload
-    if (uploadedFile?.filepath && fs.existsSync(uploadedFile.filepath)) {
-      fs.unlinkSync(uploadedFile.filepath);
-    }
+    console.error("Upload error:", err);
+    return NextResponse.json({ error: "Server error occurred" }, { status: 500 });
   }
 }
