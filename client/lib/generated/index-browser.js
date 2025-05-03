@@ -132,10 +132,12 @@ exports.Prisma.UserScalarFieldEnum = {
 
 exports.Prisma.ResumeScalarFieldEnum = {
   id: 'id',
-  fileUrl: 'fileUrl',
   fileName: 'fileName',
-  uploadedAt: 'uploadedAt',
-  userId: 'userId'
+  fileType: 'fileType',
+  fileData: 'fileData',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
