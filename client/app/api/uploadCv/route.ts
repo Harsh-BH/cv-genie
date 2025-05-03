@@ -3,96 +3,117 @@ import { v2 as cloudinary } from "cloudinary";
 import prisma from "@/lib/prisma";
 import fs from "fs";
 import os from "os";
+import jwt from "jsonwebtoken";
+import path from "path";
 
-//Next.js body parsing not needed for form-data
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
+// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-// Helper function to convert Web API Request to form data
-async function requestToFormData(req: NextRequest) {
-  const formData = await req.formData();
-  const fields: Record<string, string[]> = {};
-  const files: Record<string, any[]> = {};
-  
-  // Process each form entry
-  for (const [name, value] of formData.entries()) {
-    // Handle file entries
-    if (typeof value !== 'string' && 'arrayBuffer' in value) {
-      const file = value as File;
-      
-      if (!files[name]) {
-        files[name] = [];
-      }
-      
-      // Create temp file path
-      const tempDir = os.tmpdir();
-      const filePath = `${tempDir}/${file.name}-${Date.now()}`;
-      
-      // Convert file to buffer and write to temp file
-      const buffer = Buffer.from(await file.arrayBuffer());
-      fs.writeFileSync(filePath, buffer);
-      
-      // Add file info to files object
-      files[name].push({
-        filepath: filePath,
-        originalFilename: file.name,
-        mimetype: file.type,
-        size: file.size
-      });
-    } 
-    // Handle text fields
-    else {
-      if (!fields[name]) {
-        fields[name] = [];
-      }
-      fields[name].push(value as string);
-    }
+type UploadedFile = {
+  filepath: string;
+  originalFilename: string;
+  mimetype: string;
+  size: number;
+};
+
+// Auth helper
+async function authenticateToken(req: NextRequest) {
+  const header = req.headers.get("authorization");
+  const token = header?.split(" ")[1] || req.cookies.get("token")?.value;
+  if (!token) throw new Error("No token provided");
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+    if (!user) throw new Error("User not found");
+    return user;
+  } catch {
+    throw new Error("Invalid or expired token");
   }
-  
-  return { fields, files };
 }
 
+// Convert request to FormData safely with file handling
+async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
+  const formData = await req.formData();
+  const file = formData.get("resume");
+
+  if (!(file instanceof File)) {
+    throw new Error("Resume file not found");
+  }
+
+  const allowedTypes = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error("Invalid file type");
+  }
+
+  const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    throw new Error("File size exceeds 5MB limit");
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const tmpPath = path.join(os.tmpdir(), `${Date.now()}-${file.name}`);
+  fs.writeFileSync(tmpPath, buffer);
+
+  return {
+    filepath: tmpPath,
+    originalFilename: file.name,
+    mimetype: file.type,
+    size: file.size,
+  };
+}
+
+// Main POST handler
 export async function POST(req: NextRequest) {
+  let uploadedFile: UploadedFile | null = null;
+
   try {
-    const { fields, files } = await requestToFormData(req);
+    // Authenticate user
+    const user = await authenticateToken(req);
 
-    const file = files.resume?.[0]; // `resume` is the input name
-    const userId = parseInt(fields.userId?.[0] || "0"); // sent as form field
+    // Parse the file and check validations
+    uploadedFile = await parseMultipartForm(req);
 
-    if (!file || !userId) {
-      return NextResponse.json({ error: "Missing file or userId" }, { status: 400 });
-    }
-
-    //Upload to Cloudinary
-    const upload = await cloudinary.uploader.upload(file.filepath, {
+    // Upload the file to Cloudinary
+    const cloudRes = await cloudinary.uploader.upload(uploadedFile.filepath, {
       folder: "cv-reviewer",
-      resource_type: "raw", //PDF/doc
+      resource_type: "raw",
+      public_id: `cv-${user.id}-${Date.now()}`,
     });
 
-    // Save to DB
-    const newResume = await prisma.resume.create({
+    // Save the resume entry in the database
+    const resume = await prisma.resume.create({
       data: {
-        userId,
-        fileUrl: upload.secure_url,
-        fileName: upload.original_filename || file.originalFilename,
+        userId: user.id,
+        fileUrl: cloudRes.secure_url,
+        fileName: uploadedFile.originalFilename,
       },
     });
 
-    // Delete temp file
-    fs.unlinkSync(file.filepath);
-
-    return NextResponse.json({ success: true, data: newResume });
+    // Send successful response with the file information
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: resume.id,
+        fileUrl: cloudRes.secure_url,
+        fileName: uploadedFile.originalFilename,
+      },
+    });
   } catch (err: any) {
-    console.error("Upload error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Upload failed" }, { status: 400 });
+  } finally {
+    // Clean up temporary file after upload
+    if (uploadedFile?.filepath && fs.existsSync(uploadedFile.filepath)) {
+      fs.unlinkSync(uploadedFile.filepath);
+    }
   }
 }
