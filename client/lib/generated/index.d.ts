@@ -145,6 +145,17 @@ export class PrismaClient<
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
 
+  /**
+   * Gives access to the client metrics in json or prometheus format.
+   * 
+   * @example
+   * ```
+   * const metrics = await prisma.$metrics.json()
+   * // or
+   * const metrics = await prisma.$metrics.prometheus()
+   * ```
+   */
+  readonly $metrics: runtime.MetricsClient
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
     extArgs: ExtArgs
   }>>
@@ -1017,6 +1028,7 @@ export namespace Prisma {
     password: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    avatar: string | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1026,6 +1038,7 @@ export namespace Prisma {
     password: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    avatar: string | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1035,6 +1048,7 @@ export namespace Prisma {
     password: number
     createdAt: number
     updatedAt: number
+    avatar: number
     _all: number
   }
 
@@ -1054,6 +1068,7 @@ export namespace Prisma {
     password?: true
     createdAt?: true
     updatedAt?: true
+    avatar?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1063,6 +1078,7 @@ export namespace Prisma {
     password?: true
     createdAt?: true
     updatedAt?: true
+    avatar?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1072,6 +1088,7 @@ export namespace Prisma {
     password?: true
     createdAt?: true
     updatedAt?: true
+    avatar?: true
     _all?: true
   }
 
@@ -1168,6 +1185,7 @@ export namespace Prisma {
     password: string | null
     createdAt: Date
     updatedAt: Date
+    avatar: string | null
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -1196,6 +1214,7 @@ export namespace Prisma {
     password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    avatar?: boolean
     resumes?: boolean | User$resumesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -1207,6 +1226,7 @@ export namespace Prisma {
     password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    avatar?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1216,6 +1236,7 @@ export namespace Prisma {
     password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    avatar?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1225,9 +1246,10 @@ export namespace Prisma {
     password?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    avatar?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "createdAt" | "updatedAt" | "avatar", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     resumes?: boolean | User$resumesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1247,6 +1269,7 @@ export namespace Prisma {
       password: string | null
       createdAt: Date
       updatedAt: Date
+      avatar: string | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -1677,6 +1700,7 @@ export namespace Prisma {
     readonly password: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
+    readonly avatar: FieldRef<"User", 'String'>
   }
     
 
@@ -3223,7 +3247,8 @@ export namespace Prisma {
     email: 'email',
     password: 'password',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    avatar: 'avatar'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -3338,6 +3363,7 @@ export namespace Prisma {
     password?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    avatar?: StringNullableFilter<"User"> | string | null
     resumes?: ResumeListRelationFilter
   }
 
@@ -3348,6 +3374,7 @@ export namespace Prisma {
     password?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    avatar?: SortOrderInput | SortOrder
     resumes?: ResumeOrderByRelationAggregateInput
   }
 
@@ -3361,6 +3388,7 @@ export namespace Prisma {
     password?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    avatar?: StringNullableFilter<"User"> | string | null
     resumes?: ResumeListRelationFilter
   }, "id" | "email">
 
@@ -3371,6 +3399,7 @@ export namespace Prisma {
     password?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    avatar?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -3388,6 +3417,7 @@ export namespace Prisma {
     password?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    avatar?: StringNullableWithAggregatesFilter<"User"> | string | null
   }
 
   export type ResumeWhereInput = {
@@ -3453,6 +3483,7 @@ export namespace Prisma {
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    avatar?: string | null
     resumes?: ResumeCreateNestedManyWithoutUserInput
   }
 
@@ -3463,6 +3494,7 @@ export namespace Prisma {
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    avatar?: string | null
     resumes?: ResumeUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -3472,6 +3504,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
     resumes?: ResumeUpdateManyWithoutUserNestedInput
   }
 
@@ -3482,6 +3515,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
     resumes?: ResumeUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -3492,6 +3526,7 @@ export namespace Prisma {
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    avatar?: string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -3500,6 +3535,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -3509,6 +3545,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ResumeCreateInput = {
@@ -3622,6 +3659,7 @@ export namespace Prisma {
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    avatar?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -3635,6 +3673,7 @@ export namespace Prisma {
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    avatar?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -3644,6 +3683,7 @@ export namespace Prisma {
     password?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    avatar?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -4038,6 +4078,7 @@ export namespace Prisma {
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    avatar?: string | null
   }
 
   export type UserUncheckedCreateWithoutResumesInput = {
@@ -4047,6 +4088,7 @@ export namespace Prisma {
     password?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    avatar?: string | null
   }
 
   export type UserCreateOrConnectWithoutResumesInput = {
@@ -4071,6 +4113,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUncheckedUpdateWithoutResumesInput = {
@@ -4080,6 +4123,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ResumeCreateManyUserInput = {

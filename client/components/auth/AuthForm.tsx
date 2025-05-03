@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -15,37 +16,101 @@ interface AuthFormProps {
 
 export function AuthForm({ type }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const router = useRouter();
+
+  // Handle profile image selection
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    if (file) {
+      setProfileImage(file);
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setIsLoading(true);
 
-    const formData = new FormData(event.target as HTMLFormElement);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    
     try {
-      // This is where you would integrate with your auth system
-      console.log({ email, password, type });
-      
-      Toaster({
-        title: type === "login" ? "Logged in!" : "Account created!",
-        description: "You have successfully authenticated.",
-      });
-      
-      router.push("/dashboard");
-    } catch (error) {
-      Toaster({
-        title: "Authentication failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      });
+      if (type === "login") {
+        // Handle login - uses JSON body
+        const form = event.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Login failed");
+        }
+
+        // Store token in localStorage
+        localStorage.setItem("token", data.data.token);
+        // Store user data
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+
+        toast.success("Logged in successfully!");
+        router.push("/");
+      } else {
+        // Handle signup - uses FormData for file upload
+        const form = event.target as HTMLFormElement;
+        const formData = new FormData(form);
+        
+        // Validate password match
+        const password = formData.get("password") as string;
+        const confirmPassword = formData.get("confirmPassword") as string;
+        
+        if (password !== confirmPassword) {
+          throw new Error("Passwords do not match");
+        }
+        
+        // Remove confirmPassword from formData as our API doesn't need it
+        formData.delete("confirmPassword");
+        
+        // Add profile image if selected
+        if (profileImage) {
+          formData.set("profileImage", profileImage);
+        }
+
+        const response = await fetch("/api/auth/signup", {
+          method: "POST",
+          body: formData, // FormData is automatically set with the correct Content-Type
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Signup failed");
+        }
+
+        toast.success("Account created successfully! Please log in.");
+        router.push("/login");
+      }
+    } catch (error: any) {
+      console.error("Authentication error:", error);
+      toast.error(error.message || "Authentication failed");
     } finally {
       setIsLoading(false);
     }
   }
 
+  // Animation variants
   const formVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -149,18 +214,57 @@ export function AuthForm({ type }: AuthFormProps) {
         </motion.div>
 
         {type === "signup" && (
-          <motion.div variants={itemVariants} className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              disabled={isLoading}
-              required
-              className="border-primary/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-primary transition-all duration-300"
-            />
-          </motion.div>
+          <>
+            <motion.div variants={itemVariants} className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-gray-700 dark:text-gray-300">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                disabled={isLoading}
+                required
+                className="border-primary/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-primary transition-all duration-300"
+              />
+            </motion.div>
+            
+            <motion.div variants={itemVariants} className="space-y-2">
+              <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                disabled={isLoading}
+                className="border-primary/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-primary transition-all duration-300"
+              />
+            </motion.div>
+            
+            <motion.div variants={itemVariants} className="space-y-2">
+              <Label htmlFor="profileImage" className="text-gray-700 dark:text-gray-300">Profile Image (optional)</Label>
+              <Input
+                id="profileImage"
+                name="profileImage"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                disabled={isLoading}
+                className="border-primary/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-primary transition-all duration-300"
+              />
+              {previewUrl && (
+                <div className="mt-2 flex justify-center">
+                  <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-primary/30">
+                    <Image 
+                      src={previewUrl} 
+                      alt="Profile preview" 
+                      fill 
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </>
         )}
         
         <motion.div variants={itemVariants}>

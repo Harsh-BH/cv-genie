@@ -7,12 +7,16 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated"
+  // Add previewFeatures for better connection handling
+  previewFeatures = ["metrics"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  // Add connection pool settings for serverless environments
+  relationMode = "prisma"
 }
 
 model User {
@@ -22,6 +26,7 @@ model User {
   password  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  avatar String?
 
   // Relation to Resume
   resumes   Resume[]
