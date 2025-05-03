@@ -5,6 +5,7 @@ import fs from "fs/promises";
 import os from "os";
 import path from "path";
 import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -20,9 +21,7 @@ type UploadedFile = {
 };
 
 // Auth helper
-async function authenticateToken(req: NextRequest) {
-  const header = req.headers.get("authorization");
-  const token = header?.split(" ")[1] || req.cookies.get("auth_token")?.value; // Updated to use auth_token
+async function authenticateToken(token: string) {
   if (!token) throw new Error("No token provided");
 
   try {
@@ -61,7 +60,7 @@ async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const tmpPath = path.join(os.tmpdir(), `${Date.now()}-${file.name}`);
-  fs.writeFileSync(tmpPath, buffer);
+  await fs.writeFile(tmpPath, buffer);
 
   return {
     filepath: tmpPath,
@@ -73,8 +72,6 @@ async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
 
 // Main POST handler
 export async function POST(req: NextRequest) {
-  let uploadedFile: UploadedFile | null = null;
-
   // Get auth token from cookies
   const cookieStore = cookies();
   const token = cookieStore.get('auth_token')?.value;
@@ -85,54 +82,34 @@ export async function POST(req: NextRequest) {
   }
   
   try {
-    // Verify the token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "fallback-secret-not-for-production"
-    );
-    
-    // Token is valid, process the upload
-    // Your existing upload code...
-    
-    // For now, return a success response
-    return NextResponse.json({ 
-      success: true, 
-      message: 'File uploaded successfully' 
-    });
-  } catch (error) {
-    console.error('Auth error in uploadCv:', error);
-    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
-  }
-
-  try {
     // Authenticate user
-    const user = await authenticateToken(req);
+    const user = await authenticateToken(token);
 
     // Parse the file and check validations
-    uploadedFile = await parseMultipartForm(req);
+    const uploadedFile = await parseMultipartForm(req);
 
     // Upload the file to Cloudinary
     const cloudRes = await cloudinary.uploader.upload(uploadedFile.filepath, {
       folder: "cv-reviewer",
       resource_type: "raw",
-      public_id: file.name.replace(/\.[^/.]+$/, ""),
+      public_id: uploadedFile.originalFilename.replace(/\.[^/.]+$/, ""),
     });
 
     // Cleanup local file
-    await fs.unlink(tempPath);
+    await fs.unlink(uploadedFile.filepath);
 
     // Store in DB
     await prisma.resume.create({
       data: {
-        fileUrl: uploadResult.secure_url,
-        fileName: file.name,
-        userId,
+        fileUrl: cloudRes.secure_url,
+        fileName: uploadedFile.originalFilename,
+        userId: user.id,
       },
     });
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: "Server error occurred" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Server error occurred" }, { status: 500 });
   }
 }
