@@ -41,19 +41,33 @@ export async function POST(req: NextRequest) {
         email: user.email 
       }, 
       process.env.JWT_SECRET || "fallback-secret-not-for-production",
-      { expiresIn: '24h' }
+      { expiresIn: '7d' } // Extended expiration for persistent login
     );
     
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
-    return NextResponse.json({
+    // Create the response object
+    const response = NextResponse.json({
       success: true,
       data: {
         user: userWithoutPassword,
-        token
       }
     });
+    
+    // Set HTTP-only cookie with the JWT token
+    // maxAge is in seconds: 7 days = 7 * 24 * 60 * 60 = 604800 seconds
+    response.cookies.set({
+      name: 'auth_token',
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 604800,
+      path: '/',
+    });
+
+    return response;
     
   } catch (err: any) {
     console.error("Login error:", err);
