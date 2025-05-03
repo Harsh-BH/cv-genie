@@ -20,7 +20,6 @@ type UploadedFile = {
   size: number;
 };
 
-// Auth helper
 async function authenticateToken(token: string) {
   if (!token) throw new Error("No token provided");
 
@@ -34,7 +33,6 @@ async function authenticateToken(token: string) {
   }
 }
 
-// Convert request to FormData safely with file handling
 async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
   const formData = await req.formData();
   const file = formData.get("resume");
@@ -70,7 +68,6 @@ async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
   };
 }
 
-// Main POST handler
 export async function POST(req: NextRequest) {
   try {
     // Get auth_token cookie
