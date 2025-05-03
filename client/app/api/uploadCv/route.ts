@@ -20,7 +20,6 @@ type UploadedFile = {
   size: number;
 };
 
-// Auth helper
 async function authenticateToken(token: string) {
   if (!token) throw new Error("No token provided");
 
@@ -34,7 +33,6 @@ async function authenticateToken(token: string) {
   }
 }
 
-// Convert request to FormData safely with file handling
 async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
   const formData = await req.formData();
   const file = formData.get("resume");
@@ -70,35 +68,30 @@ async function parseMultipartForm(req: NextRequest): Promise<UploadedFile> {
   };
 }
 
-// Main POST handler
 export async function POST(req: NextRequest) {
-  // Get auth token from cookies
-  const cookieStore = cookies();
-  const token = cookieStore.get('auth_token')?.value;
-  
-  // Verify authentication
-  if (!token) {
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-  }
-  
   try {
-    // Authenticate user
+    // 🔐 Step 1: Authenticate first (before parsing/uploading)
+    const cookieStore = cookies();
+    const token = cookieStore.get("auth_token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
+
     const user = await authenticateToken(token);
 
-    // Parse the file and check validations
+    // 📄 Step 2: Handle form and file
     const uploadedFile = await parseMultipartForm(req);
 
-    // Upload the file to Cloudinary
+    // ☁️ Step 3: Upload to Cloudinary
     const cloudRes = await cloudinary.uploader.upload(uploadedFile.filepath, {
       folder: "cv-reviewer",
       resource_type: "raw",
       public_id: uploadedFile.originalFilename.replace(/\.[^/.]+$/, ""),
     });
 
-    // Cleanup local file
+    // 🧹 Step 4: Clean up and write to DB
     await fs.unlink(uploadedFile.filepath);
 
-    // Store in DB
     await prisma.resume.create({
       data: {
         fileUrl: cloudRes.secure_url,
@@ -110,6 +103,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: err.message || "Server error occurred" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });
   }
 }
