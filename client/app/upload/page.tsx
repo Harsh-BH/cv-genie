@@ -65,6 +65,7 @@ export default function UploadPage() {
     formData.append("resume", file);
   
     try {
+      // Make the API request
       const response = await axios.post("/api/uploadCv", formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -78,6 +79,7 @@ export default function UploadPage() {
         },
       });
   
+      // Check if upload was successful
       if (response.data.success) {
         setUploadProgress(100);
         setTimeout(() => {
@@ -92,8 +94,11 @@ export default function UploadPage() {
   
     } catch (err) {
       let errorMessage = 'Failed to upload CV. Please try again.';
+      
+      // Handle specific Axios errors
       if (axios.isAxiosError(err)) {
         if (err.response) {
+          // Handle different status codes
           switch (err.response.status) {
             case 400:
               errorMessage = err.response.data.error || 'Invalid request';
@@ -114,15 +119,20 @@ export default function UploadPage() {
               errorMessage = err.response.data?.error || 'Server error occurred';
           }
         } else if (err.request) {
+          // If no response was received, it might be a network error
           errorMessage = 'Network error. Please check your connection';
         }
       }
+  
+      // Display error message via toast
       toast.error(errorMessage);
       setUploadProgress(0);
     } finally {
+      // Set uploading state to false after the upload is complete or failed
       setTimeout(() => setUploading(false), 500);
     }
   };
+  
   
 
   // Text scramble effect for title
