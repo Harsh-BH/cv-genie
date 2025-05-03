@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../hooks/useAuth';
+import { useRouter } from 'next/navigation';
 import {
   UploadIcon,
   SuccessIcon,
@@ -21,58 +23,18 @@ import {
   ServerProcessingAnimation,
   GradientRing
 } from './animationsofUpload';
-import { withAuth, validateSession } from '../../utils/authUtils';
 
 export default function UploadPage() {
+  const { isAuthenticated, isLoading, authFetch } = useAuth();
   const [dragActive, setDragActive] = useState(false);
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'processing' | 'success'>('idle');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [fileName, setFileName] = useState('');
   const [fileSize, setFileSize] = useState(0);
   const [uploadError, setUploadError] = useState('');
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [authError, setAuthError] = useState('');
+  const router = useRouter();
 
-  // Check authentication status when component mounts
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        console.log("Checking session validity...");
-        const isValid = await validateSession();
-        
-        if (!isValid) {
-          console.log("Authentication required, preparing to redirect...");
-          setAuthError('Authentication required. Please log in.');
-          
-          // Short delay before redirect to show the message
-          setTimeout(() => {
-            window.location.href = '/login?redirect=/upload';
-          }, 2000);
-        } else {
-          console.log("Authentication valid");
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setAuthError('Error checking authentication status.');
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    }
-    
-    checkAuth();
-  }, []);
-
-  // Progress simulation for processing stage
-  useEffect(() => {
-    if (uploadState === 'processing') {
-      // Simulate processing time
-      const timeout = setTimeout(() => {
-        setUploadState('success');
-      }, 3000);
-      
-      return () => clearTimeout(timeout);
-    }
-  }, [uploadState]);
+  // Remove the separate checkAuth effect - rely on useAuth's built-in verification
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -125,48 +87,58 @@ export default function UploadPage() {
         });
       }, 300);
       
-      // Use our withAuth helper to handle authentication
-      const data = await withAuth(async () => {
+      try {
+        // Note: for FormData we need to override the Content-Type header
         const response = await fetch('/api/uploadCv', {
           method: 'POST',
           body: formData,
-          credentials: 'include', // This ensures cookies are sent with the request
+          credentials: 'include', // Include cookies
         });
         
+        clearInterval(progressInterval);
+        
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Upload failed');
+          // Handle 401 errors specially
+          if (response.status === 401) {
+            throw new Error('Authentication required. Please log in again.');
+          }
+          
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Upload failed with status ${response.status}`);
         }
         
-        return await response.json();
-      });
-      
-      clearInterval(progressInterval);
-      
-      // Set progress to 100% when upload is complete
-      setUploadProgress(100);
-      
-      // Transition to processing state after a short delay
-      setTimeout(() => {
-        setUploadState('processing');
-      }, 500);
+        // Set progress to 100% when upload is complete
+        setUploadProgress(100);
+        
+        // Transition to processing state after a short delay
+        setTimeout(() => {
+          setUploadState('processing');
+        }, 500);
+        
+        // Get the response data
+        const data = await response.json();
+        
+        // Simulate processing and move to success
+        setTimeout(() => {
+          setUploadState('success');
+        }, 3000);
+        
+      } catch (error: any) {
+        clearInterval(progressInterval);
+        console.error('Error uploading file:', error);
+        setUploadError(error instanceof Error ? error.message : 'Unknown error');
+        resetUpload();
+        
+        // If authentication error, redirect to login
+        if (error.message.includes('Authentication required')) {
+          router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+        }
+      }
       
     } catch (error: any) {
-      clearInterval(progressInterval);
-      console.error('Error uploading file:', error);
+      console.error('File handling error:', error);
       setUploadError(error instanceof Error ? error.message : 'Unknown error');
       resetUpload();
-      
-      // If it's an authentication error, show a message and redirect
-      if (error instanceof Error && 
-          (error.message.includes('Authentication required') || 
-           error.message.includes('Unauthorized'))) {
-        alert('Your session has expired. You will be redirected to log in again.');
-        window.location.href = '/login?redirect=/upload';
-      } else {
-        // For other errors, just show an alert
-        alert(`Upload error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      }
     }
   };
 
@@ -189,17 +161,17 @@ export default function UploadPage() {
   return (
     <div className="relative min-h-screen w-full bg-gray-900 text-white flex items-center justify-center px-4 py-20 overflow-hidden">
       {/* Show loading indicator while checking authentication */}
-      {isCheckingAuth ? (
+      {isLoading ? (
         <div className="absolute inset-0 flex items-center justify-center z-50 bg-gray-900/80 backdrop-blur-sm">
           <div className="flex flex-col items-center">
             <LoadingSpinner size={48} />
             <p className="mt-4 text-xl">Verifying your session...</p>
           </div>
         </div>
-      ) : authError ? (
+      ) : !isAuthenticated ? (
         <div className="absolute inset-0 flex items-center justify-center z-50 bg-gray-900/80 backdrop-blur-sm">
           <div className="bg-gray-800 p-6 rounded-xl border border-red-500/30 max-w-md text-center">
-            <p className="text-red-400 text-lg mb-3">{authError}</p>
+            <p className="text-red-400 text-lg mb-3">Authentication required. Please log in.</p>
             <p className="text-gray-300 mb-5">Redirecting to login page...</p>
             <div className="flex justify-center">
               <LoadingSpinner size={32} />
