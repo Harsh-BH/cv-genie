@@ -1,11 +1,66 @@
+
+"use client"
 import Link from "next/link";
 import { Metadata } from "next";
 import { AnimatedBackground } from "@/components/auth/AnimatedBackground";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
-export const metadata: Metadata = {
-  title: "Authentication - CV Genie",
-  description: "Login or signup to CV Genie",
-};
+
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // useEffect only runs on the client, so now we can safely show the UI
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors hover:bg-gray-300 dark:hover:bg-gray-600"
+      aria-label="Toggle theme"
+    >
+      {theme === "dark" ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-5 h-5 text-yellow-400"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+          />
+        </svg>
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-5 h-5 text-blue-600"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+          />
+        </svg>
+      )}
+    </button>
+  );
+}
 
 export default function AuthLayout({
   children,
@@ -20,41 +75,45 @@ export default function AuthLayout({
       <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 z-10">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div className="flex flex-col items-center">
-            <Link href="/" className="flex items-center space-x-2 mb-6 group">
-              <div className="bg-blue-600 rounded-full p-2 transition-all duration-300 group-hover:scale-110">
-                <svg 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="text-white"
-                >
-                  <path 
-                    d="M12 2L2 7L12 12L22 7L12 2Z" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                  <path 
-                    d="M2 17L12 22L22 17" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                  <path 
-                    d="M2 12L12 17L22 12" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">CV Genie</span>
-            </Link>
+            <div className="flex w-full items-center justify-between">
+              <Link href="/" className="flex items-center space-x-2 group">
+                <div className="bg-blue-600 rounded-full p-2 transition-all duration-300 group-hover:scale-110">
+                  <svg 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="text-white"
+                  >
+                    <path 
+                      d="M12 2L2 7L12 12L22 7L12 2Z" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    />
+                    <path 
+                      d="M2 17L12 22L22 17" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    />
+                    <path 
+                      d="M2 12L12 17L22 12" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <span className="text-2xl font-bold text-gray-900 dark:text-white">CV Genie</span>
+              </Link>
+              
+              <ThemeToggle />
+            </div>
             <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent my-4" />
           </div>
           {children}
@@ -246,6 +305,38 @@ function MinimalistCVIllustration() {
                 animation: bubble 2.5s ease-in-out infinite;
                 transform-origin: center center;
               }
+              
+              :root.dark .cv-paper {
+                fill: #242424;
+              }
+              
+              :root.dark .cv-header {
+                fill: #333333;
+                stroke: #444444;
+              }
+              
+              :root.dark .cv-name, 
+              :root.dark .cv-section {
+                fill: #999999;
+              }
+              
+              :root.dark .cv-title,
+              :root.dark .cv-content {
+                fill: #555555;
+              }
+              
+              :root.dark .cv-skills {
+                fill: #333333;
+                stroke: #444444;
+              }
+              
+              :root.dark .result-circle {
+                fill: rgba(255,255,255,0.1);
+              }
+              
+              :root.dark .check-mark {
+                stroke: #cccccc;
+              }
             `}
           </style>
 
@@ -258,8 +349,8 @@ function MinimalistCVIllustration() {
               <feDropShadow dx="4" dy="6" stdDeviation="4" floodOpacity="0.2"/>
             </filter>
             <linearGradient id="paperGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ffffff"/>
-              <stop offset="100%" stopColor="#f5f5f5"/>
+              <stop offset="0%" stopColor="#ffffff" className="dark:!text-gray-800"/>
+              <stop offset="100%" stopColor="#f5f5f5" className="dark:!text-gray-900"/>
             </linearGradient>
           </defs>
           
@@ -589,7 +680,7 @@ function MinimalistCVIllustration() {
         {/* "CV Genie" text with 3D shadow */}
         <div className="absolute bottom-10 w-full text-center">
           <div className="inline-block">
-            <span className="text-2xl font-bold text-gray-800 drop-shadow-md">
+            <span className="text-2xl font-bold text-gray-800 dark:text-gray-200 drop-shadow-md">
               CV Genie
             </span>
           </div>

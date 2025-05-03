@@ -3,6 +3,7 @@ import { Inter, Outfit, Space_Grotesk } from "next/font/google";
 import "./globals.css"; // Import globals.css directly
 import "../styles/fonts.css";
 import "../styles/custom.css";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 // Load fonts
 const inter = Inter({ 
@@ -34,9 +35,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${outfit.variable} ${spaceGrotesk.variable} font-outfit bg-black text-white`}>
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
