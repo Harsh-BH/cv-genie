@@ -33,15 +33,16 @@ model User {
 }
 
 model Resume {
-  id         Int      @id @default(autoincrement())
-  fileUrl    String
-  fileName   String
-  uploadedAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  fileName  String
+  fileType  String
+  fileData  String   @db.Text      // For PostgreSQL - stores the Base64 encoded file
+  // fileData  String   @db.Text      // For PostgreSQL - uncomment if using PostgreSQL
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // Foreign key relation
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id])
+  @@index([userId])
 }
-
-
 

@@ -2155,26 +2155,32 @@ export namespace Prisma {
 
   export type ResumeMinAggregateOutputType = {
     id: number | null
-    fileUrl: string | null
     fileName: string | null
-    uploadedAt: Date | null
+    fileType: string | null
+    fileData: string | null
     userId: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type ResumeMaxAggregateOutputType = {
     id: number | null
-    fileUrl: string | null
     fileName: string | null
-    uploadedAt: Date | null
+    fileType: string | null
+    fileData: string | null
     userId: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type ResumeCountAggregateOutputType = {
     id: number
-    fileUrl: number
     fileName: number
-    uploadedAt: number
+    fileType: number
+    fileData: number
     userId: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -2191,26 +2197,32 @@ export namespace Prisma {
 
   export type ResumeMinAggregateInputType = {
     id?: true
-    fileUrl?: true
     fileName?: true
-    uploadedAt?: true
+    fileType?: true
+    fileData?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type ResumeMaxAggregateInputType = {
     id?: true
-    fileUrl?: true
     fileName?: true
-    uploadedAt?: true
+    fileType?: true
+    fileData?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type ResumeCountAggregateInputType = {
     id?: true
-    fileUrl?: true
     fileName?: true
-    uploadedAt?: true
+    fileType?: true
+    fileData?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -2302,10 +2314,12 @@ export namespace Prisma {
 
   export type ResumeGroupByOutputType = {
     id: number
-    fileUrl: string
     fileName: string
-    uploadedAt: Date
+    fileType: string
+    fileData: string
     userId: number
+    createdAt: Date
+    updatedAt: Date
     _count: ResumeCountAggregateOutputType | null
     _avg: ResumeAvgAggregateOutputType | null
     _sum: ResumeSumAggregateOutputType | null
@@ -2329,40 +2343,48 @@ export namespace Prisma {
 
   export type ResumeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    fileUrl?: boolean
     fileName?: boolean
-    uploadedAt?: boolean
+    fileType?: boolean
+    fileData?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["resume"]>
 
   export type ResumeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    fileUrl?: boolean
     fileName?: boolean
-    uploadedAt?: boolean
+    fileType?: boolean
+    fileData?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["resume"]>
 
   export type ResumeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    fileUrl?: boolean
     fileName?: boolean
-    uploadedAt?: boolean
+    fileType?: boolean
+    fileData?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["resume"]>
 
   export type ResumeSelectScalar = {
     id?: boolean
-    fileUrl?: boolean
     fileName?: boolean
-    uploadedAt?: boolean
+    fileType?: boolean
+    fileData?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type ResumeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fileUrl" | "fileName" | "uploadedAt" | "userId", ExtArgs["result"]["resume"]>
+  export type ResumeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fileName" | "fileType" | "fileData" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["resume"]>
   export type ResumeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -2380,10 +2402,12 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
-      fileUrl: string
       fileName: string
-      uploadedAt: Date
+      fileType: string
+      fileData: string
       userId: number
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["resume"]>
     composites: {}
   }
@@ -2809,10 +2833,12 @@ export namespace Prisma {
    */
   interface ResumeFieldRefs {
     readonly id: FieldRef<"Resume", 'Int'>
-    readonly fileUrl: FieldRef<"Resume", 'String'>
     readonly fileName: FieldRef<"Resume", 'String'>
-    readonly uploadedAt: FieldRef<"Resume", 'DateTime'>
+    readonly fileType: FieldRef<"Resume", 'String'>
+    readonly fileData: FieldRef<"Resume", 'String'>
     readonly userId: FieldRef<"Resume", 'Int'>
+    readonly createdAt: FieldRef<"Resume", 'DateTime'>
+    readonly updatedAt: FieldRef<"Resume", 'DateTime'>
   }
     
 
@@ -3256,10 +3282,12 @@ export namespace Prisma {
 
   export const ResumeScalarFieldEnum: {
     id: 'id',
-    fileUrl: 'fileUrl',
     fileName: 'fileName',
-    uploadedAt: 'uploadedAt',
-    userId: 'userId'
+    fileType: 'fileType',
+    fileData: 'fileData',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum]
@@ -3425,19 +3453,23 @@ export namespace Prisma {
     OR?: ResumeWhereInput[]
     NOT?: ResumeWhereInput | ResumeWhereInput[]
     id?: IntFilter<"Resume"> | number
-    fileUrl?: StringFilter<"Resume"> | string
     fileName?: StringFilter<"Resume"> | string
-    uploadedAt?: DateTimeFilter<"Resume"> | Date | string
+    fileType?: StringFilter<"Resume"> | string
+    fileData?: StringFilter<"Resume"> | string
     userId?: IntFilter<"Resume"> | number
+    createdAt?: DateTimeFilter<"Resume"> | Date | string
+    updatedAt?: DateTimeFilter<"Resume"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type ResumeOrderByWithRelationInput = {
     id?: SortOrder
-    fileUrl?: SortOrder
     fileName?: SortOrder
-    uploadedAt?: SortOrder
+    fileType?: SortOrder
+    fileData?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -3446,19 +3478,23 @@ export namespace Prisma {
     AND?: ResumeWhereInput | ResumeWhereInput[]
     OR?: ResumeWhereInput[]
     NOT?: ResumeWhereInput | ResumeWhereInput[]
-    fileUrl?: StringFilter<"Resume"> | string
     fileName?: StringFilter<"Resume"> | string
-    uploadedAt?: DateTimeFilter<"Resume"> | Date | string
+    fileType?: StringFilter<"Resume"> | string
+    fileData?: StringFilter<"Resume"> | string
     userId?: IntFilter<"Resume"> | number
+    createdAt?: DateTimeFilter<"Resume"> | Date | string
+    updatedAt?: DateTimeFilter<"Resume"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type ResumeOrderByWithAggregationInput = {
     id?: SortOrder
-    fileUrl?: SortOrder
     fileName?: SortOrder
-    uploadedAt?: SortOrder
+    fileType?: SortOrder
+    fileData?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: ResumeCountOrderByAggregateInput
     _avg?: ResumeAvgOrderByAggregateInput
     _max?: ResumeMaxOrderByAggregateInput
@@ -3471,10 +3507,12 @@ export namespace Prisma {
     OR?: ResumeScalarWhereWithAggregatesInput[]
     NOT?: ResumeScalarWhereWithAggregatesInput | ResumeScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"Resume"> | number
-    fileUrl?: StringWithAggregatesFilter<"Resume"> | string
     fileName?: StringWithAggregatesFilter<"Resume"> | string
-    uploadedAt?: DateTimeWithAggregatesFilter<"Resume"> | Date | string
+    fileType?: StringWithAggregatesFilter<"Resume"> | string
+    fileData?: StringWithAggregatesFilter<"Resume"> | string
     userId?: IntWithAggregatesFilter<"Resume"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Resume"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Resume"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -3549,55 +3587,69 @@ export namespace Prisma {
   }
 
   export type ResumeCreateInput = {
-    fileUrl: string
     fileName: string
-    uploadedAt?: Date | string
+    fileType: string
+    fileData: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutResumesInput
   }
 
   export type ResumeUncheckedCreateInput = {
     id?: number
-    fileUrl: string
     fileName: string
-    uploadedAt?: Date | string
+    fileType: string
+    fileData: string
     userId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ResumeUpdateInput = {
-    fileUrl?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    fileData?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutResumesNestedInput
   }
 
   export type ResumeUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
-    fileUrl?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    fileData?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ResumeCreateManyInput = {
     id?: number
-    fileUrl: string
     fileName: string
-    uploadedAt?: Date | string
+    fileType: string
+    fileData: string
     userId: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ResumeUpdateManyMutationInput = {
-    fileUrl?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    fileData?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ResumeUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
-    fileUrl?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    fileData?: StringFieldUpdateOperationsInput | string
     userId?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -3760,10 +3812,12 @@ export namespace Prisma {
 
   export type ResumeCountOrderByAggregateInput = {
     id?: SortOrder
-    fileUrl?: SortOrder
     fileName?: SortOrder
-    uploadedAt?: SortOrder
+    fileType?: SortOrder
+    fileData?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ResumeAvgOrderByAggregateInput = {
@@ -3773,18 +3827,22 @@ export namespace Prisma {
 
   export type ResumeMaxOrderByAggregateInput = {
     id?: SortOrder
-    fileUrl?: SortOrder
     fileName?: SortOrder
-    uploadedAt?: SortOrder
+    fileType?: SortOrder
+    fileData?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ResumeMinOrderByAggregateInput = {
     id?: SortOrder
-    fileUrl?: SortOrder
     fileName?: SortOrder
-    uploadedAt?: SortOrder
+    fileType?: SortOrder
+    fileData?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type ResumeSumOrderByAggregateInput = {
@@ -4023,16 +4081,20 @@ export namespace Prisma {
   }
 
   export type ResumeCreateWithoutUserInput = {
-    fileUrl: string
     fileName: string
-    uploadedAt?: Date | string
+    fileType: string
+    fileData: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ResumeUncheckedCreateWithoutUserInput = {
     id?: number
-    fileUrl: string
     fileName: string
-    uploadedAt?: Date | string
+    fileType: string
+    fileData: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ResumeCreateOrConnectWithoutUserInput = {
@@ -4066,10 +4128,12 @@ export namespace Prisma {
     OR?: ResumeScalarWhereInput[]
     NOT?: ResumeScalarWhereInput | ResumeScalarWhereInput[]
     id?: IntFilter<"Resume"> | number
-    fileUrl?: StringFilter<"Resume"> | string
     fileName?: StringFilter<"Resume"> | string
-    uploadedAt?: DateTimeFilter<"Resume"> | Date | string
+    fileType?: StringFilter<"Resume"> | string
+    fileData?: StringFilter<"Resume"> | string
     userId?: IntFilter<"Resume"> | number
+    createdAt?: DateTimeFilter<"Resume"> | Date | string
+    updatedAt?: DateTimeFilter<"Resume"> | Date | string
   }
 
   export type UserCreateWithoutResumesInput = {
@@ -4128,29 +4192,37 @@ export namespace Prisma {
 
   export type ResumeCreateManyUserInput = {
     id?: number
-    fileUrl: string
     fileName: string
-    uploadedAt?: Date | string
+    fileType: string
+    fileData: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ResumeUpdateWithoutUserInput = {
-    fileUrl?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    fileData?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ResumeUncheckedUpdateWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
-    fileUrl?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    fileData?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ResumeUncheckedUpdateManyWithoutUserInput = {
     id?: IntFieldUpdateOperationsInput | number
-    fileUrl?: StringFieldUpdateOperationsInput | string
     fileName?: StringFieldUpdateOperationsInput | string
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    fileData?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
