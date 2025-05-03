@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import IconMap from "@/components/IconMap";
 import AnimatedSvg from "@/components/AnimatedSvg";
 import pageData from "@/constants/pageData.json";
+import Link from "next/link";
 
 export default function Home() {
   const ref = useRef(null);
@@ -125,7 +126,9 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
+                <Link href="/upload" className="flex items-center">
                 {hero.primaryButton}
+                </Link>
               </motion.button>
               
               <motion.button 
@@ -498,7 +501,9 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {cta.buttonText}
+                <Link href="/upload" className="flex items-center">
+                  {cta.buttonText}
+                </Link>
               </motion.button>
               
               {/* Pulsing effect behind the button */}
