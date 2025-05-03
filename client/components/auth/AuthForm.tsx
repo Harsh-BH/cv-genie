@@ -14,6 +14,13 @@ interface AuthFormProps {
   type: "login" | "signup";
 }
 
+// Helper function to set cookie with expiration
+const setCookie = (name: string, value: string, days: number = 7) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+};
+
 export function AuthForm({ type }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [profileImage, setProfileImage] = useState<File | null>(null);
@@ -46,24 +53,35 @@ export function AuthForm({ type }: AuthFormProps) {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
+        // For debugging
+        console.log("Attempting login with email:", email);
+
         const response = await fetch("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email, password }),
+          // Important: include credentials to ensure cookies are sent/received
+          credentials: 'include'
         });
 
         const data = await response.json();
+        console.log("Login response:", data);
 
         if (!response.ok) {
           throw new Error(data.error || "Login failed");
         }
 
-        // Store token in localStorage
-        localStorage.setItem("token", data.data.token);
-        // Store user data
-        localStorage.setItem("user", JSON.stringify(data.data.user));
+        // No need to manually set the auth_token cookie
+        // The server has already set it as an HTTP-only cookie
+        
+        // Store user data in localStorage (if needed)
+        if (data.data && data.data.user) {
+          localStorage.setItem("user", JSON.stringify(data.data.user));
+        } else {
+          console.warn("User data not found in response");
+        }
 
         toast.success("Logged in successfully!");
         router.push("/");

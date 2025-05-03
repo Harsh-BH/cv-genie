@@ -4,6 +4,7 @@ import "./globals.css"; // Import globals.css directly
 import "../styles/fonts.css";
 import "../styles/custom.css";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { AuthProvider } from '@/lib/auth'; // This will now correctly import from auth.tsx
 
 // Load fonts
 const inter = Inter({ 
@@ -43,7 +44,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
