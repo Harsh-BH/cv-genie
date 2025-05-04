@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useParams } from "next/navigation";
 import CVDisplay from "@/components/reviewer/CVDisplay";
 import AnalysisSidebar from "@/components/reviewer/AnalysisSidebar";
 import mockReviewerData from "@/constants/reviewerData";
 
 export default function ReviewerPage() {
+  const params = useParams();
+  const resumeId = params.id as string;
+  
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [activeElement, setActiveElement] = useState<{
     id: string;
@@ -14,7 +18,7 @@ export default function ReviewerPage() {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Simulate loading data
+  // Simulate loading data for the analysis part
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1500);
   }, []);
@@ -63,6 +67,7 @@ export default function ReviewerPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900/20 to-gray-900 text-white">
       {isLoading ? (
+        // ...existing code for loading animation...
         <motion.div
           className="h-screen flex flex-col items-center justify-center"
           variants={loadingVariants}
@@ -70,6 +75,7 @@ export default function ReviewerPage() {
           animate="visible"
           exit="exit"
         >
+          {/* ...existing loading animation code... */}
           <motion.div variants={itemVariants} className="mb-6">
             <svg
               className="w-16 h-16 text-purple-500"
@@ -119,6 +125,7 @@ export default function ReviewerPage() {
         <>
           {/* Header */}
           <header className="bg-black/30 backdrop-blur-md border-b border-white/10">
+            {/* ...existing header code... */}
             <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
@@ -167,7 +174,7 @@ export default function ReviewerPage() {
                 transition={{ delay: 0.1 }}
               >
                 <CVDisplay 
-                  cvUrl={mockReviewerData.cvUrl} 
+                  resumeId={resumeId} 
                   activeHighlight={activeItemId}
                   activeElement={activeElement}
                 />

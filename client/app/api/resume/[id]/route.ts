@@ -2,13 +2,15 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 
-export const runtime = "nodejs"; // 👈 Add this at the top of your file
+export const runtime = "nodejs";
+
 export async function GET(
     req: NextRequest,
     context: { params: { id: string } }
   ) {
     try{
-    const param = await context.params.id;
+    // Remove the incorrect 'await' here
+    const param = context.params.id;
     const resumeId = parseInt(param); 
 
     // 1️⃣ Extract and verify auth token
