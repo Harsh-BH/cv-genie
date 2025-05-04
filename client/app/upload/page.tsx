@@ -32,6 +32,7 @@ export default function UploadPage() {
   const [fileName, setFileName] = useState('');
   const [fileSize, setFileSize] = useState(0);
   const [uploadError, setUploadError] = useState('');
+  const [resumeId, setResumeId] = useState<number | null>(null);
   const router = useRouter();
 
   // Remove the separate checkAuth effect - rely on useAuth's built-in verification
@@ -110,13 +111,18 @@ export default function UploadPage() {
         // Set progress to 100% when upload is complete
         setUploadProgress(100);
         
+        // Get the response data
+        const data = await response.json();
+        
+        // Store the resume ID from the response
+        if (data.resumeId) {
+          setResumeId(data.resumeId);
+        }
+        
         // Transition to processing state after a short delay
         setTimeout(() => {
           setUploadState('processing');
         }, 500);
-        
-        // Get the response data
-        const data = await response.json();
         
         // Simulate processing and move to success
         setTimeout(() => {
@@ -148,6 +154,13 @@ export default function UploadPage() {
     setFileName('');
     setFileSize(0);
     setUploadError('');
+  };
+
+  // Navigate to review page
+  const handleReviewCV = () => {
+    if (resumeId) {
+      router.push(`/review/${resumeId}`);
+    }
   };
 
   // Requirements for upload checklist
@@ -329,14 +342,31 @@ export default function UploadPage() {
                             <EnhancedFileIcon fileName={fileName} fileSize={fileSize} />
                           </div>
                         )}
-                        <motion.button
-                          className="mt-6 px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-all"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={resetUpload}
-                        >
-                          Upload Another File
-                        </motion.button>
+                        <div className="mt-6 flex gap-4">
+                          <motion.button
+                            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-medium transition-all"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={resetUpload}
+                          >
+                            Upload Another File
+                          </motion.button>
+                          <motion.button
+                            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-lg text-white font-medium transition-all shadow-lg shadow-indigo-500/30"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={handleReviewCV}
+                            disabled={!resumeId}
+                          >
+                            <span className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M9 9a2 2 0 114 0 2 2 0 01-4 0z" />
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-2.261 2.26a1 1 0 101.414 1.415l2.261-2.261A4 4 0 1011 5z" clipRule="evenodd" />
+                              </svg>
+                              Review CV
+                            </span>
+                          </motion.button>
+                        </div>
                       </motion.div>
                     </>
                   )}
