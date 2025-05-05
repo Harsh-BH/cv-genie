@@ -3,17 +3,110 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import useSWR from "swr";
 
-interface UserProfileProps {
+const fetcher = (url: string) => 
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error('Failed to fetch user data');
+    return res.json();
+  });
+
+// Updated interface to match backend response
+interface UserData {
   user: {
+    id: number;
     name: string;
     email: string;
-    avatarUrl: string;
+    createdAt: string;
+    updatedAt: string;
+    avatar?: string; // Optional avatar field
   };
 }
 
-export default function UserProfile({ user }: UserProfileProps) {
+// SVG Avatar component that renders user initials
+const AvatarSvg = ({ name }: { name: string }) => {
+  const initials = name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2);
+
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      width="100%"
+      height="100%"
+      style={{ position: 'absolute', top: 0, left: 0 }}
+    >
+      <defs>
+        <linearGradient id="avatarGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#6D28D9" />
+          <stop offset="100%" stopColor="#8B5CF6" />
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="50" fill="url(#avatarGradient)" />
+      <text
+        x="50"
+        y="50"
+        textAnchor="middle"
+        dy="0.35em"
+        fill="#ffffff"
+        fontFamily="system-ui, -apple-system, sans-serif"
+        fontSize="40"
+        fontWeight="bold"
+      >
+        {initials}
+      </text>
+    </svg>
+  );
+};
+
+export default function UserProfile() {
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const { data, error, isLoading } = useSWR<UserData>('/api/auth/me', fetcher);
+
+  if (isLoading) {
+    return (
+      <div className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-purple-500/20 flex justify-center items-center h-48">
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-full bg-purple-700/30 h-12 w-12"></div>
+          <div className="flex-1 space-y-4 py-1">
+            <div className="h-4 bg-purple-700/30 rounded w-3/4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-purple-700/30 rounded"></div>
+              <div className="h-4 bg-purple-700/30 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-red-500/20 text-center">
+        <p className="text-red-400">Failed to load user profile</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-2 px-4 py-1 bg-red-600/30 hover:bg-red-600/50 rounded text-white text-sm"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  // If data is available, use it
+  const user = data?.user;
+  
+  if (!user) {
+    return (
+      <div className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-yellow-500/20 text-center">
+        <p className="text-yellow-400">No user data found</p>
+      </div>
+    );
+  }
 
   return (
     <motion.div 
@@ -26,13 +119,19 @@ export default function UserProfile({ user }: UserProfileProps) {
           whileTap={{ scale: 0.95 }}
           className="relative w-16 h-16 overflow-hidden rounded-full border-2 border-purple-400"
         >
-          <Image 
-            src={user.avatarUrl} 
-            alt={user.name}
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-transparent" />
+          {user.avatar ? (
+            // Use the avatar from the API if available
+            <Image 
+              src={user.avatar} 
+              alt={user.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            // Fall back to SVG avatar if no avatar is provided
+            <AvatarSvg name={user.name} />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-transparent" />
         </motion.div>
         
         <div>
@@ -51,6 +150,14 @@ export default function UserProfile({ user }: UserProfileProps) {
             transition={{ delay: 0.3 }}
           >
             {user.email}
+          </motion.p>
+          <motion.p 
+            className="text-gray-400 text-xs mt-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Member since {new Date(user.createdAt).toLocaleDateString()}
           </motion.p>
         </div>
       </div>
