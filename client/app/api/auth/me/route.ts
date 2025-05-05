@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
         name: true,
         createdAt: true,
         updatedAt: true,
+        avatar: true, // Assuming you have an avatar field
         // Add other fields you want to return, excluding sensitive ones
       }
     });
