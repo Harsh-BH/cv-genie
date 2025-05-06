@@ -172,7 +172,7 @@ export default function UploadPage() {
   ];
 
   return (
-    <div className="relative min-h-screen w-full bg-black text-white flex items-center justify-center px-4 py-20 overflow-hidden">
+    <div className="relative min-h-screen w-full bg-black/80 text-white flex items-center justify-center px-4 py-20 overflow-hidden">
       {/* Show loading indicator while checking authentication */}
       {isLoading ? (
         <div className="absolute inset-0 flex items-center justify-center z-50 bg-gray-900/80 backdrop-blur-sm">
