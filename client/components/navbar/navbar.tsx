@@ -202,7 +202,7 @@ const Navbar = () => {
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <Link href="/dashboard" className="text-white w-[38px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105">
+                                <Link href="/dashboard" className="text-white w-[38px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black/30 shadow-md hover:shadow-pink-500/40 hover:scale-105">
                                     {
                                         avatar ? 
                                         <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full"/>
