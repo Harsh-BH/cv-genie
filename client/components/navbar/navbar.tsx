@@ -167,10 +167,10 @@ const Navbar = () => {
                     {isAuthenticated ? (
                         <>
                             <motion.div
-                                whileHover={{ scale: 1.05 }}
+                                whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <Link href="/about" className="text-white font-bold text-lg font-space-grotesk transition duration-200 border-[1.3px] border-pink-300 px-2 py-2 w-[100px] rounded-lg hover:text-pink-400 shadow-lg hover:shadow-pink-300/20 hover:border-white hover:bg-purple-900/10 hover:scale-105">About Us</Link>
+                                <button className="text-black font-bold text-lg font-space-grotesk transition duration-200 border-[1.3px] bg-white px-2 py-2 w-[100px] rounded-lg hover:text-pink-400 shadow-lg hover:shadow-pink-300/20 hover:border-white hover:scale-105">Log Out</button>
                             </motion.div>
                             <motion.button 
                                 className="px-2 py-3 w-[100px] flex justify-center bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg text-white font-bold text-md shadow-lg hover:border-2 border-white hover:shadow-pink-500/30 transition-all duration-200"
