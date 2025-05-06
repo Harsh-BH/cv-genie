@@ -65,6 +65,61 @@ const AvatarSvg = ({ name }: { name: string }) => {
 export default function UserProfile() {
   const [showResetPassword, setShowResetPassword] = useState(false);
   const { data, error, isLoading } = useSWR<UserData>('/api/auth/me', fetcher);
+  
+  // New state variables for password reset
+  const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState("");
+  const [resetSuccess, setResetSuccess] = useState("");
+
+  // Handle password reset
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      setResetError("Email is required");
+      return;
+    }
+    
+    if (!newPassword) {
+      setResetError("New password is required");
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      setResetError("Password must be at least 6 characters");
+      return;
+    }
+    
+    setResetLoading(true);
+    setResetError("");
+    setResetSuccess("");
+    
+    try {
+      const response = await fetch('/api/auth/forgetpswd', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, newPassword }),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to reset password");
+      }
+      
+      setResetSuccess("Password updated successfully!");
+      setNewPassword("");
+      setTimeout(() => setShowResetPassword(false), 3000);
+    } catch (err: any) {
+      setResetError(err.message || "Something went wrong");
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -108,6 +163,11 @@ export default function UserProfile() {
     );
   }
 
+  // Set email from user data when it's available and reset form is displayed
+  if (user && showResetPassword && !email) {
+    setEmail(user.email);
+  }
+
   return (
     <motion.div 
       className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-purple-500/20"
@@ -120,7 +180,6 @@ export default function UserProfile() {
           className="relative w-16 h-16 overflow-hidden rounded-full border-2 border-purple-400"
         >
           {user.avatar ? (
-            // Use the avatar from the API if available
             <Image 
               src={user.avatar} 
               alt={user.name}
@@ -128,7 +187,6 @@ export default function UserProfile() {
               className="object-cover"
             />
           ) : (
-            // Fall back to SVG avatar if no avatar is provided
             <AvatarSvg name={user.name} />
           )}
           <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-transparent" />
@@ -176,7 +234,16 @@ export default function UserProfile() {
         </motion.div>
         
         <motion.button 
-          onClick={() => setShowResetPassword(!showResetPassword)}
+          onClick={() => {
+            setShowResetPassword(!showResetPassword);
+            setResetError("");
+            setResetSuccess("");
+            
+            // Initialize email with user's email when opening the form
+            if (!showResetPassword && user) {
+              setEmail(user.email);
+            }
+          }}
           className="flex w-full items-center justify-between text-sm text-gray-300 hover:text-white transition-colors"
           whileHover={{ x: 5 }}
           whileTap={{ scale: 0.98 }}
@@ -196,25 +263,71 @@ export default function UserProfile() {
         </motion.button>
         
         {showResetPassword && (
-          <motion.div 
+          <motion.form 
+            onSubmit={handlePasswordReset}
             className="mt-4 p-4 bg-gray-700/50 rounded-lg"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
           >
             <p className="text-sm text-gray-300 mb-2">Enter your email to reset your password</p>
+            
+            {resetError && (
+              <div className="mb-3 text-red-400 text-sm bg-red-500/20 p-2 rounded">
+                {resetError}
+              </div>
+            )}
+            
+            {resetSuccess && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mb-3 text-green-400 text-sm bg-green-500/20 p-2 rounded"
+              >
+                {resetSuccess}
+              </motion.div>
+            )}
+            
             <input 
               type="email" 
-              defaultValue={user.email}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white mb-2"
+              disabled={resetLoading}
+              required
             />
+            
+            <input 
+              type="password"
+              placeholder="New Password" 
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white mb-2"
+              disabled={resetLoading}
+              required
+              minLength={6}
+            />
+            
             <motion.button 
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded text-sm"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              type="submit"
+              className={`w-full ${resetLoading 
+                ? 'bg-purple-600/50' 
+                : 'bg-purple-600 hover:bg-purple-700'
+              } text-white py-2 rounded text-sm flex items-center justify-center`}
+              whileHover={!resetLoading ? { scale: 1.02 } : {}}
+              whileTap={!resetLoading ? { scale: 0.98 } : {}}
+              disabled={resetLoading}
             >
-              Send Reset Link
+              {resetLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Updating...
+                </>
+              ) : "Update Password"}
             </motion.button>
-          </motion.div>
+          </motion.form>
         )}
       </div>
     </motion.div>
