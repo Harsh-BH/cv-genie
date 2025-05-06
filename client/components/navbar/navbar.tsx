@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getCookie } from 'cookies-next';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { FaCircleUser } from "react-icons/fa6";
 
 const Navbar = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -190,7 +191,7 @@ const Navbar = () => {
                                         avatar ? 
                                         <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full"/>
                                         :
-                                        <div></div>
+                                        <div className="text-[34.98px] text-white/60"><FaCircleUser /></div>
                                     }
                                 </Link>
                             </motion.div>
