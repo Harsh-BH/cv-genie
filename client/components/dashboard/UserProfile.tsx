@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import useSWR from "swr";
@@ -69,6 +69,7 @@ export default function UserProfile() {
   // New state variables for password reset
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState("");
   const [resetSuccess, setResetSuccess] = useState("");
@@ -77,11 +78,6 @@ export default function UserProfile() {
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email) {
-      setResetError("Email is required");
-      return;
-    }
-    
     if (!newPassword) {
       setResetError("New password is required");
       return;
@@ -89,6 +85,11 @@ export default function UserProfile() {
     
     if (newPassword.length < 6) {
       setResetError("Password must be at least 6 characters");
+      return;
+    }
+
+    if( newPassword !== confirmPassword) {
+      setResetError("Passwords do not match");
       return;
     }
     
@@ -102,7 +103,7 @@ export default function UserProfile() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, newPassword }),
+        body: JSON.stringify({ email: data?.user.email, newPassword: newPassword }),
       });
       
       const result = await response.json();
@@ -113,6 +114,7 @@ export default function UserProfile() {
       
       setResetSuccess("Password updated successfully!");
       setNewPassword("");
+      setConfirmPassword("");
       setTimeout(() => setShowResetPassword(false), 3000);
     } catch (err: any) {
       setResetError(err.message || "Something went wrong");
@@ -154,6 +156,7 @@ export default function UserProfile() {
 
   // If data is available, use it
   const user = data?.user;
+
   
   if (!user) {
     return (
@@ -255,7 +258,7 @@ export default function UserProfile() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-400 mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
             </svg>
-            Forgot Password
+            Change Password
           </span>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -269,7 +272,7 @@ export default function UserProfile() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
           >
-            <p className="text-sm text-gray-300 mb-2">Enter your email to reset your password</p>
+            <p className="text-sm text-gray-300 mb-2">Change your password</p>
             
             {resetError && (
               <div className="mb-3 text-red-400 text-sm bg-red-500/20 p-2 rounded">
@@ -288,20 +291,22 @@ export default function UserProfile() {
             )}
             
             <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white mb-2"
-              disabled={resetLoading}
-              required
-            />
-            
-            <input 
               type="password"
               placeholder="New Password" 
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white mb-2"
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white mb-2 focus:outline-none focus:border-1 focus:border-white transition-all"
+              disabled={resetLoading}
+              required
+              minLength={6}
+            />
+
+            <input 
+              type="password"
+              placeholder="Confirm Password" 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white mb-2 focus:outline-none focus:border-1 focus:border-white transition-all"
               disabled={resetLoading}
               required
               minLength={6}
