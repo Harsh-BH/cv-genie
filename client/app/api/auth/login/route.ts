@@ -57,15 +57,28 @@ export async function POST(req: NextRequest) {
     
     // Set HTTP-only cookie with the JWT token
     // maxAge is in seconds: 7 days = 7 * 24 * 60 * 60 = 604800 seconds
+    // Set HTTP-only cookie with the JWT token
     response.cookies.set({
       name: 'auth_token',
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
+      maxAge: 604800, // 7 days
+      path: '/',
+    });
+
+    // 👇 Set a non-HttpOnly cookie for client-side UI login state
+    response.cookies.set({
+      name: 'isLoggedIn',
+      value: 'true',
+      httpOnly: false, // Allow client-side access
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: 604800,
       path: '/',
     });
+
 
     return response;
     
