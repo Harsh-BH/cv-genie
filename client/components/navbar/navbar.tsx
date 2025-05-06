@@ -19,6 +19,22 @@ const Navbar = () => {
         setHydrated(true);
     }, []);
 
+    const Logout = async () => {
+        const res = await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const data = await res.json();
+        console.log(data);
+        if(data.success) {
+            setIsAuthenticated(false);
+            window.location.href = '/';
+        }
+    }
+
     const getUserDetails = async () => {
         const res = await fetch('/api/auth/me', {
             method: 'GET',
@@ -171,7 +187,7 @@ const Navbar = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <button className="text-black font-bold text-lg font-space-grotesk transition duration-200 border-[1.3px] bg-white px-2 py-2 w-[100px] rounded-lg hover:text-pink-400 shadow-lg hover:shadow-pink-300/20 hover:border-white hover:scale-105">Log Out</button>
+                                <button onClick={Logout} className="text-black font-bold text-lg font-space-grotesk transition duration-200 border-[1.3px] bg-white px-2 py-2 w-[100px] rounded-lg hover:text-pink-400 shadow-lg hover:shadow-pink-300/20 hover:border-white hover:scale-105">Log Out</button>
                             </motion.div>
                             <motion.button 
                                 className="px-2 py-3 w-[100px] flex justify-center bg-gradient-to-r from-pink-500 to-purple-600 rounded-lg text-white font-bold text-md shadow-lg hover:border-2 border-white hover:shadow-pink-500/30 transition-all duration-200"
