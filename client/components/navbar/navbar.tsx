@@ -101,7 +101,7 @@ const Navbar = () => {
     return (
         <div className="p-2 absolute z-50 w-full flex justify-center items-center">
             <motion.nav 
-                className="flex h-[80px] w-full max-w-[2000px] bg-white dark:bg-pink-700/10 rounded-2xl backdrop-blur-2xl shadow-md items-center justify-between px-8 border-white/10 border-1 overflow-hidden"
+                className="flex h-[80px] w-full max-w-[2000px] bg-pink-700/10 rounded-2xl backdrop-blur-2xl shadow-md items-center justify-between px-8 border-white/10 border-1 overflow-hidden"
                 initial={{ opacity: 0, y: -50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
