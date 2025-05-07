@@ -11,6 +11,7 @@ const Navbar = () => {
     const [hydrated, setHydrated] = useState(false);
     const [avatar, setAvatar] = useState('');
     const [userName, setUserName] = useState('');
+    const [useremail, setUseremail] = useState('');
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
@@ -49,6 +50,7 @@ const Navbar = () => {
             console.log(data.user.avatar);
             setAvatar(data.user.avatar);
             setUserName(data.user.name.split(' ')[0]);
+            setUseremail(data.user.email);
         }
     }
 
@@ -101,7 +103,7 @@ const Navbar = () => {
     return (
         <div className="p-2 absolute z-50 w-full flex justify-center items-center">
             <motion.nav 
-                className="flex h-[80px] w-full max-w-[2000px] bg-pink-700/10 rounded-2xl backdrop-blur-2xl shadow-md items-center justify-between px-8 border-white/10 border-1 overflow-hidden"
+                className="flex h-[80px] w-full max-w-[2000px] bg-pink-700/10 rounded-2xl backdrop-blur-2xl shadow-md items-center justify-between px-8 border-white/10 border-1 overflow-visible"
                 initial={{ opacity: 0, y: -50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
@@ -180,7 +182,7 @@ const Navbar = () => {
                     </motion.span>
                 </Link>
 
-                <div className="flex gap-4 justify-center items-center relative z-10">
+                <div className="flex gap-4 justify-center items-center relative z-10 overflow-visible">
                     {isAuthenticated ? (
                         <>
                             <motion.div
@@ -201,14 +203,20 @@ const Navbar = () => {
                             <motion.div
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.95 }}
+                                className="relative overflow-visible"
                             >
-                                <Link href="/dashboard" className="text-white w-[38px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105">
-                                    {
-                                        avatar ? 
-                                        <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full"/>
-                                        :
-                                        <div className="text-[34.98px] text-white/60"><FaCircleUser /></div>
-                                    }
+                                <Link href="/dashboard" className="text-white w-[38px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105 overflow-visible">
+                                    <div className="relative group overflow-visible">
+                                        {avatar ? 
+                                            <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full"/>
+                                            :
+                                            <div className="text-[34.98px] text-white/60"><FaCircleUser /></div>
+                                        }
+                                        <div className="absolute opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 bg-pink-700/20 backdrop-blur-xl text-white p-3 rounded-lg right-0 top-full mt-2 z-50 border border-white/10 shadow-lg min-w-[150px] pointer-events-none w-max">
+                                            <p className="font-bold text-md">{userName}</p>
+                                            <p className="text-sm text-gray-200">{useremail}</p>
+                                        </div>
+                                    </div>
                                 </Link>
                             </motion.div>
                         </>
