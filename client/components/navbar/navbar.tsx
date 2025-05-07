@@ -28,7 +28,7 @@ const Navbar = () => {
         });
 
         const data = await res.json();
-        console.log(data);
+
         if(data.success) {
             setIsAuthenticated(false);
             window.location.href = '/';
@@ -44,9 +44,7 @@ const Navbar = () => {
         });
 
         const data = await res.json();
-        console.log(data);
         if(data.status === 200) {
-            console.log(data.user.avatar);
             setAvatar(data.user.avatar);
             setUserName(data.user.name.split(' ')[0]);
         }
