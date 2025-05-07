@@ -24,77 +24,25 @@ model User {
   name      String?
   email     String?  @unique
   password  String?
-  avatar    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  avatar String?
 
   // Relation to Resume
   resumes   Resume[]
 }
 
 model Resume {
-  id             Int      @id @default(autoincrement())
-  fileName       String
-  fileType       String
-  fileData       String   @db.Text      // For PostgreSQL - stores the Base64 encoded file
-  userId         Int
-  user           User     @relation(fields: [userId], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  // Profile summary moved to resume level since it's resume-specific
-  profileSummary String?  @db.Text
-
-  sections        ResumeSection[]
-  analyses        ResumeAnalysis[]
-
-  @@index([userId])
-}
-
-// New model for resume sections
-model ResumeSection {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String   @db.Text
-  orderIndex Int
-  resumeId  Int
-  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  fileName  String
+  fileType  String
+  fileData  String   @db.Text      // For PostgreSQL - stores the Base64 encoded file
+  // fileData  String   @db.Text      // For PostgreSQL - uncomment if using PostgreSQL
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([resumeId])
-}
-
-model ResumeAnalysis {
-  id                    Int      @id @default(autoincrement())
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  resumeId              Int
-  resume                Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  
-  executiveSummary      String   @db.Text
-  overview              String?  @db.Text
-  contentQuality        String?  @db.Text
-  atsCompatibility      String?  @db.Text
-  industryFit           String?  @db.Text
-  formattingReview      String?  @db.Text
-  skillsAnalysis        String?  @db.Text
-  careerTrajectory      String?  @db.Text
-  improvementSuggestions String?  @db.Text
-  
-  overallScore          Float
-  contentScore          Int
-  atsOptimizationScore  Int
-  industryAlignmentScore Int
-  formattingScore       Int
-  skillsScore           Int
-  
-  aiGeneratedImprovements Json?
-  positionedSuggestions   Json?
-  
-  status                String   @default("pending") // pending, processing, completed, failed
-
-  @@index([resumeId])
+  @@index([userId])
 }
 
