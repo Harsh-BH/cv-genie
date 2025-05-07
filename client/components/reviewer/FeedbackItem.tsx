@@ -6,112 +6,139 @@ import { motion } from "framer-motion";
 interface FeedbackItemProps {
   feedback: {
     id: string;
-    type: "mistake" | "improvement" | "insight";
     title: string;
     description: string;
-    elementId?: string;
-    bounds?: { x: number; y: number; width: number; height: number } | null;
-    severity?: "low" | "medium" | "high";
+    category: string;
+    type?: "insight" | "mistake" | "improvement";
+    severity?: string;
+    position?: any;
+    textSnippet?: string;
   };
   isActive: boolean;
   onActivate: (id: string, bounds?: { x: number; y: number; width: number; height: number } | null) => void;
 }
 
 export default function FeedbackItem({ feedback, isActive, onActivate }: FeedbackItemProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   
-  const typeColorMap = {
-    mistake: "border-red-500/70 bg-red-500/10",
-    improvement: "border-blue-500/70 bg-blue-500/10",
-    insight: "border-green-500/70 bg-green-500/10"
-  };
-  
-  const iconMap = {
-    mistake: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-      </svg>
-    ),
-    improvement: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-      </svg>
-    ),
-    insight: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-      </svg>
-    )
-  };
-  
-  const severityBadge = feedback.severity && (
-    <span className={`
-      text-xs px-2 py-1 rounded 
-      ${feedback.severity === 'high' ? 'bg-red-500/20 text-red-300' : ''} 
-      ${feedback.severity === 'medium' ? 'bg-yellow-500/20 text-yellow-300' : ''} 
-      ${feedback.severity === 'low' ? 'bg-green-500/20 text-green-300' : ''}
-    `}>
-      {feedback.severity.charAt(0).toUpperCase() + feedback.severity.slice(1)}
-    </span>
-  );
-
   const handleClick = () => {
-    setIsOpen(!isOpen);
-    onActivate(feedback.id, feedback.bounds || null);
+    setIsExpanded(!isExpanded);
+    onActivate(feedback.id);
   };
+  
+  // Determine icon and color based on feedback type
+  let icon;
+  let bgColor;
+  let bgColorHover;
+  
+  switch (feedback.type) {
+    case "insight":
+      icon = (
+        <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+      bgColor = "bg-blue-500/10";
+      bgColorHover = "hover:bg-blue-500/20";
+      break;
+    case "mistake":
+      icon = (
+        <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      );
+      bgColor = "bg-red-500/10";
+      bgColorHover = "hover:bg-red-500/20";
+      break;
+    case "improvement":
+      icon = (
+        <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+      bgColor = "bg-green-500/10";
+      bgColorHover = "hover:bg-green-500/20";
+      break;
+    default:
+      icon = (
+        <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      );
+      bgColor = "bg-purple-500/10";
+      bgColorHover = "hover:bg-purple-500/20";
+  }
+  
+  // Severity badge
+  let severityBadge = null;
+  if (feedback.severity) {
+    const severityColors = {
+      critical: "bg-red-500 text-white",
+      high: "bg-orange-500 text-white",
+      medium: "bg-yellow-500 text-black",
+      low: "bg-blue-500 text-white"
+    };
+    
+    const color = severityColors[feedback.severity as keyof typeof severityColors] || "bg-gray-500";
+    
+    severityBadge = (
+      <span className={`text-xs px-1.5 py-0.5 rounded-full ${color}`}>
+        {feedback.severity}
+      </span>
+    );
+  }
 
   return (
-    <motion.div 
-      layoutId={`feedback-${feedback.id}`}
-      onClick={handleClick}
-      className={`
-        mb-4 rounded-lg border p-4 cursor-pointer transition-all 
-        ${typeColorMap[feedback.type]} 
-        ${isActive ? 'ring-2 ring-purple-500/70 shadow-lg shadow-purple-500/20' : ''}
-      `}
-      whileHover={{ y: -2 }}
-      animate={{ scale: isActive ? 1.02 : 1 }}
+    <motion.div
+      layout
+      className={`mb-3 rounded-lg border transition-colors ${
+        isActive ? "border-white/20 " + bgColor : "border-white/10"
+      } ${bgColorHover}`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2 }}
     >
-      <div className="flex justify-between items-start">
-        <div className="flex items-center">
-          {iconMap[feedback.type]}
-          <h3 className="font-semibold text-white ml-2">{feedback.title}</h3>
-        </div>
-        <div className="flex items-center space-x-2">
-          {severityBadge}
-          <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white/70" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </motion.div>
-        </div>
-      </div>
-      
-      <motion.div 
-        initial={false}
-        animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
-        className="overflow-hidden mt-2"
+      <button
+        onClick={handleClick}
+        className="w-full text-left px-4 py-3"
       >
-        <p className="text-white/80 text-sm">{feedback.description}</p>
-        
-        {feedback.bounds && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              onActivate(feedback.id, feedback.bounds);
-            }}
-            className="mt-3 text-sm flex items-center px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full text-white/90 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-            </svg>
-            Locate on CV
-          </button>
-        )}
-      </motion.div>
+        <div className="flex items-start">
+          <div className="flex-shrink-0 mt-1">{icon}</div>
+          <div className="ml-3 flex-1">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm font-medium text-white">{feedback.title}</h3>
+              {severityBadge}
+            </div>
+            
+            {/* Show section and snippet for mistakes */}
+            {feedback.type === "mistake" && feedback.position && (
+              <div className="mb-1 text-xs text-white/60">
+                <span className="font-semibold">{feedback.position.sectionTitle}</span>
+                {feedback.textSnippet && (
+                  <span className="ml-2 italic">"{feedback.textSnippet}"</span>
+                )}
+              </div>
+            )}
+            
+            <motion.div
+              className="text-xs text-white/70"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{
+                height: isExpanded ? "auto" : 0,
+                opacity: isExpanded ? 1 : 0,
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              {isExpanded && (
+                <p className="pt-2">
+                  {feedback.description}
+                </p>
+              )}
+            </motion.div>
+          </div>
+        </div>
+      </button>
     </motion.div>
   );
 }
