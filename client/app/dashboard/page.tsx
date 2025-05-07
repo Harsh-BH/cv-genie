@@ -28,9 +28,9 @@ export default function DashboardPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900"
+      className="min-h-[980px] overflow-hidden lg:min-h-screen flex lg:justify-center lg:items-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900"
     >
-      <div className="container mx-auto px-4 py-8 relative top-20">
+      <div className="container mx-auto px-4 py-8 relative lg:top-0 top-20">
         <motion.div
           initial={{ y: -20 }}
           animate={{ y: 0 }}
