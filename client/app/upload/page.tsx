@@ -159,7 +159,8 @@ export default function UploadPage() {
   // Navigate to review page
   const handleReviewCV = () => {
     if (resumeId) {
-      router.push(`/review/${resumeId}`);
+      // Add newUpload=true query parameter to indicate we should start analysis immediately
+      router.push(`/review/${resumeId}?newUpload=true`);
     }
   };
 

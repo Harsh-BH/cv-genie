@@ -125,9 +125,9 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  avatar: 'avatar',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  avatar: 'avatar'
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.ResumeScalarFieldEnum = {
@@ -137,12 +137,53 @@ exports.Prisma.ResumeScalarFieldEnum = {
   fileData: 'fileData',
   userId: 'userId',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  profileSummary: 'profileSummary'
+};
+
+exports.Prisma.ResumeSectionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  orderIndex: 'orderIndex',
+  resumeId: 'resumeId',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ResumeAnalysisScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  resumeId: 'resumeId',
+  executiveSummary: 'executiveSummary',
+  overview: 'overview',
+  contentQuality: 'contentQuality',
+  atsCompatibility: 'atsCompatibility',
+  industryFit: 'industryFit',
+  formattingReview: 'formattingReview',
+  skillsAnalysis: 'skillsAnalysis',
+  careerTrajectory: 'careerTrajectory',
+  improvementSuggestions: 'improvementSuggestions',
+  overallScore: 'overallScore',
+  contentScore: 'contentScore',
+  atsOptimizationScore: 'atsOptimizationScore',
+  industryAlignmentScore: 'industryAlignmentScore',
+  formattingScore: 'formattingScore',
+  skillsScore: 'skillsScore',
+  aiGeneratedImprovements: 'aiGeneratedImprovements',
+  positionedSuggestions: 'positionedSuggestions',
+  status: 'status'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -155,10 +196,18 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Resume: 'Resume'
+  Resume: 'Resume',
+  ResumeSection: 'ResumeSection',
+  ResumeAnalysis: 'ResumeAnalysis'
 };
 
 /**

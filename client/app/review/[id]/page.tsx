@@ -1,27 +1,367 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import CVDisplay from "@/components/reviewer/CVDisplay";
 import AnalysisSidebar from "@/components/reviewer/AnalysisSidebar";
-import mockReviewerData from "@/constants/reviewerData";
+import { AnalysisData, SidebarFeedback } from "@/types/analysis";
+
+// Mapping function to convert API data to sidebar format
+function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback {
+  // Extract insights (positive aspects)
+  const insights = [
+    {
+      id: "exec-summary",
+      title: "Executive Summary",
+      description: analysisData.executiveSummary,
+      category: "overall"
+    },
+    {
+      id: "content-strength",
+      title: "Content Strengths",
+      description: extractPositiveFeedback(analysisData.overview),
+      category: "content"
+    },
+    {
+      id: "industry-alignment",
+      title: "Industry Alignment",
+      description: extractPositiveFeedback(analysisData.industryFit),
+      category: "industry"
+    }
+  ];
+  
+  // Map positioned suggestions (primarily mistakes) to sidebar format
+  const mistakes = analysisData.positionedSuggestions
+    .filter(sugg => sugg.severity === 'critical' || sugg.severity === 'high')
+    .map(sugg => ({
+      id: sugg.id,
+      title: sugg.issue,
+      description: sugg.reasoning,
+      category: sugg.category,
+      severity: sugg.severity,
+      position: sugg.position,
+      section: sugg.position.sectionTitle || '',
+      textSnippet: sugg.position.textSnippet || ''
+    }));
+    
+  // Map improvement suggestions to sidebar format
+  const improvements = [
+    // Add AI generated improvements
+    ...(analysisData.aiGeneratedImprovements?.summary ? [{
+      id: "ai-summary",
+      title: "Improved Professional Summary",
+      description: analysisData.aiGeneratedImprovements.summary,
+      category: "content",
+      type: "replacement"
+    }] : []),
+    
+    ...((analysisData.aiGeneratedImprovements?.bulletPoints || []).map((bullet, idx) => ({
+      id: `ai-bullet-${idx}`,
+      title: "Enhanced Bullet Point",
+      description: bullet,
+      category: "content",
+      type: "replacement"
+    }))),
+    
+    ...((analysisData.aiGeneratedImprovements?.achievements || []).map((achievement, idx) => ({
+      id: `ai-achievement-${idx}`,
+      title: "Achievement to Add",
+      description: achievement,
+      category: "content",
+      type: "addition"
+    }))),
+    
+    // Add medium/low severity positioned suggestions as improvements
+    ...(analysisData.positionedSuggestions
+      .filter(sugg => sugg.severity === 'medium' || sugg.severity === 'low')
+      .map(sugg => ({
+        id: sugg.id,
+        title: sugg.suggestion,
+        description: sugg.exampleFix || sugg.reasoning,
+        category: sugg.category,
+        severity: sugg.severity,
+        position: sugg.position,
+        type: "suggestion"
+      })))
+  ];
+  
+  // Calculate overall score (0-100)
+  const score = Math.round(analysisData.scoreBreakdown.overall * 10);
+  
+  return {
+    insights,
+    mistakes,
+    improvements,
+    score
+  };
+}
+
+// Helper function to extract positive aspects from analysis text
+function extractPositiveFeedback(text: string): string {
+  // Look for positive sections in the text (strengths, positives, etc.)
+  const strengthsMatch = text?.match(/strengths?:[\s\S]*?((\n\n)|$)/i) || 
+                         text?.match(/positive[\s\S]*?((\n\n)|$)/i);
+  
+  if (strengthsMatch) {
+    return strengthsMatch[0].trim();
+  }
+  
+  // If no clear positive section, return first paragraph
+  const firstParagraph = text?.split('\n\n')[0] || '';
+  return firstParagraph.trim();
+}
 
 export default function ReviewerPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const resumeId = params.id as string;
+  const isNewUpload = searchParams.get('newUpload') === 'true';
   
+  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [sidebarData, setSidebarData] = useState<SidebarFeedback | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [activeElement, setActiveElement] = useState<{
     id: string;
     bounds: { x: number; y: number; width: number; height: number } | null;
   } | null>(null);
+  
+  // Analysis state tracking
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState<string | null>(null);
+  const [analysisId, setAnalysisId] = useState<number | null>(null);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState(10); // Initial progress value
 
-  // Simulate loading data for the analysis part
+  // Add a ref to track if analysis has already been triggered
+  const analysisTriggeredRef = useRef(false);
+
+  // Function to check analysis status
+  const checkAnalysisStatus = useCallback(async (id: number) => {
+    if (!id) return;
+    
+    try {
+      const response = await fetch(`/api/analysis-status?id=${id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Status check failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      setAnalysisStatus(data.status);
+      
+      // Update progress based on status
+      if (data.status === 'processing') {
+        // Incrementally increase progress while processing
+        setAnalysisProgress(prev => Math.min(prev + 5, 70));
+      } else if (data.status === 'completed') {
+        setAnalysisProgress(90);
+        
+        // If completed, clear polling and fetch the results
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          setPollingInterval(null);
+        }
+        
+        // Fetch the analysis results
+        fetchAnalysisResults();
+      } else if (data.status === 'failed') {
+        // Handle failure
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          setPollingInterval(null);
+        }
+        throw new Error("Analysis failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error checking analysis status:", err);
+      setError(`Analysis status check error: ${(err as Error).message}`);
+      setIsLoading(false);
+      
+      // Clear polling on error
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+        setPollingInterval(null);
+      }
+    }
+  }, [pollingInterval]); // Only depend on pollingInterval
+
+  // Start polling for analysis status
+  const startPolling = useCallback((id: number) => {
+    // Clear any existing polling
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+    
+    // Check status immediately
+    checkAnalysisStatus(id);
+    
+    // Set up polling interval (every 5 seconds)
+    const interval = setInterval(() => {
+      checkAnalysisStatus(id);
+    }, 5000);
+    
+    setPollingInterval(interval);
+    
+  }, [checkAnalysisStatus, pollingInterval]);
+
+  // Function to trigger analysis
+  const triggerAnalysis = useCallback(async () => {
+    // Prevent multiple triggers
+    if (analysisTriggeredRef.current) {
+      console.log("Analysis already triggered, skipping");
+      return;
+    }
+    
+    try {
+      analysisTriggeredRef.current = true;
+      setIsLoading(true);
+      setAnalysisStatus('pending');
+      setAnalysisProgress(15);
+      setError(null);
+      
+      console.log("Triggering analysis for resume:", resumeId);
+      
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ resumeId: parseInt(resumeId) })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to start analysis');
+      }
+      
+      const data = await response.json();
+      
+      setAnalysisId(data.analysisId);
+      setAnalysisStatus(data.status);
+      setAnalysisProgress(25);
+      
+      // Start polling for status updates
+      startPolling(data.analysisId);
+      
+    } catch (err) {
+      console.error("Error triggering analysis:", err);
+      setError(`Failed to start analysis: ${(err as Error).message}`);
+      setIsLoading(false);
+      // Reset the flag on error so user can try again
+      analysisTriggeredRef.current = false;
+    }
+  }, [resumeId]); // Only depend on resumeId
+
+  // Function to fetch analysis results
+  const fetchAnalysisResults = useCallback(async () => {
+    try {
+      setAnalysisProgress(95); // Almost done
+      
+      const response = await fetch(`/api/review/${resumeId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch analysis results: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      setAnalysisData(data.analysis);
+      
+      // Convert API data to sidebar format
+      const formattedData = mapApiDataToSidebarFormat(data.analysis);
+      setSidebarData(formattedData);
+      
+      // Complete loading
+      setAnalysisProgress(100);
+      setTimeout(() => setIsLoading(false), 500); // Small delay to show 100%
+      
+    } catch (err) {
+      console.error("Error fetching analysis results:", err);
+      setError(`Failed to fetch results: ${(err as Error).message}`);
+      setIsLoading(false);
+    }
+  }, [resumeId]);
+
+  // Initial check for analysis status
+  const checkInitialStatus = useCallback(async () => {
+    // Prevent multiple executions
+    if (analysisTriggeredRef.current) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // First check if there's already an in-progress analysis
+      const statusResponse = await fetch(`/api/analysis-status?resumeId=${resumeId}`);
+      
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        
+        if (statusData.status === 'processing' || statusData.status === 'pending') {
+          // Analysis is already in progress
+          console.log("Found in-progress analysis:", statusData.id);
+          analysisTriggeredRef.current = true;
+          setAnalysisId(statusData.id);
+          setAnalysisStatus(statusData.status);
+          setAnalysisProgress(40); // Assume it's somewhat in progress
+          
+          // Start polling for status updates
+          startPolling(statusData.id);
+          return;
+        }
+      }
+      
+      // Try to get completed analysis results
+      const response = await fetch(`/api/review/${resumeId}`);
+      
+      if (response.ok) {
+        // Analysis exists and is complete
+        const data = await response.json();
+        setAnalysisData(data.analysis);
+        
+        // Convert API data to sidebar format
+        const formattedData = mapApiDataToSidebarFormat(data.analysis);
+        setSidebarData(formattedData);
+        
+        setIsLoading(false);
+      } else if (response.status === 404) {
+        // Analysis doesn't exist yet
+        
+        // If this is a new upload, trigger analysis automatically
+        if (isNewUpload) {
+          // Only trigger if we haven't already
+          if (!analysisTriggeredRef.current) {
+            console.log("New upload - triggering analysis");
+            await triggerAnalysis();
+          }
+        } else {
+          // Otherwise, show error that analysis needs to be started
+          setError("This resume hasn't been analyzed yet. Please start analysis.");
+          setIsLoading(false);
+        }
+      } else {
+        throw new Error(`Error checking status: ${response.status}`);
+      }
+    } catch (err) {
+      console.error("Error checking initial status:", err);
+      setError(`Initial status check failed: ${(err as Error).message}`);
+      setIsLoading(false);
+    }
+  }, [resumeId, isNewUpload, triggerAnalysis, startPolling]);
+
+  // Run initial check on component mount
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1500);
-  }, []);
+    checkInitialStatus();
+    
+    // Cleanup polling on unmount
+    return () => {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+    };
+  }, [checkInitialStatus]);
 
   // Handle feedback item selection
   const handleFeedbackSelect = (
@@ -34,6 +374,15 @@ export default function ReviewerPage() {
     } else {
       setActiveElement(null);
     }
+  };
+
+  // Find the positioned suggestion based on activeItemId
+  const getActiveSuggestion = () => {
+    if (!activeItemId || !analysisData) return null;
+    
+    return analysisData.positionedSuggestions.find(suggestion => 
+      suggestion.id === activeItemId
+    );
   };
 
   // Animation variants for loading screen
@@ -64,10 +413,43 @@ export default function ReviewerPage() {
     },
   };
 
+  // Handle applying a fix to the resume
+  const handleApplyFix = async (fixedContent: string, sectionId: number) => {
+    try {
+      // Implement API call to update the resume section
+      const response = await fetch(`/api/resume/sections/${sectionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: fixedContent })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update resume');
+      }
+      
+      // Refresh the page or state to show updated content
+      window.location.reload();
+    } catch (err) {
+      console.error('Error applying fix:', err);
+      // Show error notification
+    }
+  };
+
+  // Get dynamic loading message based on analysis status
+  const getLoadingMessage = () => {
+    if (analysisStatus === 'pending') {
+      return "Starting analysis of your resume...";
+    } else if (analysisStatus === 'processing') {
+      return "Our AI is analyzing your resume. This may take 30-60 seconds...";
+    } else if (analysisProgress === 100) {
+      return "Analysis complete! Loading your results...";
+    }
+    return "Preparing your resume review...";
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-purple-900/20 to-gray-900 text-white">
       {isLoading ? (
-        // ...existing code for loading animation...
         <motion.div
           className="h-screen flex flex-col items-center justify-center"
           variants={loadingVariants}
@@ -75,7 +457,6 @@ export default function ReviewerPage() {
           animate="visible"
           exit="exit"
         >
-          {/* ...existing loading animation code... */}
           <motion.div variants={itemVariants} className="mb-6">
             <svg
               className="w-16 h-16 text-purple-500"
@@ -104,10 +485,10 @@ export default function ReviewerPage() {
             </svg>
           </motion.div>
           <motion.h1 variants={itemVariants} className="text-2xl mb-2 font-bold">
-            Analyzing your CV
+            {analysisStatus === 'completed' ? 'Analysis Complete!' : 'Analyzing your CV'}
           </motion.h1>
           <motion.p variants={itemVariants} className="text-white/70 max-w-md text-center">
-            We're reviewing your CV for insights, potential mistakes, and improvement opportunities.
+            {getLoadingMessage()}
           </motion.p>
           <motion.div
             variants={itemVariants}
@@ -116,16 +497,37 @@ export default function ReviewerPage() {
             <motion.div
               className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
               initial={{ width: "0%" }}
-              animate={{ width: "100%" }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
+              animate={{ width: `${analysisProgress}%` }}
+              transition={{ duration: 1, ease: "easeInOut" }}
             />
           </motion.div>
         </motion.div>
+      ) : error ? (
+        <div className="h-screen flex flex-col items-center justify-center">
+          <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-6 max-w-md">
+            <h2 className="text-xl font-bold mb-2">Error</h2>
+            <p className="text-white/80">{error}</p>
+            <div className="mt-4 flex flex-col sm:flex-row gap-3">
+              <button 
+                onClick={() => window.location.reload()}
+                className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md transition-colors"
+              >
+                Try Again
+              </button>
+              
+              <button 
+                onClick={triggerAnalysis}
+                className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md transition-colors"
+              >
+                Start Analysis
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
         <>
           {/* Header */}
           <header className="bg-black/30 backdrop-blur-md border-b border-white/10">
-            {/* ...existing header code... */}
             <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
@@ -146,19 +548,33 @@ export default function ReviewerPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex items-center"
               >
-                <button className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors">
+                <button 
+                  onClick={() => {
+                    // Create and download PDF report
+                    alert('PDF report generation not implemented yet');
+                  }}
+                  className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Download Report
                 </button>
                 
-                <button className="bg-gradient-to-r from-purple-600 to-pink-600 ml-3 px-4 py-2 rounded-md text-sm flex items-center hover:shadow-lg hover:shadow-purple-500/20 transition-all">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                  Get AI Improvements
-                </button>
+                {analysisData?.aiGeneratedImprovements && (
+                  <button 
+                    onClick={() => {
+                      // Open modal with AI improvements
+                      alert('AI Improvements modal not implemented yet');
+                    }}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 ml-3 px-4 py-2 rounded-md text-sm flex items-center hover:shadow-lg hover:shadow-purple-500/20 transition-all"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Get AI Improvements
+                  </button>
+                )}
               </motion.div>
             </div>
           </header>
@@ -174,9 +590,11 @@ export default function ReviewerPage() {
                 transition={{ delay: 0.1 }}
               >
                 <CVDisplay 
-                  resumeId={resumeId} 
+                  resumeId={resumeId}
                   activeHighlight={activeItemId}
                   activeElement={activeElement}
+                  activeSuggestion={getActiveSuggestion()}
+                  onApplyFix={handleApplyFix}
                 />
               </motion.div>
               
@@ -187,11 +605,13 @@ export default function ReviewerPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <AnalysisSidebar 
-                  feedback={mockReviewerData} 
-                  onFeedbackSelect={handleFeedbackSelect}
-                  activeItemId={activeItemId}
-                />
+                {sidebarData && (
+                  <AnalysisSidebar 
+                    feedback={sidebarData} 
+                    onFeedbackSelect={handleFeedbackSelect}
+                    activeItemId={activeItemId}
+                  />
+                )}
               </motion.div>
             </div>
           </main>
