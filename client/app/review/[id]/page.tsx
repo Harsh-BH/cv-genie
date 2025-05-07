@@ -527,7 +527,8 @@ export default function ReviewerPage() {
       ) : (
         <>
           {/* Header */}
-          <header className="bg-black/30 backdrop-blur-md border-b border-white/10">
+          <header className="bg-black/30 invisible backdrop-blur-md border-b border-white/10">
+            {/* ...existing header code... */}
             <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { getCookie } from 'cookies-next';
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FaCircleUser } from "react-icons/fa6";
+import { RiMenu3Fill, RiCloseFill } from "react-icons/ri";
+import { FaUser, FaUpload, FaSignOutAlt } from "react-icons/fa";
 
 const Navbar = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,6 +15,7 @@ const Navbar = () => {
     const [userName, setUserName] = useState('');
     const [useremail, setUseremail] = useState('');
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const flag = getCookie('isLoggedIn');
@@ -29,9 +32,10 @@ const Navbar = () => {
         });
 
         const data = await res.json();
-        console.log(data);
+
         if(data.success) {
             setIsAuthenticated(false);
+            setIsMobileMenuOpen(false);
             window.location.href = '/';
         }
     }
@@ -45,9 +49,7 @@ const Navbar = () => {
         });
 
         const data = await res.json();
-        console.log(data);
         if(data.status === 200) {
-            console.log(data.user.avatar);
             setAvatar(data.user.avatar);
             setUserName(data.user.name.split(' ')[0]);
             setUseremail(data.user.email);
@@ -71,6 +73,18 @@ const Navbar = () => {
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
         };
+    }, []);
+
+    // Close mobile menu on window resize
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 768) {
+                setIsMobileMenuOpen(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     // Animation variants for text
@@ -98,16 +112,52 @@ const Navbar = () => {
         }
     };
 
+    // Mobile menu animation variants
+    const sidebarVariants = {
+        closed: {
+            x: "100%",
+            opacity: 0,
+            transition: {
+                type: "spring",
+                stiffness: 400,
+                damping: 40
+            }
+        },
+        open: {
+            x: "0%",
+            opacity: 1,
+            transition: {
+                type: "spring",
+                stiffness: 400,
+                damping: 40
+            }
+        }
+    };
+
+    // Backdrop animation for mobile menu
+    const backdropVariants = {
+        closed: {
+            opacity: 0,
+            transition: {
+                delay: 0.2
+            }
+        },
+        open: {
+            opacity: 1
+        }
+    };
+
     if(!hydrated) return null; // Prevents hydration issues
 
     return (
-        <div className="p-2 absolute z-50 w-full flex justify-center items-center">
+        <div className="p-2 fixed top-0 z-50 w-full flex justify-center items-center">
             <motion.nav 
-                className="flex h-[80px] w-full max-w-[2000px] bg-pink-700/10 rounded-2xl backdrop-blur-2xl shadow-md items-center justify-between px-8 border-white/10 border-1 overflow-visible"
+                className="flex h-[80px] w-full max-w-[2000px] bg-pink-700/10 rounded-2xl backdrop-blur-2xl shadow-md items-center justify-between px-4 md:px-8 border-white/10 border-1 overflow-visible"
                 initial={{ opacity: 0, y: -50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-            >
+            >   
+            <div className="flex w-[100%] h-[100%] overflow-hidden absolute left-0">
                 {/* Animated background gradient */}
                 <motion.div 
                     className="absolute inset-0 rounded-2xl opacity-30"
@@ -162,6 +212,7 @@ const Navbar = () => {
                         bottom: "0%"
                     }}
                 />
+                </div>
 
                 {/* Logo with animation */}
                 <Link href="/" className="relative">
@@ -182,7 +233,8 @@ const Navbar = () => {
                     </motion.span>
                 </Link>
 
-                <div className="flex gap-4 justify-center items-center relative z-10 overflow-visible">
+                {/* Desktop Navigation */}
+                <div className="hidden md:flex gap-4 justify-center items-center relative z-10 overflow-visible">
                     {isAuthenticated ? (
                         <>
                             <motion.div
@@ -208,7 +260,7 @@ const Navbar = () => {
                                 <Link href="/dashboard" className="text-white w-[38px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105 overflow-visible">
                                     <div className="relative group overflow-visible">
                                         {avatar ? 
-                                            <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full"/>
+                                            <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full" alt="User Avatar"/>
                                             :
                                             <div className="text-[34.98px] text-white/60"><FaCircleUser /></div>
                                         }
@@ -237,7 +289,143 @@ const Navbar = () => {
                         </>
                     )}
                 </div>
+
+                {/* Mobile Menu Toggle */}
+                <div className="md:hidden relative z-10">
+                    <motion.button
+                        className="text-white text-2xl p-2"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
+                        {isMobileMenuOpen ? <RiCloseFill className="text-3xl" /> : <RiMenu3Fill className="text-3xl" />}
+                    </motion.button>
+                </div>
             </motion.nav>
+
+            {/* Mobile Sidebar Menu */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                            initial="closed"
+                            animate="open"
+                            exit="closed"
+                            variants={backdropVariants}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        />
+
+                        {/* Sidebar */}
+                        <motion.div
+                            className="fixed right-0 top-0 bottom-0 w-[280px] bg-gradient-to-b from-pink-900/90 to-purple-900/90 backdrop-blur-xl z-50 shadow-xl border-l border-white/10 p-6 overflow-y-auto"
+                            initial="closed"
+                            animate="open"
+                            exit="closed"
+                            variants={sidebarVariants}
+                        >
+                            <div className="flex flex-col h-full">
+                                <div className="flex justify-between items-center mb-10">
+                                    <motion.span 
+                                        className="text-white font-bold text-2xl font-space-grotesk"
+                                        variants={titleVariants}
+                                        initial="initial"
+                                        animate="animate"
+                                    >
+                                        CV Genie
+                                    </motion.span>
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        <RiCloseFill className="text-white text-3xl" />
+                                    </motion.button>
+                                </div>
+
+                                {/* Mobile Menu Content */}
+                                <div className="flex flex-col gap-6">
+                                    {isAuthenticated ? (
+                                        <>
+                                            {/* User Profile Section */}
+                                            <div className="flex items-center gap-4 mb-6 p-4 bg-white/10 rounded-xl backdrop-blur-md">
+                                                <div className="w-[50px] h-[50px] rounded-full border-2 border-pink-400 overflow-hidden flex-shrink-0">
+                                                    {avatar ? (
+                                                        <img 
+                                                            src={avatar} 
+                                                            className="w-full h-full object-cover" 
+                                                            alt="User Avatar" 
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center bg-purple-800">
+                                                            <FaCircleUser className="text-white/80 text-3xl" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-white font-semibold text-lg">{userName || 'User'}</p>
+                                                    <p className="text-gray-300 text-sm truncate">{useremail || 'user@example.com'}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Navigation Links */}
+                                            <Link 
+                                                href="/dashboard" 
+                                                className="flex items-center gap-3 text-white text-lg p-3 rounded-lg hover:bg-white/10 transition-all"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                <FaUser className="text-pink-400" />
+                                                My Profile
+                                            </Link>
+                                            
+                                            <Link 
+                                                href="/upload" 
+                                                className="flex items-center gap-3 font-sem text-white text-lg p-3 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 border-white border-[2px] transition-all"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                <FaUpload className="text-white" />
+                                                Upload CV
+                                            </Link>
+                                            
+                                            <button 
+                                                onClick={Logout} 
+                                                className="flex items-center gap-3 text-black text-lg p-3 rounded-lg hover:bg-white/90 bg-white  transition-all mt-auto"
+                                            >
+                                                <FaSignOutAlt className="text-black" />
+                                                Log Out
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link 
+                                                href="/login" 
+                                                className="flex items-center justify-center gap-2 text-white font-semibold text-lg py-3 px-4 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 transition-all"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                Login
+                                            </Link>
+                                            
+                                            <Link 
+                                                href="/signup" 
+                                                className="flex items-center justify-center gap-2 text-white font-semibold text-lg py-3 px-4 rounded-lg border border-white hover:bg-white/10 transition-all"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                Sign Up
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Footer */}
+                                <div className="mt-auto pt-6">
+                                    <p className="text-white/50 text-sm text-center">© 2025 CV Genie</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
