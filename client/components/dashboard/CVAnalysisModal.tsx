@@ -52,7 +52,7 @@ export default function CVAnalysisModal({ cv, isOpen, onClose }: CVAnalysisModal
           />
           
           <motion.div 
-            className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-purple-500/20 w-full max-w-4xl relative z-10 overflow-hidden"
+            className="bg-gradient-to-br max-h-[80vh] from-gray-900 to-gray-800 rounded-xl shadow-2xl border border-purple-500/20 w-full max-w-4xl relative z-10 overflow-auto"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
