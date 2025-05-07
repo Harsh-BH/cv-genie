@@ -6,8 +6,8 @@ import { useState } from "react";
 interface CVAnalysisModalProps {
   cv: {
     id: number;
-    name: string;
-    lastUpdated: string;
+    fileName: string;
+    updatedAt: string;
     score: number;
   } | null;
   isOpen: boolean;
@@ -61,7 +61,7 @@ export default function CVAnalysisModal({ cv, isOpen, onClose }: CVAnalysisModal
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-900/50 to-gray-900/50 p-6 border-b border-purple-800/30">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white">{cv?.name}</h2>
+                <h2 className="text-2xl font-bold text-white">{cv?.fileName}</h2>
                 <motion.button
                   onClick={onClose}
                   whileHover={{ scale: 1.1, rotate: 90 }}
@@ -175,7 +175,7 @@ export default function CVAnalysisModal({ cv, isOpen, onClose }: CVAnalysisModal
                               animate={{ scale: 1, opacity: 1 }}
                               transition={{ delay: 0.7 }}
                             >
-                              {cv?.score}%
+                              {cv?.score || "70"}%
                             </motion.div>
                           </div>
                         </div>
