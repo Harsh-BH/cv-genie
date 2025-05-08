@@ -25,7 +25,7 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
-
+          
       - name: Check DATABASE_URL length
         run: echo "DATABASE_URL length: ${#DATABASE_URL}"
         shell: bash
@@ -35,21 +35,16 @@ jobs:
           cd client
           npm install --legacy-peer-deps --verbose
           npm install --save-dev jest jest-environment-jsdom @testing-library/jest-dom @testing-library/react --legacy-peer-deps --verbose
-
-      - name: Create .env file for Prisma
-        run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> client/.env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> client/.env
-          echo "PERPLEXITY_API_KEY=${{ secrets.PERPLEXITY_API_KEY }}" >> client/.env
-          echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> client/.env
-
+    
+              
       - name: Run unit tests
         env:
           CI: true
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
           cd client
           npm test --verbose
-
 
       - name: Test Perplexity API connection
         run: cd client && npm run test:api
@@ -76,13 +71,6 @@ jobs:
         run: |
           cd client
           npm install
-          
-      - name: Create .env file for Prisma
-        run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> client/.env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> client/.env
-          echo "PERPLEXITY_API_KEY=${{ secrets.PERPLEXITY_API_KEY }}" >> client/.env
-          echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> client/.env    
       
       - name: Build the project
         run: cd client && npm run build
