@@ -105,7 +105,7 @@ export default function Home() {
             >
               {hero.title}
             </motion.h1>
-            hello
+          
             <motion.p 
               className="text-xl md:text-2xl text-white/80 mb-8 max-w-xl font-outfit"
               initial={{ opacity: 0, y: 20 }}
