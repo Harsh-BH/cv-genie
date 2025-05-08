@@ -27,7 +27,10 @@ jobs:
           cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
-        run: cd client && npm install
+        run: |
+          cd client
+          npm install
+          npm install --save-dev jest-environment-jsdom --legacy-peer-deps
 
       - name: Run unit tests
         run: cd client && npm test || echo "Unit tests failed with exit code $?" && exit 1
@@ -54,7 +57,10 @@ jobs:
           cache-dependency-path: client/package-lock.json
       
       - name: Install dependencies
-        run: cd client && npm install
+        run: |
+          cd client
+          npm install
+          npm install --save-dev jest-environment-jsdom --legacy-peer-deps
       
       - name: Build the project
         run: cd client && npm run build
