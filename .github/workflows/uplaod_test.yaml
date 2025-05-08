@@ -25,6 +25,12 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
+      - name: Debug environment variables
+        run: |
+          cd client
+          echo "DATABASE_URL exists: $([[ -n $DATABASE_URL ]] && echo 'Yes' || echo 'No')"
+          echo "DIRECT_URL exists: $([[ -n $DIRECT_URL ]] && echo 'Yes' || echo 'No')"
+          echo "First 5 chars of DATABASE_URL: ${DATABASE_URL:0:5}"
 
       - name: Install dependencies
         run: |
@@ -33,9 +39,15 @@ jobs:
           npm install --save-dev jest jest-environment-jsdom @testing-library/jest-dom @testing-library/react --legacy-peer-deps --verbose
               
       - name: Run unit tests
+        env:
+          CI: true
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
           cd client
-          npx jest || echo "Unit tests failed with exit code $?" && exit 1
+          echo "DATABASE_URL length: ${#DATABASE_URL}"
+          npx dotenv-cli -e .env.test -- npx prisma generate
+          npx dotenv-cli -e .env.test -- npx jest
 
       - name: Test Perplexity API connection
         run: cd client && npm run test:api
