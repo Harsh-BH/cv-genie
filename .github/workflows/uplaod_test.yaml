@@ -30,8 +30,8 @@ jobs:
         run: |
           cd client
           npm install --legacy-peer-deps --verbose
-          npm install --save-dev jest jest-environment-jsdom --legacy-peer-deps --verbose
-
+          npm install --save-dev jest jest-environment-jsdom @testing-library/jest-dom @testing-library/react --legacy-peer-deps --verbose
+              
       - name: Run unit tests
         run: |
           cd client
