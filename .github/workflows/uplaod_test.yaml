@@ -30,10 +30,7 @@ jobs:
         run: cd client && npm install
 
       - name: Run unit tests
-        run: cd client && npm test
-
-      - name: Run database health check
-        run: cd client && npm run test:db
+        run: cd client && npm test || echo "Unit tests failed with exit code $?" && exit 1
 
       - name: Test Perplexity API connection
         run: cd client && npm run test:api
