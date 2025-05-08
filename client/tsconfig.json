@@ -32,13 +32,15 @@
     "target": "ES2017"
   },
   "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
     "**/*.js",
     "**/*.jsx",
-    "__tests__/**/*"
-, "scripts/test-db-health.js"  ],
+    "**/*.ts",
+    "**/*.tsx",
+    "__tests__/**/*",
+    "next-env.d.ts",
+    "scripts/test-db-health.js",
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]
