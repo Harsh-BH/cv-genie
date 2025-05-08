@@ -26,12 +26,16 @@ jobs:
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
 
-      - name: Debug environment variables
+      - name: Check DATABASE_URL directly
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          cd client
-          echo "DATABASE_URL exists: $([[ -n $DATABASE_URL ]] && echo 'Yes' || echo 'No')"
-          echo "DIRECT_URL exists: $([[ -n $DIRECT_URL ]] && echo 'Yes' || echo 'No')"
-          echo "First 5 chars of DATABASE_URL: ${DATABASE_URL:0:5}"
+          if [[ -z "$DATABASE_URL" ]]; then
+            echo "DATABASE_URL is missing"
+          else
+            echo "DATABASE_URL starts with: ${DATABASE_URL:0:10}"
+          fi
+
 
       - name: Install dependencies
         run: |
