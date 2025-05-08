@@ -1,0 +1,99 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main2]
+  pull_request:
+    branches: [main2]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: cd client && npm install
+
+      - name: Run unit tests
+        run: cd client && npm test
+
+      - name: Run database health check
+        run: cd client && npm run test:db
+
+      - name: Test Perplexity API connection
+        run: cd client && npm run test:api
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: cd client && npm install
+      
+      - name: Build the project
+        run: cd client && npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-files
+          path: client/.next/
+# Deployment job - commented out until Vercel deployment is set up
+# Uncomment and configure this section when you're ready to deploy
+# deploy:
+#   needs: build
+#   if: github.ref == 'refs/heads/main'
+#   runs-on: ubuntu-latest
+#   
+#   steps:
+#   - uses: actions/checkout@v3
+#   
+#   - name: Download build artifacts
+#     uses: actions/download-artifact@v3
+#     with:
+#       name: build-files
+#       path: .next/
+#   
+#   - name: Set up Node.js
+#     uses: actions/setup-node@v3
+#     with:
+#       node-version: '18'
+#   
+#   - name: Install dependencies
+#     run: npm ci
+#   
+#   # Example deployment to Vercel, adjust as needed
+#   - name: Deploy to Vercel
+#     uses: amondnet/vercel-action@v20
+#     with:
+#       vercel-token: ${{ secrets.VERCEL_TOKEN }}
+#       vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+#       vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+#       vercel-args: '--prod'

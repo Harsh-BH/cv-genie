@@ -1,21 +1,13 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
-  output   = "../lib/generated"
-  // Add previewFeatures for better connection handling
+  provider        = "prisma-client-js"
+  output          = "../lib/generated"
   previewFeatures = ["metrics"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-  // Add connection pool settings for serverless environments
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DIRECT_URL")
   relationMode = "prisma"
 }
 
@@ -24,77 +16,65 @@ model User {
   name      String?
   email     String?  @unique
   password  String?
-  avatar    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relation to Resume
+  avatar    String?
   resumes   Resume[]
 }
 
 model Resume {
-  id             Int      @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   fileName       String
   fileType       String
-  fileData       String   @db.Text      // For PostgreSQL - stores the Base64 encoded file
+  fileData       String
   userId         Int
-  user           User     @relation(fields: [userId], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  // Profile summary moved to resume level since it's resume-specific
-  profileSummary String?  @db.Text
-
-  sections        ResumeSection[]
-  analyses        ResumeAnalysis[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  profileSummary String?
+  user           User             @relation(fields: [userId], references: [id])
+  sections       ResumeSection[]
+  analyses       ResumeAnalysis[]
 
   @@index([userId])
 }
 
-// New model for resume sections
 model ResumeSection {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String   @db.Text
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
   orderIndex Int
-  resumeId  Int
-  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  resumeId   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  resume     Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 
   @@index([resumeId])
 }
 
 model ResumeAnalysis {
-  id                    Int      @id @default(autoincrement())
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  resumeId              Int
-  resume                Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  
-  executiveSummary      String   @db.Text
-  overview              String?  @db.Text
-  contentQuality        String?  @db.Text
-  atsCompatibility      String?  @db.Text
-  industryFit           String?  @db.Text
-  formattingReview      String?  @db.Text
-  skillsAnalysis        String?  @db.Text
-  careerTrajectory      String?  @db.Text
-  improvementSuggestions String?  @db.Text
-  
-  overallScore          Float
-  contentScore          Int
-  atsOptimizationScore  Int
-  industryAlignmentScore Int
-  formattingScore       Int
-  skillsScore           Int
-  
+  id                      Int      @id @default(autoincrement())
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  resumeId                Int
+  executiveSummary        String
+  overview                String?
+  contentQuality          String?
+  atsCompatibility        String?
+  industryFit             String?
+  formattingReview        String?
+  skillsAnalysis          String?
+  careerTrajectory        String?
+  improvementSuggestions  String?
+  overallScore            Float
+  contentScore            Int
+  atsOptimizationScore    Int
+  industryAlignmentScore  Int
+  formattingScore         Int
+  skillsScore             Int
   aiGeneratedImprovements Json?
   positionedSuggestions   Json?
-  
-  status                String   @default("pending") // pending, processing, completed, failed
+  status                  String   @default("pending")
+  resume                  Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 
   @@index([resumeId])
 }
-

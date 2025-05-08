@@ -35,8 +35,10 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
+    "**/*.js",
+    "**/*.jsx",
+    "__tests__/**/*"
+, "scripts/test-db-health.js"  ],
   "exclude": [
     "node_modules"
   ]
