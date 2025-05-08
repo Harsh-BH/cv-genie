@@ -428,7 +428,7 @@ const Navbar = () => {
             </AnimatePresence>
         </div>
     );
-}}
+}
 
 
 export default Navbar;
