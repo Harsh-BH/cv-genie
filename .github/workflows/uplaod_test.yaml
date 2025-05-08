@@ -2,9 +2,9 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [sub]
+    branches: [sub, main2, main]
   pull_request:
-    branches: [sub]
+    branches: [sub, main2, main]
 
 jobs:
   test:
