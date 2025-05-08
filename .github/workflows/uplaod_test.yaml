@@ -29,11 +29,13 @@ jobs:
       - name: Install dependencies
         run: |
           cd client
-          npm install
-          npm install --save-dev jest-environment-jsdom --legacy-peer-deps
+          npm install --legacy-peer-deps --verbose
+          npm install --save-dev jest jest-environment-jsdom --legacy-peer-deps --verbose
 
       - name: Run unit tests
-        run: cd client && npm test || echo "Unit tests failed with exit code $?" && exit 1
+        run: |
+          cd client
+          npx jest || echo "Unit tests failed with exit code $?" && exit 1
 
       - name: Test Perplexity API connection
         run: cd client && npm run test:api
@@ -60,7 +62,6 @@ jobs:
         run: |
           cd client
           npm install
-          npm install --save-dev jest-environment-jsdom --legacy-peer-deps
       
       - name: Build the project
         run: cd client && npm run build
