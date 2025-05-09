@@ -1,4 +1,6 @@
 import { Resume } from '@prisma/client';
+import { industryKeywords, scoreIndicators } from './resume-analyzer-constants';
+import { isPdfData, extractPdfMetadata } from './pdf-extractor';
 
 type ResumeWithSections = Resume & {
   sections: any[];
@@ -72,8 +74,8 @@ export async function analyzeResumeComprehensive(
   }
 
   try {
-    // Format resume data for better analysis
-    const formattedResume = formatResumeForAnalysis(resume);
+    // Format resume data for better analysis (now async to handle PDF processing)
+    const formattedResume = await formatResumeForAnalysis(resume);
     
     // Detect industry for specialized analysis
     const detectedIndustry = detectIndustry(resume);
@@ -155,7 +157,8 @@ export async function analyzeResumeComprehensive(
 /**
  * Format resume for better AI analysis
  */
-function formatResumeForAnalysis(resume: ResumeWithSections): string {
+async function formatResumeForAnalysis(resume: ResumeWithSections): Promise<string> {
+  console.log('[Resume Analyzer] Formatting resume for analysis...');
   let formattedContent = `RESUME TITLE: ${resume.fileName || "Unnamed Resume"}\n\n`;
   
   // Use user info directly instead of personalDetails
@@ -175,15 +178,66 @@ function formatResumeForAnalysis(resume: ResumeWithSections): string {
   }
   
   if (resume.sections && resume.sections.length > 0) {
+    console.log(`[Resume Analyzer] Using ${resume.sections.length} structured sections for analysis`);
+    // We have structured sections - use them for analysis
     resume.sections.forEach(section => {
       formattedContent += `${section.title.toUpperCase()}:\n`;
       formattedContent += `${section.content}\n\n`;
     });
+    
+    return formattedContent; // Return early if we have structured sections
   } else {
-    // If no sections, use the raw file data
+    // If no sections, we need to process the raw file data
+    console.log('[Resume Analyzer] No structured sections found, processing raw file data');
     formattedContent += "EXTRACTED CONTENT:\n";
-    formattedContent += `${resume.fileData.substring(0, 1000)}...\n\n`;
-    formattedContent += "NOTE: No structured sections found. Using raw extracted text.\n";
+    
+    try {
+      const rawText = resume.fileData || "";
+      
+      // Check if the data is PDF (base64 encoded)
+      if (isPdfData(rawText)) {
+        console.log("[Resume Analyzer] Detected PDF data, extracting content...");
+        
+        // Extract metadata and content from PDF - note the await keyword here
+        const extractedContent = await extractPdfMetadata(rawText);
+        
+        // Check if we successfully extracted actual text content from the PDF
+        if (extractedContent.includes("EXTRACTED CONTENT:")) {
+          console.log("[Resume Analyzer] Successfully extracted text content from PDF");
+          formattedContent += extractedContent;
+        } else {
+          console.log("[Resume Analyzer] Limited PDF extraction - only metadata available");
+          formattedContent += extractedContent;
+          
+          // Add any other available information we have about the resume
+          if (resume.fileName) {
+            formattedContent += `\nFilename: ${resume.fileName}`;
+          }
+        }
+        
+        // Log the size of content we're analyzing to verify we have substantial text
+        const contentLength = formattedContent.length;
+        console.log(`[Resume Analyzer] Total formatted content length: ${contentLength} characters`);
+        console.log(`[Resume Analyzer] Content preview (first 100 chars): ${formattedContent.substring(0, 100)}...`);
+      } else {
+        // Not PDF data, use raw text as-is
+        console.log('[Resume Analyzer] Non-PDF format detected, using raw text data');
+        formattedContent += rawText;
+        console.log(`[Resume Analyzer] Raw text length: ${rawText.length} characters`);
+      }
+    } catch (error) {
+      console.error("[Resume Analyzer] Error processing file data:", error);
+      formattedContent += "Error processing resume content. Analysis will be limited.\n\n";
+      
+      // Add raw file data for fallback, but limit its length
+      if (resume.fileData) {
+        const textPreview = resume.fileData.substring(0, 2000);
+        formattedContent += textPreview + "...";
+        console.log(`[Resume Analyzer] Using fallback text preview: ${textPreview.substring(0, 100)}...`);
+      }
+    }
+    
+    formattedContent += "\nNOTE: No structured sections found. Using extracted text.\n";
   }
   
   return formattedContent;
@@ -194,55 +248,6 @@ function formatResumeForAnalysis(resume: ResumeWithSections): string {
  */
 function detectIndustry(resume: ResumeWithSections): string {
   const resumeText = JSON.stringify(resume).toLowerCase();
-  
-  // Map of industries and their associated keywords
-  const industryKeywords = {
-    "software development": [
-      "software", "developer", "programming", "code", "javascript", "python", "java", "react", 
-      "node", "frontend", "backend", "fullstack", "web development", "app development", 
-      "devops", "cloud", "aws", "azure", "github", "git", "api"
-    ],
-    "finance": [
-      "finance", "accounting", "budget", "financial", "analyst", "investment", "banking", 
-      "cpa", "tax", "audit", "revenue", "profit", "balance sheet", "portfolio", "stocks", 
-      "securities", "compliance", "risk management", "forecast"
-    ],
-    "marketing": [
-      "marketing", "social media", "campaign", "branding", "digital marketing", "seo", 
-      "content strategy", "advertisement", "market research", "ppc", "google ads", 
-      "analytics", "customer acquisition", "funnel", "lead generation"
-    ],
-    "healthcare": [
-      "healthcare", "medical", "clinical", "doctor", "nurse", "patient", "hospital", 
-      "pharmacy", "healthcare management", "health insurance", "medical records", 
-      "diagnostic", "treatment", "therapy", "physician"
-    ],
-    "education": [
-      "education", "teaching", "teacher", "professor", "instructor", "curriculum", 
-      "classroom", "school", "college", "university", "student", "learning", 
-      "educational", "academic", "pedagogy", "lecture", "course"
-    ],
-    "engineering": [
-      "engineering", "mechanical", "electrical", "civil", "chemical", "industrial", 
-      "design", "structural", "construction", "manufacturing", "product development", 
-      "cad", "autocad", "specifications", "technical drawing"
-    ],
-    "sales": [
-      "sales", "business development", "account management", "client", "customer", 
-      "revenue growth", "targets", "quota", "pipeline", "crm", "salesforce", "closing", 
-      "negotiation", "prospect", "lead"
-    ],
-    "hr": [
-      "human resources", "hr", "recruitment", "talent acquisition", "hiring", "onboarding", 
-      "employee relations", "benefits", "compensation", "people management", "workforce", 
-      "training", "development", "hr policies", "hris"
-    ],
-    "data science": [
-      "data science", "analytics", "machine learning", "ai", "artificial intelligence", 
-      "big data", "statistics", "data mining", "modeling", "data analysis", "predictive", 
-      "tensorflow", "pytorch", "pandas", "python", "r", "sql", "tableau"
-    ]
-  };
   
   // Count matches for each industry
   const matches = Object.entries(industryKeywords).map(([industry, keywords]) => {
@@ -322,6 +327,25 @@ function createGeneralAnalysisPrompt(): string {
 5. Key strengths of the resume that stand out
 6. Major areas for improvement with specific examples
 
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## Overall Assessment
+[Concise assessment of the resume in 2-3 sentences]
+
+## Strengths
+• [First key strength with specific example]
+• [Second key strength with specific example]
+• [Continue with more strengths, using bullet points]
+
+## Areas for Improvement
+• [First improvement area with specific example]
+• [Second improvement area with specific example]
+• [Continue with more improvement areas, using bullet points]
+
+## Key Recommendations
+• [First actionable recommendation]
+• [Second actionable recommendation]
+• [Third actionable recommendation]
+
 Be direct, specific and actionable in your feedback. Use concrete examples from the resume.
 Avoid generalities and provide granular assessment to help improve this resume.`;
 }
@@ -335,8 +359,30 @@ function createAtsAnalysisPrompt(): string {
 5. Evaluate the use of job-specific language vs. generic terms
 6. Rate its overall ATS-friendliness on a scale of 1-10 with justification
 
-Focus exclusively on ATS optimization in your analysis. Most ATS systems rank candidates based on keyword matching,
-so focus on missing terminology that could improve the match rate.`;
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## ATS Compatibility Score: [X/10]
+[Brief explanation of the score in 1-2 sentences]
+
+## Strong ATS Elements
+• [First positive element]
+• [Second positive element]
+• [Continue with more positive elements]
+
+## ATS Issues Detected
+• [First issue with example]
+• [Second issue with example]
+• [Continue with more issues]
+
+## Missing Keywords
+• [First missing keyword/phrase] - [Context of where it should be added]
+• [Second missing keyword/phrase] - [Context of where it should be added]
+• [Continue with more missing keywords]
+
+## Formatting Concerns
+• [First formatting issue affecting ATS]
+• [Second formatting issue affecting ATS]
+
+Focus exclusively on ATS optimization in your analysis.`;
 }
 
 function createIndustrySpecificPrompt(resume: ResumeWithSections, industry: string): string {
@@ -349,8 +395,29 @@ function createIndustrySpecificPrompt(resume: ResumeWithSections, industry: stri
 6. Evaluate how well the resume speaks to industry pain points and priorities
 7. Suggest industry-specific accomplishments that could be better highlighted
 
-If you detect the resume is actually for a different industry, please redirect your analysis to that industry.
-Be extremely specific with examples of what top resumes in this field typically include.`;
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## Industry Fit Assessment
+[Brief assessment of how well this resume fits the ${industry} industry]
+
+## Industry Strengths
+• [First industry-specific strength]
+• [Second industry-specific strength]
+• [Continue with more strengths]
+
+## Industry Gaps
+• [First missing industry element]
+• [Second missing industry element]
+• [Continue with more gaps]
+
+## Industry-Specific Recommendations
+• [First recommendation with explanation]
+• [Second recommendation with explanation]
+• [Continue with more recommendations]
+
+## Competitive Analysis
+[Brief assessment of how this candidate compares to typical candidates in the field]
+
+If you detect the resume is actually for a different industry, please redirect your analysis to that industry.`;
 }
 
 function createFormattingAnalysisPrompt(): string {
@@ -363,7 +430,29 @@ function createFormattingAnalysisPrompt(): string {
 6. Identify any distracting elements or unnecessary information
 7. Suggest specific formatting improvements that would enhance readability and impact
 
-Focus exclusively on structure, organization, and visual presentation. Consider both human readers and ATS systems.`;
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## Visual Impact Assessment
+[Brief overall assessment of the resume's visual organization]
+
+## Formatting Strengths
+• [First formatting strength]
+• [Second formatting strength]
+• [Continue with more strengths]
+
+## Formatting Issues
+• [First formatting issue with specific example]
+• [Second formatting issue with specific example]
+• [Continue with more issues]
+
+## Scan-ability Factor
+[Assessment of how easily a recruiter can scan this resume in 6-10 seconds]
+
+## Formatting Recommendations
+• [First specific formatting recommendation]
+• [Second specific formatting recommendation]
+• [Continue with more recommendations]
+
+Focus exclusively on structure, organization, and visual presentation.`;
 }
 
 function createSkillsGapAnalysisPrompt(resume: ResumeWithSections, industry: string): string {
@@ -377,8 +466,30 @@ function createSkillsGapAnalysisPrompt(resume: ResumeWithSections, industry: str
 7. Evaluate the balance of technical/hard skills vs. soft skills
 8. Suggest how to better showcase existing skills with specific examples
 
-Be specific about which skills should be added, better emphasized, or potentially removed.
-Focus on both explicit skills (listed in a skills section) and implicit skills (demonstrated through experience).`;
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## Skills Assessment
+[Brief overall assessment of the skill profile]
+
+## Strong Skills Present
+• [First strong skill with context]
+• [Second strong skill with context]
+• [Continue with more strong skills]
+
+## Skill Gaps Identified
+• [First missing skill important for this field]
+• [Second missing skill important for this field]
+• [Continue with more missing skills]
+
+## Skills to Downplay/Update
+• [First outdated or irrelevant skill] - [Suggested action]
+• [Second outdated or irrelevant skill] - [Suggested action]
+
+## Skill Presentation Recommendations
+• [First recommendation to better showcase skills]
+• [Second recommendation to better showcase skills]
+• [Continue with more recommendations]
+
+Be specific about which skills should be added, better emphasized, or potentially removed.`;
 }
 
 function createCareerTrajectoryPrompt(resume: ResumeWithSections): string {
@@ -391,21 +502,31 @@ function createCareerTrajectoryPrompt(resume: ResumeWithSections): string {
 6. Suggest improvements to strengthen the narrative and address potential concerns
 7. Assess whether the resume effectively positions the candidate for their likely next career move
 
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## Career Trajectory Assessment
+[Brief assessment of the overall career narrative]
+
+## Career Narrative Strengths
+• [First strength in how the career story is presented]
+• [Second strength in how the career story is presented]
+• [Continue with more strengths]
+
+## Career Story Concerns
+• [First potential concern or red flag]
+• [Second potential concern or red flag]
+• [Continue with more concerns]
+
+## Hiring Manager Questions
+• [First likely question from a hiring manager about the career path]
+• [Second likely question from a hiring manager about the career path]
+• [Continue with more questions]
+
+## Career Positioning Recommendations
+• [First recommendation to strengthen career narrative]
+• [Second recommendation to strengthen career narrative]
+• [Continue with more recommendations]
+
 Focus on the overall career story and how well the resume supports the candidate's likely career goals.`;
-}
-
-function createJobMatchPrompt(resume: ResumeWithSections, jobPosting: string): string {
-  return `Compare this resume against the following job posting and analyze the match:
-1. Identify key requirements from the job posting that are well-addressed in the resume
-2. Identify key requirements from the job posting that are missing or underemphasized in the resume
-3. Evaluate overall alignment between the candidate's experience and the job requirements
-4. Suggest specific modifications to better align the resume with this job opportunity
-5. Score the resume's current match for this position on a scale of 1-10
-
-JOB POSTING:
-${jobPosting}
-
-Provide specific, actionable recommendations for tailoring this resume to this specific job.`;
 }
 
 /**
@@ -455,59 +576,35 @@ function calculateScores(analyses: Record<string, string>): AnalysisResult['scor
     return Math.max(1, Math.min(10, Math.round(score)));
   };
   
-  // Define indicators for each component
-  const indicatorsByComponent = {
-    content: {
-      positive: ["excellent", "impressive", "strong", "clear", "effective", "well-structured", "quantified", "specific", "achievements", "metrics", "impact"],
-      negative: ["lacking", "missing", "vague", "generic", "weak", "unclear", "insufficient", "sparse", "improve", "needs work", "should add"]
-    },
-    atsOptimization: {
-      positive: ["optimized", "keywords", "well-formatted", "parsable", "relevant terms", "specific skills", "industry terminology"],
-      negative: ["missing keywords", "parser issues", "formatting problems", "lacks terms", "not optimized", "generic", "ambiguous"]
-    },
-    industryAlignment: {
-      positive: ["aligned", "industry-specific", "relevant experience", "demonstrates knowledge", "appropriate terminology", "meets expectations"],
-      negative: ["misaligned", "irrelevant", "missing key experience", "lacks industry terms", "inappropriate", "outdated"]
-    },
-    formatting: {
-      positive: ["well-formatted", "consistent", "readable", "clean", "professional", "organized", "scannable", "good structure"],
-      negative: ["inconsistent", "cluttered", "hard to read", "disorganized", "unprofessional", "confusing", "busy", "dense"]
-    },
-    skills: {
-      positive: ["comprehensive", "appropriate", "current", "relevant", "balanced", "demonstrated", "aligned", "in-demand"],
-      negative: ["gaps", "missing", "outdated", "irrelevant", "insufficient", "lacks", "unbalanced"]
-    }
-  };
-  
-  // Calculate scores for each component
+  // Calculate scores for each component using imported indicators
   const contentScore = calculateComponentScore(
     analyses.overview,
-    indicatorsByComponent.content.positive,
-    indicatorsByComponent.content.negative
+    scoreIndicators.content.positive,
+    scoreIndicators.content.negative
   );
   
   const atsScore = calculateComponentScore(
     analyses.atsCompatibility,
-    indicatorsByComponent.atsOptimization.positive,
-    indicatorsByComponent.atsOptimization.negative
+    scoreIndicators.atsOptimization.positive,
+    scoreIndicators.atsOptimization.negative
   );
   
   const industryScore = calculateComponentScore(
     analyses.industryFit,
-    indicatorsByComponent.industryAlignment.positive,
-    indicatorsByComponent.industryAlignment.negative
+    scoreIndicators.industryAlignment.positive,
+    scoreIndicators.industryAlignment.negative
   );
   
   const formattingScore = calculateComponentScore(
     analyses.formattingReview,
-    indicatorsByComponent.formatting.positive,
-    indicatorsByComponent.formatting.negative
+    scoreIndicators.formatting.positive,
+    scoreIndicators.formatting.negative
   );
   
   const skillsScore = calculateComponentScore(
     analyses.skillsAnalysis,
-    indicatorsByComponent.skills.positive,
-    indicatorsByComponent.skills.negative
+    scoreIndicators.skills.positive,
+    scoreIndicators.skills.negative
   );
   
   // Calculate overall score as weighted average of component scores
@@ -568,7 +665,30 @@ Skills: ${analyses.scoreBreakdown.skills}/10`;
           },
           {
             role: "user",
-            content: `Create a concise executive summary (250-300 words) of this resume analysis. Focus on the most important strengths and areas for improvement. Be direct and specific.\n\nANALYSIS DETAILS:\n${JSON.stringify(condensedAnalyses)}\n\nSCORE BREAKDOWN:\n${scoreInfo}`
+            content: `Create a concise executive summary of this resume analysis. Focus on the most important strengths and areas for improvement. Be direct and specific.
+
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## Executive Summary
+[Opening paragraph with overall assessment and score - 2-3 sentences max]
+
+## Key Strengths
+• [First key strength - one line]
+• [Second key strength - one line]
+• [Third key strength - one line]
+
+## Priority Improvements
+• [First critical improvement - one line]
+• [Second critical improvement - one line]
+• [Third critical improvement - one line]
+
+## Next Steps
+[Brief 1-2 sentence recommendation on what to focus on first]
+
+ANALYSIS DETAILS:
+${JSON.stringify(condensedAnalyses)}
+
+SCORE BREAKDOWN:
+${scoreInfo}`
           }
         ],
         max_tokens: 500
@@ -621,13 +741,27 @@ async function generateImprovementSuggestions(analyses: Record<string, string>):
           },
           {
             role: "user",
-            content: `Based on the following resume analyses, provide a prioritized list of 7-10 specific, actionable improvements that would have the greatest impact on this resume's effectiveness. For each suggestion:
-1. Clearly state what needs to be improved
-2. Explain why it matters (impact on hiring decision)
-3. Provide a concrete example of how to implement the change
-4. Indicate the priority level (Critical, High, Medium)
+            content: `Based on the following resume analyses, provide a prioritized list of specific, actionable improvements that would have the greatest impact on this resume's effectiveness.
 
-Focus on practical changes that can be implemented immediately and will have the biggest impact on interview chances.\n\nANALYSES:\n${combinedAnalysis}`
+FORMAT YOUR RESPONSE AS FOLLOWS:
+## Critical Improvements
+• [First critical improvement] - [Why it matters] - [How to implement]
+• [Second critical improvement] - [Why it matters] - [How to implement]
+• [Third critical improvement] - [Why it matters] - [How to implement]
+
+## High-Priority Improvements
+• [First high-priority improvement] - [Why it matters] - [How to implement]
+• [Second high-priority improvement] - [Why it matters] - [How to implement]
+• [Third high-priority improvement] - [Why it matters] - [How to implement]
+
+## Medium-Priority Improvements
+• [First medium-priority improvement] - [Why it matters] - [How to implement]
+• [Second medium-priority improvement] - [Why it matters] - [How to implement]
+
+Focus on practical changes that can be implemented immediately and will have the biggest impact on interview chances.
+
+ANALYSES:
+${combinedAnalysis}`
           }
         ],
         max_tokens: 1200
@@ -806,13 +940,21 @@ async function generatePositionedSuggestions(
     // Create a resume map to track sections and their content
     const resumeMap = createResumeMap(resume);
     
-    // Create specific text for the positioned suggestions prompt
-    const resumeSectionsText = createResumeMapText(resumeMap);
+    // IMPROVED: We'll reduce the amount of text we're sending to avoid token limits
+    // Create a more concise text for the positioned suggestions prompt
+    const resumeSectionsText = createResumeMapTextConcise(resumeMap);
     
-    // Combine relevant parts of all analyses for context
+    // IMPROVED: Reduce the size of analysis text to avoid token limits
+    // Combine relevant parts of all analyses for context - but much more concise
     const combinedAnalysisText = Object.entries(analyses)
-      .map(([key, value]) => `${key.toUpperCase()} ANALYSIS:\n${value.substring(0, 200)}...`)
+      .map(([key, value]) => {
+        // Extract key insights and issues sections to reduce size
+        const content = value.substring(0, 150) + "...";
+        return `${key.toUpperCase()} SUMMARY:\n${content}`;
+      })
       .join("\n\n");
+    
+    console.log(`[Resume Analyzer] Preparing positioned suggestions with map (${resumeSectionsText.length} chars) and analysis (${combinedAnalysisText.length} chars)`);
     
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
@@ -831,15 +973,14 @@ async function generatePositionedSuggestions(
             role: "user",
             content: `Analyze this resume and provide specific, positioned suggestions for improvement. For each issue:
 1. Identify the exact section where the issue occurs (using the sectionId from the provided map)
-2. Specify the location within that section (paragraph number, bullet point number, or line number)
-3. Include a snippet of the problematic text
-4. Provide a clear suggestion for how to fix it
-5. Explain why this change matters
-6. Assign a severity level (critical, high, medium, or low)
-7. Categorize the issue (content, formatting, ATS, skills, etc.)
-8. Provide an example of the fixed text when applicable
+2. Include a snippet of the problematic text (keep it short, under 50 chars)
+3. Provide a clear suggestion for how to fix it
+4. Explain why this change matters
+5. Assign a severity level (critical, high, medium, or low)
+6. Categorize the issue (content, formatting, ATS, skills, etc.)
+7. Provide an example of the fixed text when applicable
 
-Format your response as a valid JSON array of objects with these properties:
+Format your response as a valid JSON array with these properties:
 [
   {
     "id": "unique-id",
@@ -850,8 +991,6 @@ Format your response as a valid JSON array of objects with these properties:
     "position": {
       "sectionId": 123,
       "sectionTitle": "section name",
-      "paragraphIndex": 0,
-      "bulletIndex": 0,
       "textSnippet": "problematic text"
     },
     "category": "content|formatting|ats|skills",
@@ -859,17 +998,21 @@ Format your response as a valid JSON array of objects with these properties:
   }
 ]
 
-Focus on the most important 5-8 issues across the resume. Keep the response concise, as there are token limits.
+IMPORTANT: 
+- Focus on the 3-5 most important issues only
+- Keep text snippets short and properly escape any quotes with \\ 
+- Make sure the JSON is valid and properly formatted
+- Only include essential fields that have values
 
 RESUME SECTION MAP:
 ${resumeSectionsText}
 
-ANALYSIS CONTEXT:
+ANALYSIS SUMMARY:
 ${combinedAnalysisText}
 `
           }
         ],
-        max_tokens: 1500
+        max_tokens: 1200
       })
     });
 
@@ -886,6 +1029,7 @@ ${combinedAnalysisText}
     }
     
     const content = result.choices[0].message.content;
+    console.log(`[Resume Analyzer] Received positioned suggestions response (${content.length} chars)`);
     
     // Extract the JSON array from the content
     // The content might have explanatory text before or after the JSON, so we need to extract just the JSON
@@ -896,16 +1040,49 @@ ${combinedAnalysisText}
     }
     
     try {
-      const suggestions = JSON.parse(jsonMatch[0]);
+      // IMPROVED: Try to fix common JSON formatting issues before parsing
+      let jsonStr = jsonMatch[0]
+        // Fix unescaped quotes in text snippets
+        .replace(/("textSnippet":\s*"[^"]*)"([^"]*")/g, '$1\\"$2')
+        // Fix unescaped quotes in example fixes
+        .replace(/("exampleFix":\s*"[^"]*)"([^"]*")/g, '$1\\"$2');
+      
+      // Attempt to parse the JSON
+      console.log(`[Resume Analyzer] Attempting to parse positioned suggestions JSON`);
+      const suggestions = JSON.parse(jsonStr);
+      
+      // Validate the parsed suggestions
+      if (!Array.isArray(suggestions)) {
+        throw new Error("Expected an array of suggestions");
+      }
+      
+      console.log(`[Resume Analyzer] Successfully parsed ${suggestions.length} positioned suggestions`);
       return suggestions;
     } catch (jsonError) {
       console.error("Error parsing positioned suggestions:", jsonError);
+      console.log("JSON with error:", jsonMatch[0].substring(0, 200) + "...");
       return fallbackPositionedSuggestions(resume, analyses);
     }
   } catch (error) {
     console.error("Error generating positioned suggestions:", error);
     return fallbackPositionedSuggestions(resume, analyses);
   }
+}
+
+/**
+ * Create a more concise formatted text representation of the resume map
+ * This version is optimized to reduce token count for API calls
+ */
+function createResumeMapTextConcise(resumeMap: ReturnType<typeof createResumeMap>): string {
+  return resumeMap.map(section => {
+    // Truncate long content to reduce tokens
+    const maxContentLength = 200;
+    const content = section.content.length > maxContentLength 
+      ? section.content.substring(0, maxContentLength) + "..." 
+      : section.content;
+    
+    return `SECTION: ${section.id} | ${section.title} | ${content}`;
+  }).join("\n\n");
 }
 
 /**

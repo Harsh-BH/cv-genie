@@ -14,19 +14,19 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
     {
       id: "exec-summary",
       title: "Executive Summary",
-      description: analysisData.executiveSummary,
+      description: formatStructuredContent(analysisData.executiveSummary),
       category: "overall"
     },
     {
       id: "content-strength",
       title: "Content Strengths",
-      description: extractPositiveFeedback(analysisData.overview),
+      description: extractAndFormatPositiveFeedback(analysisData.overview),
       category: "content"
     },
     {
       id: "industry-alignment",
       title: "Industry Alignment",
-      description: extractPositiveFeedback(analysisData.industryFit),
+      description: extractAndFormatPositiveFeedback(analysisData.industryFit),
       category: "industry"
     }
   ];
@@ -37,7 +37,7 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
     .map(sugg => ({
       id: sugg.id,
       title: sugg.issue,
-      description: sugg.reasoning,
+      description: formatStructuredContent(sugg.reasoning),
       category: sugg.category,
       severity: sugg.severity,
       position: sugg.position,
@@ -51,7 +51,7 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
     ...(analysisData.aiGeneratedImprovements?.summary ? [{
       id: "ai-summary",
       title: "Improved Professional Summary",
-      description: analysisData.aiGeneratedImprovements.summary,
+      description: formatStructuredContent(analysisData.aiGeneratedImprovements.summary),
       category: "content",
       type: "replacement"
     }] : []),
@@ -59,7 +59,7 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
     ...((analysisData.aiGeneratedImprovements?.bulletPoints || []).map((bullet, idx) => ({
       id: `ai-bullet-${idx}`,
       title: "Enhanced Bullet Point",
-      description: bullet,
+      description: formatStructuredContent(bullet),
       category: "content",
       type: "replacement"
     }))),
@@ -67,7 +67,7 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
     ...((analysisData.aiGeneratedImprovements?.achievements || []).map((achievement, idx) => ({
       id: `ai-achievement-${idx}`,
       title: "Achievement to Add",
-      description: achievement,
+      description: formatStructuredContent(achievement),
       category: "content",
       type: "addition"
     }))),
@@ -78,7 +78,7 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
       .map(sugg => ({
         id: sugg.id,
         title: sugg.suggestion,
-        description: sugg.exampleFix || sugg.reasoning,
+        description: formatStructuredContent(sugg.exampleFix || sugg.reasoning),
         category: sugg.category,
         severity: sugg.severity,
         position: sugg.position,
@@ -97,19 +97,80 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
   };
 }
 
-// Helper function to extract positive aspects from analysis text
-function extractPositiveFeedback(text: string): string {
-  // Look for positive sections in the text (strengths, positives, etc.)
-  const strengthsMatch = text?.match(/strengths?:[\s\S]*?((\n\n)|$)/i) || 
-                         text?.match(/positive[\s\S]*?((\n\n)|$)/i);
+/**
+ * Format structured content from AI responses for better display
+ */
+function formatStructuredContent(text: string): string {
+  if (!text) return '';
+  
+  // Replace markdown headers with styled HTML
+  let formattedText = text
+    .replace(/^## (.*$)/gm, '<h3 class="text-lg font-semibold text-purple-300 mt-3 mb-2">$1</h3>')
+    .replace(/^# (.*$)/gm, '<h2 class="text-xl font-bold text-purple-200 mt-4 mb-2">$1</h2>');
+  
+  // Convert bullet points to styled list items
+  formattedText = formattedText
+    .replace(/^\* (.*$)/gm, '<li class="ml-5 pl-2 my-1.5 list-disc">$1</li>')
+    .replace(/^• (.*$)/gm, '<li class="ml-5 pl-2 my-1.5 list-disc">$1</li>')
+    .replace(/^- (.*$)/gm, '<li class="ml-5 pl-2 my-1.5 list-disc">$1</li>');
+  
+  // Wrap adjacent list items with ul tags
+  const lines = formattedText.split('\n');
+  let inList = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const isListItem = lines[i].includes('<li');
+    
+    if (isListItem && !inList) {
+      lines[i] = '<ul class="my-2">' + lines[i];
+      inList = true;
+    } else if (!isListItem && inList) {
+      lines[i-1] = lines[i-1] + '</ul>';
+      inList = false;
+    }
+  }
+  
+  if (inList) {
+    lines.push('</ul>');
+  }
+  
+  // Convert links to clickable links
+  formattedText = lines.join('\n')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-400 underline" target="_blank">$1</a>');
+  
+  // Convert paragraphs to styled paragraphs with spacing
+  formattedText = formattedText
+    .replace(/^(?!<[hl]|<li|<ul|<\/ul>)(.+)$/gm, '<p class="my-2">$1</p>');
+    
+  return formattedText;
+}
+
+/**
+ * Helper function to extract and format positive feedback from analysis text
+ */
+function extractAndFormatPositiveFeedback(text: string): string {
+  if (!text) return '';
+  
+  // Look for structured strengths section
+  const strengthsMatch = text?.match(/## Strengths[\s\S]*?(## |$)/i) || 
+                         text?.match(/## Strong[\s\S]*?(## |$)/i) ||
+                         text?.match(/## Positives[\s\S]*?(## |$)/i);
   
   if (strengthsMatch) {
-    return strengthsMatch[0].trim();
+    // Remove the next section header if captured
+    let content = strengthsMatch[0].replace(/## [^\n]*$/, '').trim();
+    return formatStructuredContent(content);
+  }
+  
+  // If no structured section found, try to find bullet points of strengths
+  const bulletMatch = text?.match(/(strengths|positives|strong points)[^\n]*\n(\s*[-•*][^\n]*\n)+/i);
+  if (bulletMatch) {
+    return formatStructuredContent("## Strengths\n" + bulletMatch[0]);
   }
   
   // If no clear positive section, return first paragraph
   const firstParagraph = text?.split('\n\n')[0] || '';
-  return firstParagraph.trim();
+  return `<p class="my-2">${firstParagraph.trim()}</p>`;
 }
 
 export default function ReviewerPage() {
@@ -527,7 +588,7 @@ export default function ReviewerPage() {
       ) : (
         <>
           {/* Header */}
-          <header className="bg-black/30 invisible backdrop-blur-md border-b border-white/10">
+          <header className="bg-black/30 backdrop-blur-md border-b border-white/10">
             {/* ...existing header code... */}
             <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
               <motion.h1 
@@ -611,6 +672,7 @@ export default function ReviewerPage() {
                     feedback={sidebarData} 
                     onFeedbackSelect={handleFeedbackSelect}
                     activeItemId={activeItemId}
+                    renderHtml={true} // Add this prop to enable HTML rendering
                   />
                 )}
               </motion.div>

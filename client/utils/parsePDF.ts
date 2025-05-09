@@ -4,8 +4,7 @@ type ParsedPDFResult = {
   personalDetails: {
     name?: string;
     email?: string;
-    phone?: string;
-    location?: string;
+   
     profileSummary?: string;
   };
   sections: {
@@ -97,8 +96,7 @@ export async function parsePDFContent(base64PDF: string): Promise<ParsedPDFResul
     const personalDetails = {
       name: extractName(fullText),
       email: extractEmail(fullText),
-      phone: extractPhone(fullText),
-      location: extractLocation(fullText)
+    
     };
     
     return {
@@ -129,12 +127,7 @@ function extractEmail(text: string): string | undefined {
   return match ? match[0] : undefined;
 }
 
-function extractPhone(text: string): string | undefined {
-  // Look for phone number patterns
-  const phoneRegex = /(\+?[0-9]{1,3}[-.\s]?)?(\()?[0-9]{3}(\))?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/;
-  const match = text.match(phoneRegex);
-  return match ? match[0] : undefined;
-}
+
 
 function extractName(text: string): string | undefined {
   // This is very simplistic - in reality name extraction is complex
@@ -143,17 +136,11 @@ function extractName(text: string): string | undefined {
   if (lines.length > 0) {
     // Take first non-empty line that's not an email or phone
     for (const line of lines.slice(0, 5)) {
-      if (!extractEmail(line) && !extractPhone(line) && line.length < 50) {
+      if (!extractEmail(line)  && line.length < 50) {
         return line.trim();
       }
     }
     return lines[0].trim();
   }
   return undefined;
-}
-
-function extractLocation(text: string): string | undefined {
-  const locationRegex = /([A-Z][a-z]+\s?)+,\s?([A-Z]{2}|[A-Z][a-z]+)/;
-  const match = text.match(locationRegex);
-  return match ? match[0] : undefined;
 }
