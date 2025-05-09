@@ -69,19 +69,19 @@ export interface SidebarFeedback {
     title: string;
     description: string;
     category: string;
-    severity: string;
-    position: IssuePosition;
-    section: string;
-    textSnippet: string;
+    severity?: string;
+    position?: any;
+    section?: string;
+    textSnippet?: string;
   }>;
   improvements: Array<{
     id: string;
     title: string;
     description: string;
     category: string;
-    type?: string;
     severity?: string;
-    position?: IssuePosition;
+    position?: any;
+    type?: 'replacement' | 'addition' | 'suggestion';
   }>;
   score: number;
 }

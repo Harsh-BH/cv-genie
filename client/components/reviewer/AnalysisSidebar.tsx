@@ -1,130 +1,245 @@
-"use client";
-
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import FeedbackItem from "./FeedbackItem";
-import AnimatedInsight from "./AnimatedInsight";
+import { motion } from "framer-motion";
+import { SidebarFeedback } from "@/types/analysis";
 
-interface AnalysisSidebarProps {
-  feedback: {
-    insights: Array<any>;
-    mistakes: Array<any>;
-    improvements: Array<any>;
-    score: number;
-  };
-  onFeedbackSelect: (id: string, bounds?: { x: number; y: number; width: number; height: number } | null) => void;
+type AnalysisSidebarProps = {
+  feedback: SidebarFeedback;
+  onFeedbackSelect: (id: string, bounds?: any) => void;
   activeItemId: string | null;
-}
+  renderHtml?: boolean;
+};
 
-export default function AnalysisSidebar({ feedback, onFeedbackSelect, activeItemId }: AnalysisSidebarProps) {
-  const [activeTab, setActiveTab] = useState("insights");
-  const { insights, mistakes, improvements, score } = feedback;
+const AnalysisSidebar = ({ 
+  feedback, 
+  onFeedbackSelect, 
+  activeItemId,
+  renderHtml = false 
+}: AnalysisSidebarProps) => {
+  const [activeTab, setActiveTab] = useState<'insights' | 'mistakes' | 'improvements'>('insights');
+  const score = feedback.score;
   
-  // Badge count for each tab
-  const tabCounts = {
-    insights: insights.length,
-    mistakes: mistakes.length,
-    improvements: improvements.length
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return "text-green-400";
+    if (score >= 80) return "text-green-500";
+    if (score >= 70) return "text-yellow-400";
+    if (score >= 60) return "text-yellow-500";
+    if (score >= 50) return "text-orange-400";
+    return "text-red-500";
   };
   
-  const tabItems = {
-    insights,
-    mistakes,
-    improvements
+  const getScoreText = (score: number) => {
+    if (score >= 90) return "Excellent";
+    if (score >= 80) return "Very Good";
+    if (score >= 70) return "Good";
+    if (score >= 60) return "Fair";
+    if (score >= 50) return "Needs Work";
+    return "Poor";
   };
-
+  
+  const getSeverityBadge = (severity: string) => {
+    switch(severity) {
+      case 'critical':
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-red-500/20 text-red-300">Critical</span>;
+      case 'high':
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-orange-500/20 text-orange-300">High</span>;
+      case 'medium':
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-yellow-500/20 text-yellow-300">Medium</span>;
+      case 'low':
+        return <span className="px-2 py-0.5 text-xs rounded-full bg-blue-500/20 text-blue-300">Low</span>;
+      default:
+        return null;
+    }
+  };
+  
+  const renderContent = (content: string) => {
+    if (renderHtml) {
+      return (
+        <div
+          className="prose prose-sm prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+      );
+    }
+    
+    return <p className="text-white/70">{content}</p>;
+  };
+  
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className="h-full bg-black/30 backdrop-blur-lg rounded-xl border border-white/10 flex flex-col overflow-hidden"
-    >
-      {/* Header with score */}
-      <div className="p-6 bg-gradient-to-r from-purple-900/50 to-pink-900/50 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">CV Analysis</h2>
-          <div className="flex items-center">
-            <div className="text-white/70 mr-2 text-sm">Score:</div>
-            <div className="relative bg-white/10 rounded-full w-20 h-6">
-              <motion.div 
-                className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                initial={{ width: "0%" }}
-                animate={{ width: `${score}%` }}
-                transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
-                {score}%
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-6 -mx-2">
-          <AnimatedInsight />
-        </div>
+    <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-xl h-full overflow-hidden flex flex-col">
+      {/* Score Header */}
+      <div className="p-5 border-b border-white/10 text-center">
+        <div className="text-xs uppercase tracking-wider text-white/50 mb-1">Resume Score</div>
+        <div className={`text-5xl font-bold ${getScoreColor(score)}`}>{score}</div>
+        <div className={`text-sm mt-1 ${getScoreColor(score)}`}>{getScoreText(score)}</div>
       </div>
       
-      {/* Tab navigation */}
+      {/* Tab Navigation */}
       <div className="flex border-b border-white/10">
-        {["insights", "mistakes", "improvements"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-3 px-2 text-sm font-medium relative transition-colors
-              ${activeTab === tab ? 'text-white' : 'text-white/50 hover:text-white/80'}`}
-          >
-            <span className="capitalize">{tab}</span>
-            <span className="ml-1 inline-block px-1.5 py-0.5 text-xs rounded-full bg-white/10">
-              {tabCounts[tab as keyof typeof tabCounts]}
+        <button 
+          onClick={() => setActiveTab('insights')}
+          className={`flex-1 py-3 text-sm font-medium ${activeTab === 'insights' 
+            ? 'text-purple-400 border-b-2 border-purple-500' 
+            : 'text-white/50 hover:text-white/80'}`}
+        >
+          Insights
+        </button>
+        <button 
+          onClick={() => setActiveTab('mistakes')}
+          className={`flex-1 py-3 text-sm font-medium ${activeTab === 'mistakes' 
+            ? 'text-purple-400 border-b-2 border-purple-500' 
+            : 'text-white/50 hover:text-white/80'}`}
+        >
+          Issues
+          {feedback.mistakes.length > 0 && (
+            <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-red-500/20">
+              {feedback.mistakes.length}
             </span>
-            
-            {activeTab === tab && (
-              <motion.div
-                layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500"
-                initial={false}
-                animate={{}}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-            )}
-          </button>
-        ))}
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('improvements')}
+          className={`flex-1 py-3 text-sm font-medium ${activeTab === 'improvements' 
+            ? 'text-purple-400 border-b-2 border-purple-500' 
+            : 'text-white/50 hover:text-white/80'}`}
+        >
+          Improvements
+          {feedback.improvements.length > 0 && (
+            <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-green-500/20">
+              {feedback.improvements.length}
+            </span>
+          )}
+        </button>
       </div>
-
-      {/* Tab content with scrolling */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {tabItems[activeTab as keyof typeof tabItems].map((item) => (
-              <FeedbackItem
-                key={item.id}
-                feedback={{
-                  ...item,
-                  type: activeTab.slice(0, -1) as "insight" | "mistake" | "improvement"
-                }}
-                isActive={activeItemId === item.id}
-                onActivate={onFeedbackSelect}
-              />
-            ))}
-            
-            {tabItems[activeTab as keyof typeof tabItems].length === 0 && (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-white/50">
-                <svg className="w-16 h-16 mb-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p>No {activeTab} found for this CV</p>
+      
+      {/* Content Area */}
+      <div className="overflow-y-auto flex-grow">
+        {activeTab === 'insights' && (
+          <div className="p-4">
+            {feedback.insights.map(insight => (
+              <div 
+                key={insight.id}
+                className={`mb-6 p-4 rounded-lg transition-all ${
+                  activeItemId === insight.id 
+                    ? 'bg-white/10 shadow-lg' 
+                    : 'bg-white/5 hover:bg-white/10'
+                }`}
+                onClick={() => onFeedbackSelect(insight.id)}
+              >
+                <h3 className="text-lg font-semibold mb-2">{insight.title}</h3>
+                {renderContent(insight.description)}
               </div>
+            ))}
+          </div>
+        )}
+        
+        {activeTab === 'mistakes' && (
+          <div className="p-4">
+            {feedback.mistakes.length === 0 ? (
+              <div className="text-center py-8 text-white/50">
+                <svg className="mx-auto h-12 w-12 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="mt-2">No critical issues detected!</p>
+              </div>
+            ) : (
+              feedback.mistakes.map(mistake => (
+                <div 
+                  key={mistake.id}
+                  className={`mb-5 p-4 rounded-lg transition-all ${
+                    activeItemId === mistake.id 
+                      ? 'bg-white/10 shadow-lg border border-red-500/30' 
+                      : 'bg-white/5 hover:bg-white/10'
+                  }`}
+                  onClick={() => onFeedbackSelect(mistake.id, mistake.position)}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-base font-semibold">{mistake.title}</h3>
+                    {mistake.severity && getSeverityBadge(mistake.severity)}
+                  </div>
+                  
+                  {mistake.section && (
+                    <div className="mb-2 text-xs text-white/50">
+                      In section: <span className="text-white/80">{mistake.section}</span>
+                    </div>
+                  )}
+                  
+                  {mistake.textSnippet && (
+                    <div className="mb-3 text-sm bg-black/30 p-2 rounded border-l-2 border-red-500/50 italic text-white/70">
+                      "{mistake.textSnippet}"
+                    </div>
+                  )}
+                  
+                  {renderContent(mistake.description)}
+                </div>
+              ))
             )}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        )}
+        
+        {activeTab === 'improvements' && (
+          <div className="p-4">
+            {feedback.improvements.length === 0 ? (
+              <div className="text-center py-8 text-white/50">
+                <svg className="mx-auto h-12 w-12 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+                <p className="mt-2">No improvements generated yet</p>
+              </div>
+            ) : (
+              feedback.improvements.map(improvement => (
+                <div 
+                  key={improvement.id}
+                  className={`mb-5 p-4 rounded-lg transition-all ${
+                    activeItemId === improvement.id 
+                      ? 'bg-white/10 shadow-lg border border-purple-500/30' 
+                      : 'bg-white/5 hover:bg-white/10'
+                  }`}
+                  onClick={() => onFeedbackSelect(improvement.id, improvement.position)}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-base font-semibold flex items-center">
+                      {improvement.type === "replacement" && (
+                        <svg className="h-4 w-4 mr-1 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                      )}
+                      {improvement.type === "addition" && (
+                        <svg className="h-4 w-4 mr-1 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      )}
+                      {improvement.title}
+                    </h3>
+                    {improvement.severity && getSeverityBadge(improvement.severity)}
+                  </div>
+                  
+                  {renderContent(improvement.description)}
+                  
+                  {improvement.type === "replacement" && (
+                    <button className="mt-3 py-1.5 px-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 rounded-md text-sm flex items-center transition">
+                      <svg className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Apply Change
+                    </button>
+                  )}
+                  
+                  {improvement.type === "addition" && (
+                    <button className="mt-3 py-1.5 px-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 rounded-md text-sm flex items-center transition">
+                      <svg className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Add Content
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
-    </motion.div>
+    </div>
   );
-}
+};
+
+export default AnalysisSidebar;
