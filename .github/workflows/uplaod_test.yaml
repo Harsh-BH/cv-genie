@@ -1,5 +1,5 @@
-name: Build and Deploy
-
+name: Build (deploy later)
+# update
 on:
   push:
     branches: [sub, main2, main]
@@ -26,16 +26,36 @@ jobs:
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
 
+      - name: Check DATABASE_URL directly
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [[ -z "$DATABASE_URL" ]]; then
+            echo "DATABASE_URL is missing"
+          else
+            echo "DATABASE_URL starts with: ${DATABASE_URL:0:10}"
+          fi
+
+
       - name: Install dependencies
         run: |
           cd client
           npm install --legacy-peer-deps --verbose
           npm install --save-dev jest jest-environment-jsdom @testing-library/jest-dom @testing-library/react --legacy-peer-deps --verbose
-              
+
+      - name: Create .env file for Prisma
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> client/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> client/.env
+          echo "PERPLEXITY_API_KEY=${{ secrets.PERPLEXITY_API_KEY }}" >> client/.env
+          echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> client/.env
+
       - name: Run unit tests
+        env:
+          CI: true
         run: |
           cd client
-          npx jest || echo "Unit tests failed with exit code $?" && exit 1
+          npm test --verbose
 
       - name: Test Perplexity API connection
         run: cd client && npm run test:api
@@ -62,6 +82,14 @@ jobs:
         run: |
           cd client
           npm install
+
+      - name: Create .env file for Prisma
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> client/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> client/.env
+          echo "PERPLEXITY_API_KEY=${{ secrets.PERPLEXITY_API_KEY }}" >> client/.env
+          echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> client/.env
+    
       
       - name: Build the project
         run: cd client && npm run build
