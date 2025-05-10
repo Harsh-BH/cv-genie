@@ -100,9 +100,14 @@ function mapApiDataToSidebarFormat(analysisData: AnalysisData): SidebarFeedback 
 /**
  * Format structured content from AI responses for better display
  */
-function formatStructuredContent(text: string): string {
-  if (!text) return '';
-  
+// Add type checking before manipulating the text as a string
+function formatStructuredContent(text: any): string {
+  // Add defensive check to ensure text is a string
+  if (!text || typeof text !== 'string') {
+    console.warn('Attempted to format non-string content:', text);
+    return text ? String(text) : ''; // Convert to string if possible, or return empty string
+  }
+
   // Replace markdown headers with styled HTML
   let formattedText = text
     .replace(/^## (.*$)/gm, '<h3 class="text-lg font-semibold text-purple-300 mt-3 mb-2">$1</h3>')
