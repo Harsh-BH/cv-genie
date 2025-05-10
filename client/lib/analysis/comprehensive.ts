@@ -105,22 +105,41 @@ function calculateScores(analyses: Record<string, string>): {
   impact: number;
   skills: number;
 } {
-  // Simplified scoring logic
+  // Improved scoring logic to prevent NaN values
   function calculateScoreFromText(text: string): number {
+    if (!text) return 5; // Default middle score if no text
+    
     const positives = (text.match(/\b(strong|excellent|good|effective|clear|specific)\b/gi) || []).length;
     const negatives = (text.match(/\b(weak|poor|missing|inadequate|vague)\b/gi) || []).length;
-    return Math.max(2, Math.min(9, Math.round((positives - negatives + 5) * 10 / 10)));
+    
+    // Calculate score and ensure it's a valid number
+    const score = Math.max(2, Math.min(9, Math.round((positives - negatives + 5) * 10 / 10)));
+    
+    // Handle NaN with a default value
+    return isNaN(score) ? 5 : score;
   }
 
-  const content = calculateScoreFromText(analyses.content);
-  const ats = calculateScoreFromText(analyses.ats);
-  const formatting = calculateScoreFromText(analyses.formatting);
-  const skills = calculateScoreFromText(analyses.skills);
-  const impact = calculateScoreFromText(analyses.industry);
+  // Calculate individual scores with validation
+  const content = calculateScoreFromText(analyses.content || '');
+  const ats = calculateScoreFromText(analyses.ats || '');
+  const formatting = calculateScoreFromText(analyses.formatting || '');
+  const skills = calculateScoreFromText(analyses.skills || '');
+  const impact = calculateScoreFromText(analyses.industry || '');
 
-  const overall = (content * 0.35 + ats * 0.25 + formatting * 0.15 + impact * 0.15 + skills * 0.1);
+  // Calculate overall score with proper weighting
+  const overall = (
+    content * 0.35 + 
+    ats * 0.25 + 
+    formatting * 0.15 + 
+    impact * 0.15 + 
+    skills * 0.1
+  );
+  
+  // Format and validate overall score
+  const formattedOverall = parseFloat(overall.toFixed(1));
+  
   return {
-    overall: parseFloat(overall.toFixed(1)),
+    overall: isNaN(formattedOverall) ? 5.0 : formattedOverall,
     content,
     ats,
     formatting,
