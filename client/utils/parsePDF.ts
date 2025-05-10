@@ -134,7 +134,7 @@ function extractName(text: string): string | undefined {
   // We're assuming the name is one of the first lines of the document
   const lines = text.split('\n').filter(line => line.trim());
   if (lines.length > 0) {
-    // Take first non-empty line that's not an email or phone
+    
     for (const line of lines.slice(0, 5)) {
       if (!extractEmail(line)  && line.length < 50) {
         return line.trim();
