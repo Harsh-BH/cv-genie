@@ -1,28 +1,132 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import UserProfile from "@/components/dashboard/UserProfile";
 import CVList from "@/components/dashboard/CVList";
 import CVAnalysisModal from "@/components/dashboard/CVAnalysisModal";
 import AnimatedInsight from "@/components/reviewer/AnimatedInsight";
 
-// Mock user data (replace with actual auth)
+// User data (will come from authentication)
 const user = {
   name: "John Doe",
   email: "john.doe@example.com",
-//   avatarUrl: "https://media.licdn.com/dms/image/v2/D4D03AQHpOc-f0f3SYg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1712610875428?e=1751500800&v=beta&t=lIwnpWlTy4AgCoivXY58QD2V59mu-ZZcf9e9cs28t-w"
+  // avatarUrl: "..."
 };
 
-// Mock CV data (replace with actual API calls)
-const cvs = [
-  { id: 1, name: "Software Engineer CV", lastUpdated: "2023-08-15", score: 85 },
-  { id: 2, name: "Product Manager Resume", lastUpdated: "2023-09-02", score: 78 },
-  { id: 3, name: "UX Designer Portfolio", lastUpdated: "2023-10-10", score: 92 }
-];
+interface CV {
+  id: number;
+  fileName: string;
+  updatedAt: string;
+  score: number;
+}
 
 export default function DashboardPage() {
-  const [selectedCV, setSelectedCV] = useState<null | typeof cvs[0]>(null);
+  const [cvs, setCvs] = useState<CV[]>([]);
+  const [selectedCV, setSelectedCV] = useState<CV | null>(null);
+  const [analysisData, setAnalysisData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoadingCVs, setIsLoadingCVs] = useState<boolean>(true);
+
+  // Fetch all CVs when component mounts
+  useEffect(() => {
+    fetchCVs();
+  }, []);
+
+  // Fetch analysis when a CV is selected
+  useEffect(() => {
+    if (selectedCV) {
+      fetchAnalysisData(selectedCV.id);
+    } else {
+      // Clear analysis data when no CV is selected
+      setAnalysisData(null);
+    }
+  }, [selectedCV]);
+
+  // Function to fetch all CVs
+  const fetchCVs = async () => {
+    try {
+      setIsLoadingCVs(true);
+      
+      const response = await fetch("/api/getMyCvs", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch CVs: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 200) {
+        console.log("CVs fetched successfully:", data.resumes);
+        setCvs(data.resumes);
+      } else {
+        throw new Error(data.message || "Failed to fetch CVs");
+      }
+    } catch (err) {
+      console.error("Error fetching CVs:", err);
+      setError(err instanceof Error ? err.message : "An error occurred while fetching your CVs");
+    } finally {
+      setIsLoadingCVs(false);
+    }
+  };
+
+  // Function to fetch analysis data for a specific CV
+  const fetchAnalysisData = async (resumeId: number) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await fetch(`/api/resumeAnalysis?resumeId=${resumeId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch analysis: ${response.statusText}`);
+      }
+      
+      const responseData = await response.json();
+      
+      if (responseData.status === "success" && responseData.data) {
+        console.log("Analysis data received:", responseData.data);
+        setAnalysisData(responseData.data);
+      } else if (responseData.status === "not_found") {
+        console.log("No analysis found for this CV.");
+        setError("No analysis found for this CV. Please try creating an analysis first.");
+      } else {
+        throw new Error(responseData.message || "Unexpected response format");
+      }
+    } catch (err) {
+      console.error("Error fetching analysis:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle CV selection
+  const handleCVSelect = (cv: CV) => {
+    setSelectedCV(cv);
+  };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    setSelectedCV(null);
+    setAnalysisData(null);
+    setIsLoading(false);
+    setError(null);
+  };
 
   return (
     <motion.div
@@ -66,7 +170,18 @@ export default function DashboardPage() {
             transition={{ delay: 0.4 }}
             className="lg:col-span-2"
           >
-            <CVList cvs={cvs} onCVSelect={setSelectedCV} />
+            {isLoadingCVs ? (
+              <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20 flex justify-center items-center py-20">
+                <motion.div 
+                  className="w-12 h-12 border-4 border-purple-400 border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <p className="ml-4 text-white/70">Loading your CVs...</p>
+              </div>
+            ) : (
+              <CVList cvs={cvs} onCVSelect={handleCVSelect} />
+            )}
           </motion.div>
         </div>
         
@@ -74,8 +189,28 @@ export default function DashboardPage() {
         <CVAnalysisModal 
           cv={selectedCV} 
           isOpen={!!selectedCV}
-          onClose={() => setSelectedCV(null)} 
+          onClose={handleCloseModal}
+          analysisData={analysisData}
+          isLoading={isLoading}
         />
+        
+        {/* Error Toast */}
+        {error && (
+          <motion.div 
+            className="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+          >
+            {error}
+            <button 
+              className="ml-4 font-bold"
+              onClick={() => setError(null)}
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );

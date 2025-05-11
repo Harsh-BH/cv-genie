@@ -2,8 +2,6 @@
 
 import { motion } from "framer-motion";
 
-import { useEffect, useState } from "react";
-
 interface CV {
   id: number;
   fileName: string;
@@ -17,8 +15,6 @@ interface CVListProps {
 }
 
 export default function CVList({ cvs, onCVSelect }: CVListProps) {
-
-  const [myCvs,setMyCvs] = useState<CV[]>([])
   // Animation variants
   const container = {
     hidden: { opacity: 0 },
@@ -35,35 +31,25 @@ export default function CVList({ cvs, onCVSelect }: CVListProps) {
     show: { opacity: 1, y: 0 }
   };
 
-  const getMyCvs = async () => {
-    const res = await fetch("/api/getMyCvs", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      credentials: "include"
-    })
-    
-    const data = await res.json()
-
-    console.log(data)
-
-    if(data.status === 200) {
-      setMyCvs(data.resumes)
-    }
-  }
-
-  useEffect(() => {
-    getMyCvs()
-  },[])
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const formatted = date.toLocaleString();
     return formatted;
   }
 
+  // Format the score as a whole number percentage
+  const formatScore = (score: number | null | undefined) => {
+    if (score === null || score === undefined) return 70;
+    
+    // If score is already between 0-100, return it directly
+    if (score >= 0 && score <= 100) return Math.round(score);
+    
+    // If score is a decimal (0-1 range), convert to percentage
+    if (score >= 0 && score <= 1) return Math.round(score * 100);
+    
+    // Default fallback
+    return 70;
+  };
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
@@ -83,7 +69,7 @@ export default function CVList({ cvs, onCVSelect }: CVListProps) {
         </motion.a>
       </div>
 
-      {myCvs.length === 0 && myCvs ? (
+      {cvs.length === 0 ? (
         <div className="text-center py-12">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -103,43 +89,48 @@ export default function CVList({ cvs, onCVSelect }: CVListProps) {
           initial="hidden"
           animate="show"
         >
-          {myCvs?.map(cv => (
-            <motion.li 
-              key={cv.id}
-              variants={item}
-              whileHover={{ scale: 1.01 }}
-              onClick={() => onCVSelect(cv)}
-              className="p-4 bg-gray-700/40 rounded-lg cursor-pointer border border-gray-700 hover:border-purple-400/30 transition-colors"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-medium text-white">{cv.fileName}</h3>
-                  <p className="text-sm text-gray-400">Last updated: {formatDate(cv.updatedAt)}</p>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <div className="text-right">
-                    <p className="text-sm text-gray-400">Score</p>
-                    <p className="font-semibold text-lg text-white">{cv.score || "70%"}</p>
+          {cvs.map(cv => {
+            // Get properly formatted score
+            const scoreValue = formatScore(cv.score);
+            
+            return (
+              <motion.li 
+                key={cv.id}
+                variants={item}
+                whileHover={{ scale: 1.01 }}
+                onClick={() => onCVSelect(cv)}
+                className="p-4 bg-gray-700/40 rounded-lg cursor-pointer border border-gray-700 hover:border-purple-400/30 transition-colors"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-medium text-white">{cv.fileName}</h3>
+                    <p className="text-sm text-gray-400">Last updated: {formatDate(cv.updatedAt)}</p>
                   </div>
                   
-                  <motion.div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{
-                      background: `conic-gradient(#8b5cf6 ${cv.score || 70 * 3.6}deg, rgba(139, 92, 246, 0.1) 0deg)`
-                    }}
-                    initial={{ rotate: -90 }}
-                    animate={{ rotate: 0 }}
-                    transition={{ duration: 1, delay: 0.3 }}
-                  >
-                    <div className="bg-gray-800 w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium">
-                    {cv.score || 70}
+                  <div className="flex items-center space-x-2">
+                    <div className="text-right">
+                      <p className="text-sm text-gray-400">Score</p>
+                      <p className="font-semibold text-lg text-white">{scoreValue}%</p>
                     </div>
-                  </motion.div>
+                    
+                    <motion.div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{
+                        background: `conic-gradient(#8b5cf6 ${scoreValue * 3.6}deg, rgba(139, 92, 246, 0.1) 0deg)`
+                      }}
+                      initial={{ rotate: -90 }}
+                      animate={{ rotate: 0 }}
+                      transition={{ duration: 1, delay: 0.3 }}
+                    >
+                      <div className="bg-gray-800 w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium">
+                        {scoreValue}
+                      </div>
+                    </motion.div>
+                  </div>
                 </div>
-              </div>
-            </motion.li>
-          ))}
+              </motion.li>
+            );
+          })}
         </motion.ul>
       )}
     </div>
