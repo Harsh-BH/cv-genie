@@ -1,0 +1,784 @@
+/* CV Analysis Response Formatting */
+.cv-analysis-response {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: #333333; /* Changed from white to dark gray for better visibility */
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: rgba(248, 249, 250, 0.7); /* Translucent background for glassmorphism */
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 31, 63, 0.1);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.8s ease-in-out, floatIn 1.2s ease-out;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Add animated gradient border effect */
+.cv-analysis-response::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+  background-size: 400% 400%;
+  z-index: -1;
+  border-radius: 10px;
+  animation: gradientBorder 6s ease infinite;
+  opacity: 0.7;
+}
+
+.cv-analysis-response.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+}
+
+.cv-analysis-response h1 {
+  color: #2563eb;
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  animation: textGradient 5s linear infinite, slideIn 0.7s ease-out;
+  text-shadow: 0 0 10px rgba(37, 99, 235, 0);
+  transform-style: preserve-3d;
+  perspective: 500px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5, #2563eb);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+
+.cv-analysis-response h2 {
+  color: #1e40af;
+  font-size: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  animation: slideIn 0.6s ease-out, headingPulse 5s ease-in-out infinite;
+  position: relative;
+  background: linear-gradient(90deg, #1e40af, #3b82f6);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Add animated underline for h2 on hover */
+.cv-analysis-response h2::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px;
+  bottom: -5px;
+  left: 0;
+  background: linear-gradient(90deg, #1e40af, #60a5fa);
+  transition: width 0.4s ease;
+}
+
+.cv-analysis-response h2:hover::after {
+  width: 100%;
+}
+
+.cv-analysis-response h3 {
+  color: #374151;
+  font-size: 1.25rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+  animation: slideIn 0.5s ease-out, fadeColor 4s ease-in-out infinite alternate;
+}
+
+.cv-analysis-response hr.section-divider {
+  border: 0;
+  height: 3px;
+  background: linear-gradient(to right, transparent, #e5e7eb 50%, transparent);
+  margin: 1.5rem 0;
+  animation: expandWidth 1.3s ease-out, shineEffect 3s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add shine effect to section dividers */
+.cv-analysis-response hr.section-divider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
+  animation: shine 3s infinite;
+}
+
+.cv-analysis-response .highlight-metric {
+  color: #0891b2;
+  font-weight: 600;
+  padding: 0.1rem 0.3rem;
+  background-color: rgba(8, 145, 178, 0.1);
+  border-radius: 4px;
+  display: inline-block;
+  transition: all 0.3s ease;
+  animation: popIn 0.5s ease-out, bounce 5s ease infinite;
+  transform-origin: center;
+}
+
+.cv-analysis-response .highlight-positive {
+  color: #059669;
+  font-weight: 500;
+  padding: 0.1rem 0.3rem;
+  background-color: rgba(5, 150, 105, 0.1);
+  border-radius: 4px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+  animation: pulse 2s infinite, floatUp 3s ease-in-out infinite;
+}
+
+.cv-analysis-response .highlight-negative {
+  color: #dc2626;
+  font-weight: 500;
+  padding: 0.1rem 0.3rem;
+  background-color: rgba(220, 38, 38, 0.1);
+  border-radius: 4px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+  animation: shake 5s ease-in-out infinite;
+  position: relative;
+}
+
+.cv-analysis-response .section-strengths {
+  color: #059669;
+  padding: 0.75rem;
+  border-left: 4px solid #059669;
+  background-color: rgba(5, 150, 105, 0.05);
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 1rem;
+  animation: slideInLeft 0.8s ease-out, glowBorder 3s infinite alternate;
+  box-shadow: 0 5px 15px rgba(5, 150, 105, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.cv-analysis-response .section-strengths:hover {
+  transform: scale(1.01) translateX(3px);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.2);
+}
+
+.cv-analysis-response .section-weaknesses {
+  color: #dc2626;
+  padding: 0.75rem;
+  border-left: 4px solid #dc2626;
+  background-color: rgba(220, 38, 38, 0.05);
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 1rem;
+  animation: slideInLeft 0.8s ease-out, glowBorderNegative 3s infinite alternate;
+  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.cv-analysis-response .section-weaknesses:hover {
+  transform: scale(1.01) translateX(3px);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
+}
+
+.cv-analysis-response .achievement {
+  background-color: #f0f9ff;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+  border-left: 3px solid #3b82f6;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.8s ease-out;
+  z-index: 1;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.cv-analysis-response .achievement::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  z-index: -1;
+  transition: 0.5s;
+}
+
+.cv-analysis-response .achievement:hover::before {
+  left: 100%;
+  animation: shimmer 1.5s;
+}
+
+.cv-analysis-response .achievement:hover {
+  transform: translateX(5px) translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  border-left-width: 5px;
+}
+
+.cv-analysis-response ul, .cv-analysis-response ol {
+  margin-left: 1rem;
+  padding-left: 1rem;
+}
+
+.cv-analysis-response li {
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-left: 1.2rem;
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.cv-analysis-response li:nth-child(1) { animation-delay: 0.1s; }
+.cv-analysis-response li:nth-child(2) { animation-delay: 0.2s; }
+.cv-analysis-response li:nth-child(3) { animation-delay: 0.3s; }
+.cv-analysis-response li:nth-child(4) { animation-delay: 0.4s; }
+.cv-analysis-response li:nth-child(5) { animation-delay: 0.5s; }
+
+/* Add custom bullet points with animation */
+.cv-analysis-response ul li::before {
+  content: "•";
+  color: #3b82f6;
+  position: absolute;
+  left: 0;
+  animation: rotateBullet 3s linear infinite;
+  display: inline-block;
+  font-size: 1.2em;
+}
+
+.cv-analysis-response ol {
+  counter-reset: item;
+}
+
+.cv-analysis-response ol li {
+  counter-increment: item;
+}
+
+.cv-analysis-response ol li::before {
+  content: counter(item);
+  color: white;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: -0.3em;
+  top: 0.2em;
+  font-size: 0.8em;
+  animation: pulseNumber 2s infinite;
+}
+
+.cv-analysis-response p {
+  margin-bottom: 1rem;
+  animation: fadeIn 0.8s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.cv-analysis-response p.reveal {
+  animation: textReveal 0.5s ease-out forwards;
+}
+
+/* Card-like sections */
+.cv-analysis-response .analysis-card {
+  background-color: white;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  animation: cardAppear 0.8s ease-out;
+}
+
+.cv-analysis-response .analysis-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* 3D card hover effect */
+.cv-analysis-response .analysis-card.card-3d {
+  transition: transform 0.5s ease;
+  transform-style: preserve-3d;
+}
+
+.cv-analysis-response .analysis-card.card-3d:hover {
+  transform: rotateX(5deg) rotateY(5deg) translateY(-5px);
+}
+
+/* Glass card effect */
+.cv-analysis-response .glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  transition: all 0.3s ease;
+}
+
+.cv-analysis-response .glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.3);
+}
+
+/* Tip boxes */
+.cv-analysis-response .tip-box {
+  background-color: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  margin: 1.2rem 0;
+  position: relative;
+  animation: fadeIn 0.8s ease-out, tipPulse 5s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.cv-analysis-response .tip-box::before {
+  content: "\1F4A1 Tip"; /* Fixed: Using escaped character instead of emoji */
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #92400e;
+  animation: wiggle 6s ease-in-out infinite;
+}
+
+/* New elements for more visual interest */
+
+/* Progress bar */
+.cv-analysis-response .progress-container {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.cv-analysis-response .progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+  animation: progressGrow 1.5s ease-out forwards;
+  transform-origin: left;
+  position: relative;
+}
+
+.cv-analysis-response .progress-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progressShine 2s infinite;
+}
+
+/* Quote box */
+.cv-analysis-response .quote {
+  padding: 1.5rem;
+  position: relative;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #4b5563;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #3b82f6;
+  backdrop-filter: blur(10px);
+  animation: quoteAppear 0.8s ease-out;
+}
+
+.cv-analysis-response .quote::before {
+  content: "\201C"; /* Fixed: Using escaped character instead of curly quote */
+  font-size: 4rem;
+  position: absolute;
+  left: 0.5rem;
+  top: -1rem;
+  color: rgba(59, 130, 246, 0.2);
+  font-family: Georgia, serif;
+}
+
+/* Button styling */
+.cv-analysis-response .action-button {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cv-analysis-response .action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+}
+
+.cv-analysis-response .action-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.5s;
+}
+
+.cv-analysis-response .action-button:hover::after {
+  left: 100%;
+}
+
+/* Glass button */
+.cv-analysis-response .glass-button {
+  background: rgba(59, 130, 246, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #2563eb;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin: 1rem 0;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.cv-analysis-response .glass-button:hover {
+  background: rgba(59, 130, 246, 0.3);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+}
+
+/* Glowing text effect */
+.cv-analysis-response .glow-text {
+  text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+/* Animated text underline */
+.cv-analysis-response .hover-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.cv-analysis-response .hover-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transform-origin: bottom right;
+  transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
+}
+
+.cv-analysis-response .hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Wave text animation */
+.cv-analysis-response .wave-text {
+  display: inline-block;
+}
+
+.wave-text span {
+  display: inline-block;
+  animation: wave-animation 2s infinite;
+  animation-delay: calc(0.1s * var(--i));
+}
+
+/* Glass stat box */
+.cv-analysis-response .stat-box {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.2rem;
+  margin: 1rem 0;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.cv-analysis-response .stat-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.cv-analysis-response .stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+/* Particle effect for backgrounds */
+.cv-analysis-response .particles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background-color: rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.particle:nth-child(1) {
+  top: 10%;
+  left: 15%;
+  animation: floatingParticle 20s infinite linear;
+}
+
+.particle:nth-child(2) {
+  top: 40%;
+  left: 75%;
+  animation: floatingParticle 25s infinite linear reverse;
+}
+
+.particle:nth-child(3) {
+  top: 80%;
+  left: 30%;
+  animation: floatingParticle 30s infinite linear;
+}
+
+@keyframes floatingParticle {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-10px, 10px) rotate(90deg); }
+  50% { transform: translate(10px, 20px) rotate(180deg); }
+  75% { transform: translate(20px, -10px) rotate(270deg); }
+  100% { transform: translate(0, 0) rotate(360deg); }
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+  .cv-analysis-response {
+    padding: 1rem;
+    width: 90%;
+  }
+  
+  .cv-analysis-response h1 {
+    font-size: 1.6rem;
+  }
+  
+  .cv-analysis-response h2 {
+    font-size: 1.3rem;
+  }
+  
+  /* Disable some animations on mobile for performance */
+  .cv-analysis-response::before {
+    animation: none;
+    background-size: 200% 200%;
+  }
+  
+  .cv-analysis-response .particles-container {
+    display: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .cv-analysis-response {
+    background-color: rgba(31, 41, 55, 0.7);
+    color: #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .cv-analysis-response h1 {
+    color: #60a5fa;
+    border-bottom-color: #4b5563;
+  }
+  
+  .cv-analysis-response h2 {
+    color: #93c5fd;
+  }
+  
+  .cv-analysis-response h3 {
+    color: #d1d5db;
+  }
+  
+  .cv-analysis-response .analysis-card {
+    background-color: #374151;
+  }
+  
+  .cv-analysis-response .tip-box {
+    background-color: #3f3822;
+    border-color: #92400e;
+  }
+  
+  .cv-analysis-response hr.section-divider {
+    background: linear-gradient(to right, transparent, #4b5563, transparent);
+  }
+  
+  .cv-analysis-response .achievement {
+    background-color: #213251;
+    border-left-color: #3b82f6;
+  }
+  
+  .cv-analysis-response::before {
+    opacity: 0.4;
+  }
+  
+  .cv-analysis-response .quote {
+    color: #d1d5db;
+  }
+  
+  .cv-analysis-response .progress-container {
+    background-color: #4b5563;
+  }
+
+  .cv-analysis-response.glass-effect {
+    background: rgba(31, 41, 55, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .cv-analysis-response .glass-card {
+    background: rgba(55, 65, 81, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .cv-analysis-response .glass-button {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+  }
+
+  .cv-analysis-response .glass-button:hover {
+    background: rgba(59, 130, 246, 0.25);
+  }
+}
+
+/* Typewriter effect class */
+.cv-analysis-response .typewriter {
+  overflow: hidden;
+  border-right: 2px solid #3b82f6;
+  white-space: nowrap;
+  margin: 0 auto;
+  animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: #3b82f6 }
+}
+
+/* Special spotlight effect for important sections */
+.cv-analysis-response .spotlight {
+  position: relative;
+  padding: 1.5rem;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  animation: spotlightPulse 4s infinite;
+}
+
+@keyframes spotlightPulse {
+  0% { background-size: 100% 100%; }
+  50% { background-size: 120% 120%; }
+  100% { background-size: 100% 100%; }
+}
+
+/* Add new keyframes animations */
+@keyframes textGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes textReveal {
+  0% {
+    max-height: 0;
+    opacity: 0;
+  }
+  100% {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+@keyframes wave-animation {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes floatingGlow {
+  0% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+  100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
+}
+
+/* Glass containers with neon borders */
+.cv-analysis-response .neon-border {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  background: rgba(31, 41, 55, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1;
+}
+
+.cv-analysis-response .neon-border::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+  background-size: 400% 400%;
+  z-index: -1;
+  animation: gradientBorder 3s ease infinite;
+  border-radius: 12px;
+}
