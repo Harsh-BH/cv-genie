@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
 import CVDisplay from "@/components/reviewer/CVDisplay";
 import AnalysisDisplay from "@/components/reviewer/AnalysisDisplay";
+import AnalyticsSection from "@/components/reviewer/AnalyticsSection";
 import LoadingScreen from "@/components/shared/LoadingScreen";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import { AnalysisData } from "@/types/analysis";
@@ -275,11 +276,21 @@ export default function ReviewerPage() {
     );
   }
 
+  // Add explicit styles to ensure scrolling works
+  const pageStyle = {
+    minHeight: '150vh', // Ensure we have enough content to scroll
+    overflowY: 'auto',  // Explicitly allow vertical scrolling
+    overflowX: 'hidden' // Hide horizontal scrolling
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-purple-900/20 to-gray-900 text-white">
+    <div 
+      className="bg-gradient-to-b from-gray-950 via-purple-900/20 to-gray-900 text-white"
+      style={pageStyle}
+    >
       {/* Header */}
       <motion.header 
-        className="bg-black/30 backdrop-blur-md border-b border-white/10"
+        className="bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-10"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -322,37 +333,69 @@ export default function ReviewerPage() {
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left side - CV Display */}
+        {/* CV and Analysis Section */}
+        <section>
           <motion.div 
-            className="order-2 lg:order-1"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
           >
-            <CVDisplay 
-              resumeId={resumeId}
-              activeHighlight={activeItemId}
-              activeElement={activeElement}
-              activeSuggestion={getActiveSuggestion()}
-            />
+            {/* Left side - CV Display */}
+            <div className="order-2 lg:order-1">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <CVDisplay 
+                  resumeId={resumeId}
+                  activeHighlight={activeItemId}
+                  activeElement={activeElement}
+                  activeSuggestion={getActiveSuggestion()}
+                />
+              </motion.div>
+            </div>
+            
+            {/* Right side - Analysis */}
+            <div className="order-1 lg:order-2">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                {analysisData && (
+                  <AnalysisDisplay
+                    analysis={analysisData}
+                    onFeedbackSelect={handleFeedbackSelect}
+                  />
+                )}
+              </motion.div>
+            </div>
           </motion.div>
-          
-          {/* Right side - Analysis */}
-          <motion.div 
-            className="order-1 lg:order-2"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            {analysisData && (
-              <AnalysisDisplay
-                analysis={analysisData}
-                onFeedbackSelect={handleFeedbackSelect}
-              />
-            )}
-          </motion.div>
+        </section>
+        
+        {/* Divider with more margin to ensure scrolling */}
+        <div className="relative my-24">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/10"></div>
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-gray-900 px-4 text-sm text-white/60">ANALYTICS SECTION</span>
+          </div>
         </div>
+        
+        {/* Analytics Section */}
+        {analysisData && (
+          <>
+            <section className="bg-black/20 rounded-xl p-6 backdrop-blur-sm border border-white/5 shadow-xl mb-20">
+              <AnalyticsSection analysis={analysisData} />
+            </section>
+            
+            {/* Add spacer at the bottom to ensure we have enough content for scrolling */}
+            <div className="h-screen"></div>
+          </>
+        )}
       </main>
     </div>
   );
