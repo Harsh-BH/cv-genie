@@ -24,6 +24,7 @@ export async function extractTextFromPdf(pdfData: string): Promise<string> {
         
         // Import with proper type assertions
         const pdfParse = (await import('pdf-parse/lib/pdf-parse.js')).default;
+        console.log("pdf-parse imported successfully");
         
         console.log("Extracting PDF text with pdf-parse");
         const result = await pdfParse(buffer);
@@ -72,6 +73,7 @@ export async function extractTextFromPdf(pdfData: string): Promise<string> {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ pdfData })
         });
+        
         
         if (!response.ok) {
           throw new Error(`PDF extraction API failed: ${response.status}`);

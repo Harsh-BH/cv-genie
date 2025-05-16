@@ -1,149 +1,100 @@
-import { StructuredResume, AnalysisResult } from "@/lib/analysis/models/analysis-types";
-import { analyzeContent } from "./analyzers/content-analyzer";
-import { analyzeFormatting } from "./analyzers/format-analyzer";
-import { analyzeAtsCompatibility } from "./analyzers/ats-analyzer";
-import { analyzeSkills } from "./analyzers/skills-analyzer";
-import { analyzeIndustryFit } from "./analyzers/industry-analyzer";
-import { generateImprovements } from "./analyzers/improvement-generator";
-import { generatePositionedSuggestions } from "./analyzers/position-analyzer";
+import { analyzeContent } from './analyzers/content-analyzer';
+import { analyzeAtsCompatibility } from './analyzers/ats-analyzer';
+import { analyzeIndustryFit } from './analyzers/industry-analyzer';
+import { analyzeSkills } from './analyzers/skills-analyzer';
+import { generateImprovements } from './analyzers/improvement-generator';
+import { analyzeScores } from './analyzers/score-analyzer';
+import { StructuredResume, AnalysisResult } from './models/analysis-types';
 
-export async function analyzeResumeComprehensive(resume: StructuredResume): Promise<AnalysisResult> {
+/**
+ * Performs a comprehensive analysis of a resume, combining multiple analyzers
+ * to create a complete assessment and scoring.
+ */
+export async function analyzeResumeComprehensive(resume: any): Promise<AnalysisResult> {
   try {
-    console.log("Starting comprehensive resume analysis");
+    console.log("Starting comprehensive resume analysis...");
+    const normalizedResume: StructuredResume = normalizeResumeStructure(resume);
     
-    // Check for raw content first, then fallback to sections if available
-    const rawContent = resume.rawContent || resume.fileData || "";
-    let contentToAnalyze = rawContent;
-    
-    // If we have sections, use that formatted content instead
-    if (resume.sections && resume.sections.length > 0) {
-      console.log(`Resume has ${resume.sections.length} sections, using those for analysis`);
-      contentToAnalyze = resume.sections
-        .map(section => `## ${section.title.toUpperCase()}\n${section.content}`)
-        .join('\n\n');
-    } else if (rawContent) {
-      console.log(`Using raw content (${rawContent.length} chars) for analysis`);
-    } else {
-      throw new Error("Resume has no content for analysis");
-    }
-    
-    // Create a minimal sections array if none exists
-    if (!resume.sections || resume.sections.length === 0) {
-      resume.sections = [{
-        id: Math.floor(Math.random() * 10000),
-        title: "Resume Content",
-        type: "content", 
-        content: contentToAnalyze,
-        order: 0
-      }];
-    }
-    
-    console.log(`Analyzing resume with ${resume.sections.length} sections and ${contentToAnalyze.length} characters`);
-
-    // Log section titles to verify content
-    const sectionTitles = resume.sections.map(s => s.title).join(', ');
-    console.log(`Resume sections: ${sectionTitles}`);
-
-    // Run all analysis tasks in parallel
-    const [
-      contentAnalysis,
-      formattingReview,
-      atsCompatibility,
-      skillsAnalysis,
-      industryFit,
-      improvements,
-      positionedSuggestions
-    ] = await Promise.all([
-      analyzeContent(resume),
-      analyzeFormatting(resume),
-      analyzeAtsCompatibility(resume),
-      analyzeSkills(resume),
-      analyzeIndustryFit(resume),
-      generateImprovements(resume),
-      generatePositionedSuggestions(resume)
+    // Step 1: First-pass analyses (run in parallel)
+    const [contentResults, atsResults, industryResults, skillsResults] = await Promise.all([
+      analyzeContent(normalizedResume),
+      analyzeAtsCompatibility(normalizedResume),
+      analyzeIndustryFit(normalizedResume),
+      analyzeSkills(normalizedResume)
     ]);
-
-    // Calculate scores based on analysis results
-    const scores = calculateScores({
-      content: contentAnalysis.contentQuality,
-      formatting: formattingReview,
-      ats: atsCompatibility,
-      skills: skillsAnalysis,
-      industry: industryFit
+    
+    // Step 2: Generate improvement suggestions based on previous analyses
+    const improvementsResult = await generateImprovements(normalizedResume);
+    
+    // Step 3: Calculate scores based on all the analyses
+    const scores = await analyzeScores(normalizedResume, {
+      contentQuality: contentResults.contentQuality,
+      atsCompatibility: atsResults,
+      industryFit: industryResults,
+      skillsAnalysis: skillsResults
     });
-
-    // Generate career trajectory insights
-    const careerTrajectory = `Based on your resume, your career appears to be progressing in the direction of ${
-      resume.sections.find(s => s.title.toLowerCase().includes("experience"))?.content.split("\n")[0] || "your current field"
-    }. Consider how your current skills and experiences align with your long-term goals.`;
-
+    
+    // Step 4: Compile all results
     return {
-      executiveSummary: contentAnalysis.executiveSummary,
-      overview: contentAnalysis.overview,
-      contentQuality: { set: contentAnalysis.contentQuality },
-      formattingReview,
-      atsCompatibility,
-      skillsAnalysis,
-      industryFit,
-      careerTrajectory,
-      improvementSuggestions: improvements.improvementSuggestions,
+      executiveSummary: contentResults.executiveSummary,
+      overview: contentResults.overview,
+      contentQuality: { set: contentResults.contentQuality }, // Formatted for Prisma
+      atsCompatibility: atsResults,
+      industryFit: industryResults,
+      formattingReview: "Formatting analysis will be provided in future update.", // Placeholder
+      skillsAnalysis: skillsResults,
+      careerTrajectory: "Career trajectory analysis will be provided in future update.", // Placeholder
+      improvementSuggestions: improvementsResult.improvementSuggestions,
       scoreBreakdown: scores,
-      aiGeneratedImprovements: improvements.aiGeneratedImprovements,
-      positionedSuggestions
+      aiGeneratedImprovements: improvementsResult.aiGeneratedImprovements,
+      positionedSuggestions: [] // Placeholder for future enhancement
     };
   } catch (error) {
-    console.error("Comprehensive analysis failed:", error);
-    throw error;
+    console.error("Comprehensive analysis error:", error);
+    // Return a minimal result with error information
+    return {
+      executiveSummary: `Error analyzing resume: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      overview: "Analysis could not be completed due to an error.",
+      contentQuality: { set: "Content analysis failed." },
+      atsCompatibility: "ATS compatibility analysis failed.",
+      industryFit: "Industry fit analysis failed.",
+      formattingReview: "Formatting review could not be completed.",
+      skillsAnalysis: "Skills analysis failed.",
+      careerTrajectory: "Career trajectory analysis failed.",
+      improvementSuggestions: "Improvement suggestions could not be generated due to an error.",
+      scoreBreakdown: {
+        overall: 0,
+        content: 0,
+        ats: 0,
+        formatting: 0,
+        impact: 0,
+        skills: 0,
+        grammar: 0,
+        clarity: 0
+      },
+      aiGeneratedImprovements: {
+        summary: "",
+        bulletPoints: [],
+        achievements: [],
+        experience: [],
+        skills: [],
+        education: [],
+        projects: []
+      },
+      positionedSuggestions: []
+    };
   }
 }
 
-function calculateScores(analyses: Record<string, string>): {
-  overall: number;
-  content: number;
-  ats: number;
-  formatting: number;
-  impact: number;
-  skills: number;
-} {
-  // Improved scoring logic to prevent NaN values
-  function calculateScoreFromText(text: string): number {
-    if (!text) return 5; // Default middle score if no text
-    
-    const positives = (text.match(/\b(strong|excellent|good|effective|clear|specific)\b/gi) || []).length;
-    const negatives = (text.match(/\b(weak|poor|missing|inadequate|vague)\b/gi) || []).length;
-    
-    // Calculate score and ensure it's a valid number
-    const score = Math.max(2, Math.min(9, Math.round((positives - negatives + 5) * 10 / 10)));
-    
-    // Handle NaN with a default value
-    return isNaN(score) ? 5 : score;
-  }
-
-  // Calculate individual scores with validation
-  const content = calculateScoreFromText(analyses.content || '');
-  const ats = calculateScoreFromText(analyses.ats || '');
-  const formatting = calculateScoreFromText(analyses.formatting || '');
-  const skills = calculateScoreFromText(analyses.skills || '');
-  const impact = calculateScoreFromText(analyses.industry || '');
-
-  // Calculate overall score with proper weighting
-  const overall = (
-    content * 0.35 + 
-    ats * 0.25 + 
-    formatting * 0.15 + 
-    impact * 0.15 + 
-    skills * 0.1
-  );
-  
-  // Format and validate overall score
-  const formattedOverall = parseFloat(overall.toFixed(1));
-  
+/**
+ * Normalize resume data structure to ensure consistent format for analysis
+ */
+function normalizeResumeStructure(resume: any): StructuredResume {
   return {
-    overall: isNaN(formattedOverall) ? 5.0 : formattedOverall,
-    content,
-    ats,
-    formatting,
-    impact,
-    skills
+    fileName: resume.fileName || "Resume",
+    fileData: resume.fileData || "",
+    rawContent: resume.rawContent || resume.fileData || "",
+    sections: Array.isArray(resume.sections) ? resume.sections : [],
+    user: resume.user || { name: "Unknown", email: "" }
   };
 }

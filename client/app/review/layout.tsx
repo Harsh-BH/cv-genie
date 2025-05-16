@@ -14,6 +14,7 @@ export default function ReviewerLayout({
   
   // Add page transition and setup
   useEffect(() => {
+   
     
     // Track mouse position for parallax/lighting effect
     const handleMouseMove = (e: MouseEvent) => {
