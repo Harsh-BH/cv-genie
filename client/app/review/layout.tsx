@@ -28,6 +28,9 @@ export default function ReviewerLayout({
   
   // Add page transition and setup
   useEffect(() => {
+    // Prevent scrollbar jittering by forcing overflow-x hidden
+    document.body.style.overflowX = "hidden";
+    
     // Generate particle properties once on client-side
     const newParticles = Array(15).fill(0).map(() => ({
       width: Math.random() * 50 + 10,
@@ -49,7 +52,7 @@ export default function ReviewerLayout({
     window.addEventListener('mousemove', handleMouseMove);
     
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflowX = "auto"; // Reset on cleanup
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
@@ -65,11 +68,11 @@ export default function ReviewerLayout({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="h-full bg-gradient-to-b from-gray-900 via-purple-900/20 to-gray-900 relative "
+        className="h-full min-h-screen bg-gradient-to-b from-gray-900 via-purple-900/20 to-gray-900 relative overflow-x-hidden"
       >
         {/* Dynamic gradient that follows mouse */}
         <div 
-          className="absolute inset-0 pointer-events-none z-0 transition-all duration-300 ease-out"
+          className="fixed inset-0 pointer-events-none z-0 transition-all duration-300 ease-out"
           style={gradientStyle}
         />
         
@@ -77,7 +80,7 @@ export default function ReviewerLayout({
         {particles.map((particle, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-white/10 backdrop-blur-sm"
+            className="fixed rounded-full bg-white/10 backdrop-blur-sm"
             style={{
               width: particle.width,
               height: particle.height,
@@ -98,7 +101,7 @@ export default function ReviewerLayout({
         ))}
         
         {/* Main content */}
-        <div className="relative z-10">
+        <div className="relative z-10 w-full">
           {children}
         </div>
       </motion.div>
