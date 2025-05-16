@@ -77,6 +77,10 @@ export async function generatePositionedSuggestions(resume: StructuredResume): P
     console.error('Positioned suggestions error:', error);
     return [{
       id: uuidv4(),
+      type: 'overall',                         // Added required property
+      sectionType: 'General',                  // Added required property
+      original: '',                            // Added required property
+      improved: '',                            // Added required property
       issue: 'Error Analyzing Resume',
       suggestion: 'Please try again or contact support',
       reasoning: `Failed to generate positioned suggestions: ${error instanceof Error ? error.message : 'Unknown error'}`,
