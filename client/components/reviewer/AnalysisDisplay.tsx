@@ -78,12 +78,12 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
 
   // Ensure all scores are valid numbers
   const scoreBreakdown = {
-    overall: (analysis.overallScore) * 10,
-    content: (analysis.contentScore) * 10,
-    ats: (analysis.atsOptimizationScore) * 10,
-    formatting: (analysis.formattingScore) * 10,
-    impact: (analysis.industryAlignmentScore) * 10,
-    skills: (analysis.skillsScore) * 10
+    overall: (analysis.overallScore) ,
+    content: (analysis.contentScore) ,
+    ats: (analysis.atsOptimizationScore),
+    formatting: (analysis.formattingScore),
+    impact: (analysis.industryAlignmentScore),
+    skills: (analysis.skillsScore) 
   };
 
   // Color mapping based on score
