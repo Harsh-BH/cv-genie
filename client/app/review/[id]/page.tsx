@@ -3,12 +3,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import CVDisplay from "@/components/reviewer/CVDisplay";
 import AnalysisDisplay from "@/components/reviewer/AnalysisDisplay";
 import AnalyticsSection from "@/components/reviewer/AnalyticsSection";
 import LoadingScreen from "@/components/shared/LoadingScreen";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import { AnalysisData } from "@/types/analysis";
+import ExternalResources from "@/components/reviewer/ExternalResources";
+import ResourcesSidebar from "@/components/reviewer/ResourcesSidebar";
+import { ResourceCategory } from "@/lib/data/resource-links";
 
 export default function ReviewerPage() {
   const params = useParams();
@@ -33,6 +37,16 @@ export default function ReviewerPage() {
 
   // Add a ref to track if analysis has already been triggered
   const analysisTriggeredRef = useRef(false);
+  
+  // Resource sidebar state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarCategory, setSidebarCategory] = useState<ResourceCategory | 'all'>('all');
+
+  // Function to open sidebar with a specific category
+  const openResourceSidebar = (category: ResourceCategory | 'all' = 'all') => {
+    setSidebarCategory(category);
+    setIsSidebarOpen(true);
+  };
 
   // Function to check analysis status
   const checkAnalysisStatus = useCallback(async (id: number) => {
@@ -278,6 +292,13 @@ export default function ReviewerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-purple-900/20 to-gray-900 text-white pb-20">
+      {/* Resources Sidebar */}
+      <ResourcesSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        initialCategory={sidebarCategory}
+      />
+      
       {/* Header */}
       <motion.header 
         className="bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-10"
@@ -303,8 +324,18 @@ export default function ReviewerPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center"
+            className="flex items-center gap-2"
           >
+            <button 
+              onClick={() => openResourceSidebar()}
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+            >
+              <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Resources
+            </button>
+            
             <button 
               onClick={() => {
                 // Create and download PDF report
@@ -419,11 +450,193 @@ export default function ReviewerPage() {
         
         {/* Analytics Section */}
         {analysisData && (
-          <section className="bg-black/20 rounded-xl p-6 backdrop-blur-sm border border-white/5 shadow-xl">
+          <section className="bg-black/20 rounded-xl p-6 backdrop-blur-sm border border-white/5 shadow-xl mb-16">
             <AnalyticsSection analysis={analysisData} />
           </section>
         )}
+        
+        {/* Resources Section */}
+        <div className="relative my-16">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/10"></div>
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-gray-900 px-4 text-sm text-white/60">RESOURCES</span>
+          </div>
+        </div>
+        
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+        >
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-white">Resume Resources</h2>
+            <button 
+              onClick={() => openResourceSidebar()}
+              className="text-purple-400 hover:text-purple-300 text-sm flex items-center"
+            >
+              View All Resources
+              <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Resource Category Quick Access */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <CategoryCard 
+              title="ATS Optimization" 
+              description="Tools to help your resume pass Applicant Tracking Systems"
+              icon="🎯"
+              onClick={() => openResourceSidebar('ats-optimization')}
+            />
+            <CategoryCard 
+              title="Resume Templates" 
+              description="Professional templates to improve your resume layout"
+              icon="📝"
+              onClick={() => openResourceSidebar('template')}
+            />
+            <CategoryCard 
+              title="Industry Specific" 
+              description="Resources tailored to your industry or field"
+              icon="🏢"
+              onClick={() => openResourceSidebar('industry-specific')}
+            />
+          </div>
+          
+          {/* Preview of resources */}
+          <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-700/40 rounded-xl p-6">
+            <div className="mb-4 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-white">Featured Resources</h3>
+              <button 
+                onClick={() => openResourceSidebar()}
+                className="text-sm text-purple-400 hover:text-purple-300 flex items-center"
+              >
+                Explore All 
+                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Show 3 featured resources - one premium, one ATS, one writing guide */}
+              <ResourcePreviewCard
+                title="JobScan"
+                description="Match your resume against job descriptions for ATS optimization"
+                category="ATS Optimization"
+                isPremium={true}
+                onClick={() => openResourceSidebar('ats-optimization')}
+              />
+              <ResourcePreviewCard
+                title="Harvard Resume Guide"
+                description="Comprehensive resume writing guides and examples"
+                category="Writing Guide"
+                isPremium={false}
+                onClick={() => openResourceSidebar('writing-guide')}
+              />
+              <ResourcePreviewCard
+                title="Canva Resume Builder"
+                description="Design-focused resume builder with customizable templates"
+                category="Resume Builder"
+                isPremium={false}
+                onClick={() => openResourceSidebar('resume-builder')}
+              />
+            </div>
+            
+            <div className="mt-6 text-center">
+              <button 
+                onClick={() => openResourceSidebar()}
+                className="inline-flex items-center px-6 py-3 bg-purple-700 hover:bg-purple-600 rounded-lg text-white transition-colors shadow-lg hover:shadow-purple-700/30"
+              >
+                Explore All Resources
+                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </motion.div>
       </main>
     </div>
+  );
+}
+
+function CategoryCard({ 
+  title, 
+  description, 
+  icon, 
+  onClick 
+}: { 
+  title: string; 
+  description: string; 
+  icon: string;
+  onClick: () => void;
+}) {
+  return (
+    <motion.div
+      onClick={onClick}
+      className="bg-gray-800/60 hover:bg-gray-800 border border-gray-700/40 rounded-lg p-4 cursor-pointer transition-all relative overflow-hidden group"
+      whileHover={{ y: -5, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      <div className="text-3xl mb-3">{icon}</div>
+      <h3 className="text-lg font-medium text-white group-hover:text-purple-300 transition-colors">{title}</h3>
+      <p className="mt-1 text-sm text-gray-300">{description}</p>
+      <div className="mt-3 text-purple-400 text-sm flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+        Explore Resources
+        <svg className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+      
+      {/* Decorative glowing corner */}
+      <div className="absolute -bottom-2 -right-2 w-16 h-16 bg-purple-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+    </motion.div>
+  );
+}
+
+function ResourcePreviewCard({ 
+  title, 
+  description, 
+  category,
+  isPremium,
+  onClick
+}: {
+  title: string;
+  description: string;
+  category: string;
+  isPremium?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <motion.div 
+      onClick={onClick}
+      className="p-4 bg-gray-800/40 hover:bg-gray-800/70 border border-gray-700/40 rounded-lg cursor-pointer group"
+      whileHover={{ scale: 1.03, y: -2 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <span className="text-xs px-2 py-0.5 bg-purple-900/60 rounded-full text-purple-100">
+          {category}
+        </span>
+        {isPremium && (
+          <span className="text-xs px-2 py-0.5 bg-amber-800/80 rounded-full text-amber-100">
+            Premium
+          </span>
+        )}
+      </div>
+      
+      <h4 className="font-medium text-white group-hover:text-purple-300 transition-colors">{title}</h4>
+      <p className="mt-1 text-sm text-gray-300">{description}</p>
+      
+      <div className="mt-2 text-purple-400 text-xs flex items-center group-hover:text-purple-300">
+        View Details
+        <svg className="ml-1 w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </motion.div>
   );
 }
