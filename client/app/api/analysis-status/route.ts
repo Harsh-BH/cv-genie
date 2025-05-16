@@ -98,7 +98,19 @@ export async function GET(req: NextRequest) {
             id: analysis.id,
             status: analysis.status,
             resumeId: analysis.resumeId,
-            createdAt: analysis.createdAt
+            createdAt: analysis.createdAt,
+            updatedAt: analysis.updatedAt,
+            // Include all scores if analysis is complete
+            ...(analysis.status === 'completed' && {
+                overallScore: analysis.overallScore || 0,
+                contentScore: analysis.contentScore || 0,
+                atsOptimizationScore: analysis.atsOptimizationScore || 0,
+                formattingScore: analysis.formattingScore || 0,
+                industryAlignmentScore: analysis.industryAlignmentScore || 0,
+                skillsScore: analysis.skillsScore || 0,
+                grammarScore: analysis.grammarScore || 0,
+                clarityScore: analysis.clarityScore || 0,
+            })
         });
     } catch (error) {
         console.error("Analysis status check error:", error);

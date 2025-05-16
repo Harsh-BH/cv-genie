@@ -2,29 +2,47 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, 
-  PieChart, Pie, Cell
-} from "recharts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Target, AlertCircleIcon, Award, TrendingUpIcon, FileText, Briefcase, Code, MessageSquare } from "lucide-react";
 import { AnalysisData } from "@/types/analysis";
+
+// Import the tab components
+import OverviewTab from "./analytics/OverviewTab";
+import ScoresTab from "./analytics/ScoresTab";
+// Other tab imports will go here...
 
 interface AnalyticsSectionProps {
   analysis: AnalysisData;
 }
 
 const AnalyticsSection = ({ analysis }: AnalyticsSectionProps) => {
-  // Score breakdown for radar chart
+  // Parse score data from API response
+
+  console.log("Analysis Data:", analysis);
+  const scoreBreakdown = {
+    overall: analysis.overallScore || 0,
+    content: analysis.contentScore || 0,
+    ats: analysis.atsOptimizationScore || 0,
+    formatting: analysis.formattingScore || 0,
+    impact: analysis.industryAlignmentScore || 0,
+    skills: analysis.skillsScore || 0,
+    grammar: analysis.grammarScore || 0,
+    clarity: analysis.clarityScore || 0,
+  };
+  
+  // Radar chart data
   const scoreData = [
-    { subject: 'Overall', value: analysis.overallScore || 0, fullMark: 100 },
-    { subject: 'Content', value: analysis.contentScore || 0, fullMark: 100 },
-    { subject: 'Format', value: analysis.formatScore || 0, fullMark: 100 },
-    { subject: 'Grammar', value: analysis.grammarScore || 0, fullMark: 100 },
-    { subject: 'Clarity', value: analysis.clarityScore || 0, fullMark: 100 },
+    { subject: 'Overall', value: scoreBreakdown.overall, fullMark: 100 },
+    { subject: 'Content', value: scoreBreakdown.content, fullMark: 100 },
+    { subject: 'Formatting', value: scoreBreakdown.formatting, fullMark: 100 },
+    { subject: 'ATS', value: scoreBreakdown.ats, fullMark: 100 },
+    { subject: 'Skills', value: scoreBreakdown.skills, fullMark: 100 },
+    { subject: 'Industry', value: scoreBreakdown.impact, fullMark: 100 },
   ];
 
-  // Data for issues found chart
+  // Issues data
   const issuesByType = [
     { name: 'Grammar', count: analysis.issues?.grammar?.length || 0 },
     { name: 'Format', count: analysis.issues?.format?.length || 0 },
@@ -34,66 +52,98 @@ const AnalyticsSection = ({ analysis }: AnalyticsSectionProps) => {
 
   // Section strength analysis
   const sectionAnalysis = [
-    { name: 'Header', score: analysis.sectionScores?.header || 0 },
     { name: 'Summary', score: analysis.sectionScores?.summary || 0 },
     { name: 'Experience', score: analysis.sectionScores?.experience || 0 },
     { name: 'Education', score: analysis.sectionScores?.education || 0 },
     { name: 'Skills', score: analysis.sectionScores?.skills || 0 },
+    { name: 'Header', score: analysis.sectionScores?.header || 0 },
+  ].sort((a, b) => b.score - a.score); // Sort by highest score
+
+  // Resume performance metrics
+  const performanceMetrics = [
+    { 
+      name: 'ATS Compatibility', 
+      value: scoreBreakdown.ats,
+      icon: <FileText className="h-4 w-4" />,
+      description: 'How well your resume works with applicant tracking systems'
+    },
+    { 
+      name: 'Industry Alignment', 
+      value: scoreBreakdown.impact,
+      icon: <Briefcase className="h-4 w-4" />,
+      description: 'How well your resume matches industry expectations'
+    },
+    { 
+      name: 'Skills Relevance', 
+      value: scoreBreakdown.skills,
+      icon: <Code className="h-4 w-4" />,
+      description: 'How relevant your skills are to the target roles'
+    },
+    { 
+      name: 'Content Quality', 
+      value: scoreBreakdown.content,
+      icon: <MessageSquare className="h-4 w-4" />,
+      description: 'The overall quality of your resume content'
+    },
+    { 
+      name: 'Formatting', 
+      value: scoreBreakdown.formatting,
+      icon: <FileText className="h-4 w-4" />,
+      description: 'How well your resume is structured and formatted'
+    },
   ];
 
-  // Impact assessment pie chart
-  const impactData = [
-    { name: 'Current', value: analysis.currentImpactScore || 60 },
-    { name: 'Potential Improvement', value: analysis.potentialImprovement || 40 }
-  ];
+  // Impact assessment data
+  const currentScore = analysis.currentImpactScore || 60;
+  const potentialScore = analysis.potentialImprovement || 40;
+  const totalScore = currentScore + potentialScore;
+  const improvementPercentage = Math.round((potentialScore / totalScore) * 100);
   
-  const COLORS = ['#0088FE', '#00C49F'];
+  // Animation states for charts
+  const [isChartVisible, setIsChartVisible] = useState({
+    score: false,
+    issues: false,
+    sections: false,
+    impact: false,
+    ats: false,
+    skills: false
+  });
 
-  // Intersection observer hooks for animations
-  const [isScoreChartVisible, setIsScoreChartVisible] = useState(false);
-  const [isIssuesChartVisible, setIsIssuesChartVisible] = useState(false);
-  const [isSectionChartVisible, setIsSectionChartVisible] = useState(false);
-  const [isImpactChartVisible, setIsImpactChartVisible] = useState(false);
+  // Refs for scroll animation
+  const chartRefs = {
+    score: useRef<HTMLDivElement>(null),
+    issues: useRef<HTMLDivElement>(null),
+    sections: useRef<HTMLDivElement>(null),
+    impact: useRef<HTMLDivElement>(null),
+    ats: useRef<HTMLDivElement>(null),
+    skills: useRef<HTMLDivElement>(null)
+  };
 
-  const scoreChartRef = useRef<HTMLDivElement>(null);
-  const issuesChartRef = useRef<HTMLDivElement>(null);
-  const sectionChartRef = useRef<HTMLDivElement>(null);
-  const impactChartRef = useRef<HTMLDivElement>(null);
-
-
-
-
-  console.log("This file is working")
-
+  // Set up intersection observer
   useEffect(() => {
     const observerOptions = {
       threshold: 0.2,
       rootMargin: '-10% 0px'
     };
 
-    const handleIntersection = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
-        if (entry.target === scoreChartRef.current && entry.isIntersecting) {
-          setIsScoreChartVisible(true);
-        }
-        if (entry.target === issuesChartRef.current && entry.isIntersecting) {
-          setIsIssuesChartVisible(true);
-        }
-        if (entry.target === sectionChartRef.current && entry.isIntersecting) {
-          setIsSectionChartVisible(true);
-        }
-        if (entry.target === impactChartRef.current && entry.isIntersecting) {
-          setIsImpactChartVisible(true);
-        }
+        // For each chart ref, check if it's intersecting and update visibility state
+        Object.keys(chartRefs).forEach(key => {
+          const typedKey = key as keyof typeof chartRefs;
+          if (entry.target === chartRefs[typedKey].current && entry.isIntersecting) {
+            setIsChartVisible(prev => ({ ...prev, [key]: true }));
+          }
+        });
       });
     };
 
     const observer = new IntersectionObserver(handleIntersection, observerOptions);
     
-    if (scoreChartRef.current) observer.observe(scoreChartRef.current);
-    if (issuesChartRef.current) observer.observe(issuesChartRef.current);
-    if (sectionChartRef.current) observer.observe(sectionChartRef.current);
-    if (impactChartRef.current) observer.observe(impactChartRef.current);
+    // Observe all chart refs
+    Object.values(chartRefs).forEach(ref => {
+      if (ref.current) observer.observe(ref.current);
+    });
 
     return () => {
       observer.disconnect();
@@ -101,187 +151,138 @@ const AnalyticsSection = ({ analysis }: AnalyticsSectionProps) => {
   }, []);
 
   return (
-    <div className="mt-12 space-y-12">
+    <div className="space-y-12">
       <motion.h2 
-        className="text-2xl font-bold text-center"
+        className="text-3xl font-bold text-center mb-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
       >
         Resume Performance Analytics
       </motion.h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Score Overview Chart */}
-        <motion.div 
-          ref={scoreChartRef}
-          className="col-span-1"
-          initial={{ opacity: 0, y: 50 }}
-          animate={isScoreChartVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Card className="bg-black/30 border border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Score Breakdown</CardTitle>
-              <CardDescription className="text-gray-300">
-                How your resume scores across different categories
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart outerRadius={90} data={scoreData}>
-                    <PolarGrid stroke="rgba(255, 255, 255, 0.2)" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fill: 'white' }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: 'white' }} />
-                    <Radar 
-                      name="Score" 
-                      dataKey="value" 
-                      stroke="#8884d8" 
-                      fill="#8884d8" 
-                      fillOpacity={0.6} 
-                    />
-                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', borderColor: '#333' }} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {/* Performance Overview Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+      >
+        <Card className="bg-background/50 backdrop-blur-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" /> Overall Score
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-bold">{scoreBreakdown.overall}%</div>
+              <Badge variant={scoreBreakdown.overall >= 70 ? "success" : scoreBreakdown.overall >= 50 ? "warning" : "destructive"}>
+                {scoreBreakdown.overall >= 70 ? "Good" : scoreBreakdown.overall >= 50 ? "Average" : "Needs Work"}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
         
-        {/* Issues Found Chart */}
-        <motion.div 
-          ref={issuesChartRef}
-          className="col-span-1"
-          initial={{ opacity: 0, y: 50 }}
-          animate={isIssuesChartVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Card className="bg-black/30 border border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Issues Identified</CardTitle>
-              <CardDescription className="text-gray-300">
-                Number of issues found by category
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={issuesByType}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-                    <XAxis dataKey="name" tick={{ fill: 'white' }} />
-                    <YAxis tick={{ fill: 'white' }} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1a1a1a', borderColor: '#333' }} 
-                      cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                    />
-                    <Bar 
-                      dataKey="count" 
-                      name="Issues" 
-                      fill="#ff5500" 
-                      radius={[4, 4, 0, 0]} 
-                      animationDuration={1500}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+        <Card className="bg-background/50 backdrop-blur-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircleIcon className="h-4 w-4 text-destructive" /> Issues Found
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-bold">
+                {Object.values(analysis.issues || {}).reduce((acc, issues) => acc + (issues?.length || 0), 0)}
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <Badge variant="outline" className="border-destructive text-destructive">
+                To Fix
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
         
-        {/* Section Analysis Chart */}
-        <motion.div 
-          ref={sectionChartRef}
-          className="col-span-1"
-          initial={{ opacity: 0, y: 50 }}
-          animate={isSectionChartVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Card className="bg-black/30 border border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Section Strength</CardTitle>
-              <CardDescription className="text-gray-300">
-                Performance of different resume sections
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={sectionAnalysis}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-                    <XAxis 
-                      type="number" 
-                      domain={[0, 100]} 
-                      tick={{ fill: 'white' }} 
-                    />
-                    <YAxis 
-                      dataKey="name" 
-                      type="category" 
-                      tick={{ fill: 'white' }} 
-                    />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1a1a1a', borderColor: '#333' }} 
-                      cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                    />
-                    <Bar 
-                      dataKey="score" 
-                      fill="#4c1d95" 
-                      radius={[0, 4, 4, 0]} 
-                      animationDuration={1500}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+        {/* Strongest section */}
+        <Card className="bg-background/50 backdrop-blur-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Award className="h-4 w-4 text-primary" /> Strongest Section
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <div className="text-xl font-bold truncate pr-2">
+                {sectionAnalysis.length > 0 ? sectionAnalysis[0].name : 'None'}
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <Badge variant="outline" className="text-primary border-primary">
+                {sectionAnalysis.length > 0 ? sectionAnalysis[0].score : 0}%
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
         
-        {/* Impact Assessment Chart */}
-        <motion.div 
-          ref={impactChartRef}
-          className="col-span-1"
-          initial={{ opacity: 0, y: 50 }}
-          animate={isImpactChartVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Card className="bg-black/30 border border-white/10 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-white">Impact Assessment</CardTitle>
-              <CardDescription className="text-gray-300">
-                Potential improvement after implementing suggestions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-72 flex flex-col items-center justify-center">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={impactData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      innerRadius={40}
-                      fill="#8884d8"
-                      dataKey="value"
-                      animationDuration={1500}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {impactData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', borderColor: '#333' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+        <Card className="bg-background/50 backdrop-blur-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUpIcon className="h-4 w-4 text-green-500" /> ATS Score
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-bold">{scoreBreakdown.ats}%</div>
+              <Badge variant={scoreBreakdown.ats >= 70 ? "success" : scoreBreakdown.ats >= 50 ? "warning" : "destructive"}>
+                {scoreBreakdown.ats >= 70 ? "Strong" : scoreBreakdown.ats >= 50 ? "Moderate" : "Weak"}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Tab Navigation */}
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mb-8">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="scores">Score Details</TabsTrigger>
+          <TabsTrigger value="sections">Section Analysis</TabsTrigger>
+          <TabsTrigger value="ats">ATS Compatibility</TabsTrigger>
+          <TabsTrigger value="skills">Skills Analysis</TabsTrigger>
+          <TabsTrigger value="improvement">Improvement Plan</TabsTrigger>
+        </TabsList>
+        
+        {/* Overview Tab */}
+        <TabsContent value="overview">
+          <OverviewTab 
+            scoreData={scoreData}
+            performanceMetrics={performanceMetrics}
+            issuesByType={issuesByType}
+            scoreBreakdown={scoreBreakdown}
+            isChartVisible={isChartVisible}
+            chartRefs={chartRefs}
+          />
+        </TabsContent>
+        
+        {/* Score Details Tab */}
+        <TabsContent value="scores">
+          <ScoresTab scoreBreakdown={scoreBreakdown} />
+        </TabsContent>
+        
+        {/* Add other tab content here */}
+        <TabsContent value="sections">
+          <div className="text-center text-muted-foreground p-8">Section Analysis will be added here</div>
+        </TabsContent>
+        
+        <TabsContent value="ats">
+          <div className="text-center text-muted-foreground p-8">ATS Compatibility will be added here</div>
+        </TabsContent>
+        
+        <TabsContent value="skills">
+          <div className="text-center text-muted-foreground p-8">Skills Analysis will be added here</div>
+        </TabsContent>
+        
+        <TabsContent value="improvement">
+          <div className="text-center text-muted-foreground p-8">Improvement Plan will be added here</div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
