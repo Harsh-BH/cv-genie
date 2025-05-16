@@ -103,12 +103,3 @@ export function formatModelResponse(text: string): string {
   return sanitizedHtml;
 }
 
-/**
- * Ensures numerical scores are valid, with fallback values for NaN or undefined
- */
-export function ensureValidScore(score?: number | null): number {
-  if (score === undefined || score === null || isNaN(score)) {
-    return 5; // Default middle score
-  }
-  return score;
-}

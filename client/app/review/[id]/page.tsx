@@ -276,18 +276,8 @@ export default function ReviewerPage() {
     );
   }
 
-  // Add explicit styles to ensure scrolling works
-  const pageStyle = {
-    minHeight: '150vh', // Ensure we have enough content to scroll
-    overflowY: 'auto',  // Explicitly allow vertical scrolling
-    overflowX: 'hidden' // Hide horizontal scrolling
-  };
-
   return (
-    <div 
-      className="bg-gradient-to-b from-gray-950 via-purple-900/20 to-gray-900 text-white"
-      style={pageStyle}
-    >
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-purple-900/20 to-gray-900 text-white pb-20">
       {/* Header */}
       <motion.header 
         className="bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-10"
@@ -375,8 +365,50 @@ export default function ReviewerPage() {
           </motion.div>
         </section>
         
-        {/* Divider with more margin to ensure scrolling */}
-        <div className="relative my-24">
+        {/* Down arrow animation to guide users to analytics */}
+        <motion.div 
+          className="flex justify-center my-10"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.5,
+            delay: 1.5
+          }}
+        >
+          <motion.div
+            animate={{ 
+              y: [0, 8, 0],
+              opacity: [0.6, 1, 0.6]
+            }}
+            transition={{
+              duration: 2,
+              ease: "easeInOut",
+              repeat: Infinity,
+            }}
+            className="flex flex-col items-center"
+          >
+            <p className="text-white/60 text-sm mb-2">Scroll for detailed analytics</p>
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="text-white/70"
+            >
+              <path 
+                d="M12 5V19M12 19L5 12M12 19L19 12" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+          </motion.div>
+        </motion.div>
+        
+        {/* Divider */}
+        <div className="relative my-16">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-white/10"></div>
           </div>
@@ -387,14 +419,9 @@ export default function ReviewerPage() {
         
         {/* Analytics Section */}
         {analysisData && (
-          <>
-            <section className="bg-black/20 rounded-xl p-6 backdrop-blur-sm border border-white/5 shadow-xl mb-20">
-              <AnalyticsSection analysis={analysisData} />
-            </section>
-            
-            {/* Add spacer at the bottom to ensure we have enough content for scrolling */}
-            <div className="h-screen"></div>
-          </>
+          <section className="bg-black/20 rounded-xl p-6 backdrop-blur-sm border border-white/5 shadow-xl">
+            <AnalyticsSection analysis={analysisData} />
+          </section>
         )}
       </main>
     </div>

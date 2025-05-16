@@ -42,6 +42,8 @@ export interface AIGeneratedImprovements {
 
 // Complete resume analysis data structure
 export interface AnalysisData {
+  id?: number;
+  resumeId?: number;
   executiveSummary: string;
   overview: string;
   contentQuality: string;
@@ -51,9 +53,56 @@ export interface AnalysisData {
   skillsAnalysis: string;
   careerTrajectory: string;
   improvementSuggestions: string;
-  scoreBreakdown: ScoreBreakdown;
-  aiGeneratedImprovements: AIGeneratedImprovements;
-  positionedSuggestions: PositionedSuggestion[];
+  
+  // Complete score fields
+  overallScore: number;
+  contentScore: number;
+  atsOptimizationScore: number;
+  formattingScore: number;
+  industryAlignmentScore: number;
+  skillsScore: number;
+  grammarScore: number;
+  clarityScore: number;
+  
+  // Additional derived data
+  currentImpactScore?: number;
+  potentialImprovement?: number;
+  sectionScores?: {
+    header?: number;
+    summary?: number;
+    experience?: number;
+    education?: number;
+    skills?: number;
+    [key: string]: number | undefined;
+  };
+  issues?: {
+    grammar?: Array<any>;
+    format?: Array<any>;
+    content?: Array<any>;
+    ats?: Array<any>;
+    [key: string]: Array<any> | undefined;
+  };
+  aiGeneratedImprovements?: {
+    summary: string | string[];
+    experience: any[];
+    skills: any[];
+    education: any[];
+    projects: any[];
+    [key: string]: any;
+  };
+  positionedSuggestions: Array<{
+    id: string;
+    type: string;
+    section: string;
+    suggestion: string;
+    rationale: string;
+    position?: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+  }>;
 }
 
 // Structure used by the sidebar component
