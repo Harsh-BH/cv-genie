@@ -51,7 +51,7 @@ export async function generatePositionedSuggestions(resume: StructuredResume): P
     }
     
     // Parse the JSON and convert to PositionedSuggestion[]
-    const suggestions = JSON.parse(jsonStr) as any[];
+    const suggestions = JSON.parse(jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, '')) as any[];
     
     return suggestions.map(suggestion => ({
       id: uuidv4(),
