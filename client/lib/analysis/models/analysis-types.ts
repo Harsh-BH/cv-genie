@@ -19,7 +19,11 @@ export interface PositionedSuggestion {
   sectionType: string;
   original: string;
   improved: string;
-  reason: string;
+  suggestion: string; 
+  issue: string;
+  reasoning: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  category: 'content' | 'formatting' | 'ats' | 'skills' | 'industry' | 'overall';
 }
 
 export interface ResumeSection {
