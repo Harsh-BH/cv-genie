@@ -24,6 +24,12 @@ export interface PositionedSuggestion {
   reasoning: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
   category: 'content' | 'formatting' | 'ats' | 'skills' | 'industry' | 'overall';
+  position: {
+    sectionTitle: string;
+    textSnippet: string;
+    lineNumber?: number;
+    charRange?: any;
+  };
 }
 
 export interface ResumeSection {

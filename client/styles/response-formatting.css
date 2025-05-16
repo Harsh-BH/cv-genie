@@ -782,3 +782,41 @@
   animation: gradientBorder 3s ease infinite;
   border-radius: 12px;
 }
+
+.scrollbar-hide{
+  appearance: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+.custom-scrollbar {
+  display: block;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  background-color: #e5e7eb00;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: #3e2546a5;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #988d9ba5;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button{
+  background-color: transparent;
+  height: 4px;
+
+}

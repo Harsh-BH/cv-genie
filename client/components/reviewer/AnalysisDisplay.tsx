@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatModelResponse } from '@/lib/utils/response-formatter';
 import { AnalysisData } from '@/types/analysis';
@@ -54,6 +54,57 @@ interface Props {
 export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
   const [activeTab, setActiveTab] = useState('overview');
   const [formattedContent, setFormattedContent] = useState<Record<string, string>>({});
+   // Add these new state variables for gradient visibility
+  const [showLeftGradient, setShowLeftGradient] = useState(false);
+  const [showRightGradient, setShowRightGradient] = useState(true);
+  // Ref for the scrollable tabs container
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const [tabWidths, setTabWidths] = useState<Record<string, number>>({});
+  const [tabPositions, setTabPositions] = useState<Record<string, number>>({});
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  
+  useEffect(() => {
+    const newTabWidths: Record<string, number> = {};
+    const newTabPositions: Record<string, number> = {};
+    
+    // Get all tab elements using refs
+    ['overview', 'content', 'ats', 'formatting', 'skills', 'industry', 'suggestions'].forEach(id => {
+      const tabElement = tabRefs.current[id];
+      if (tabElement) {
+        newTabWidths[id] = tabElement.offsetWidth;
+        newTabPositions[id] = tabElement.offsetLeft;
+      }
+    });
+    
+    setTabWidths(newTabWidths);
+    setTabPositions(newTabPositions);
+  }, []);
+  
+  // Add this effect to track scroll position and update gradient visibility
+  useEffect(() => {
+    const tabsContainer = tabsContainerRef.current;
+    if (!tabsContainer) return;
+    
+    const handleScroll = () => {
+      // Check if scrolled from left edge
+      setShowLeftGradient(tabsContainer.scrollLeft > 10);
+      
+      // Check if scrolled to right edge
+      const isAtRightEdge = 
+        Math.abs(
+          tabsContainer.scrollWidth - tabsContainer.clientWidth - tabsContainer.scrollLeft
+        ) < 10;
+      
+      setShowRightGradient(!isAtRightEdge);
+    };
+    
+    // Initialize gradient states
+    handleScroll();
+    
+    // Add scroll event listener
+    tabsContainer.addEventListener('scroll', handleScroll);
+    return () => tabsContainer.removeEventListener('scroll', handleScroll);
+  }, []);
   
   // Format all content on initial load and when analysis changes
   useEffect(() => {
@@ -208,70 +259,89 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
         </motion.div>
       </motion.div>
       
-      {/* Tab Navigation with slider effect */}
-      <motion.div 
-        className="relative flex border-b border-gray-700/40 overflow-x-auto no-scrollbar"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        <Tab 
-          id="overview" 
-          label="Overview" 
-          active={activeTab === 'overview'} 
-          onClick={() => setActiveTab('overview')}
-        />
-        <Tab 
-          id="content" 
-          label="Content" 
-          active={activeTab === 'content'} 
-          onClick={() => setActiveTab('content')}
-        />
-        <Tab 
-          id="ats" 
-          label="ATS" 
-          active={activeTab === 'ats'} 
-          onClick={() => setActiveTab('ats')}
-        />
-        <Tab 
-          id="formatting" 
-          label="Formatting" 
-          active={activeTab === 'formatting'} 
-          onClick={() => setActiveTab('formatting')}
-        />
-        <Tab 
-          id="skills" 
-          label="Skills" 
-          active={activeTab === 'skills'} 
-          onClick={() => setActiveTab('skills')}
-        />
-        <Tab 
-          id="industry" 
-          label="Industry" 
-          active={activeTab === 'industry'} 
-          onClick={() => setActiveTab('industry')}
-        />
-        <Tab 
-          id="suggestions" 
-          label="Suggestions" 
-          active={activeTab === 'suggestions'} 
-          onClick={() => setActiveTab('suggestions')}
-        />
+      <div className="relative bg-pink-700/10">
+        {/* Left gradient overlay indicator */}
+        <div 
+          className={`absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-purple-300/20 to-transparent pointer-events-none z-10 transition-all duration-700 ${showLeftGradient ? 'opacity-100' : 'opacity-0'}`}
+        ></div>
         
-        {/* Animated active tab indicator */}
-        <motion.div
-          className="absolute bottom-0 h-0.5 bg-purple-500"
-          layoutId="activeTabIndicator"
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          style={{
-            width: `calc(100% / 7)`, // Approximately 1/7 of the width for 7 tabs
-            left: `calc(${['overview', 'content', 'ats', 'formatting', 'skills', 'industry', 'suggestions'].indexOf(activeTab)} * (100% / 7))`
-          }}
-        />
-      </motion.div>
+        {/* Right gradient overlay indicator */}
+        <div 
+          className={`absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-purple-300/20 to-transparent pointer-events-none z-10 transition-all duration-700 ${showRightGradient ? 'opacity-100' : 'opacity-0'}`}
+        ></div>
+
+        <motion.div 
+          ref={tabsContainerRef}
+          className="relative flex border-b border-gray-700/40 overflow-x-auto scrollbar-hide"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Tab 
+            id="overview" 
+            label="Overview" 
+            active={activeTab === 'overview'} 
+            onClick={() => setActiveTab('overview')}
+            ref={(el) => tabRefs.current['overview'] = el}
+          />
+          <Tab 
+            id="content" 
+            label="Content" 
+            active={activeTab === 'content'} 
+            onClick={() => setActiveTab('content')}
+            ref={(el) => tabRefs.current['content'] = el}
+          />
+          <Tab 
+            id="ats" 
+            label="ATS" 
+            active={activeTab === 'ats'} 
+            onClick={() => setActiveTab('ats')}
+            ref={(el) => tabRefs.current['ats'] = el}
+          />
+          <Tab 
+            id="formatting" 
+            label="Formatting" 
+            active={activeTab === 'formatting'} 
+            onClick={() => setActiveTab('formatting')}
+            ref={(el) => tabRefs.current['formatting'] = el}
+          />
+          <Tab 
+            id="skills" 
+            label="Skills" 
+            active={activeTab === 'skills'} 
+            onClick={() => setActiveTab('skills')}
+            ref={(el) => tabRefs.current['skills'] = el}
+          />
+          <Tab 
+            id="industry" 
+            label="Industry" 
+            active={activeTab === 'industry'} 
+            onClick={() => setActiveTab('industry')}
+            ref={(el) => tabRefs.current['industry'] = el}
+          />
+          <Tab 
+            id="suggestions" 
+            label="Suggestions" 
+            active={activeTab === 'suggestions'} 
+            onClick={() => setActiveTab('suggestions')}
+            ref={(el) => tabRefs.current['suggestions'] = el}
+          />
+          
+          {/* Animated active tab indicator - update to use dynamic widths */}
+          <motion.div
+            className="absolute bottom-0 h-0.5 bg-purple-500"
+            layoutId="activeTabIndicator"
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            style={{
+              width: tabWidths[activeTab] || 0,
+              left: tabPositions[activeTab] || 0
+            }}
+          />
+        </motion.div>
+      </div>
 
       {/* Tab Content with enhanced animations */}
-      <div className="p-6 max-h-[calc(100vh-24rem)] overflow-y-auto">
+      <div className="p-6 max-h-[calc(100vh-24rem)] overflow-y-auto custom-scrollbar">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -501,11 +571,11 @@ function ScoreItem({ title, score, variants, highlight = false, onClick }: {
       variants={variants}
       onClick={onClick}
       className={`p-3 rounded-lg cursor-pointer transition-all duration-300 
-        ${highlight ? 'bg-purple-900/40 border border-purple-500/40' : 'bg-gray-800/50 hover:bg-gray-800/80 border border-gray-700/40'}`}
+        ${highlight ? 'bg-pink-900/30 border-white border-[1px]' : 'bg-gray-800/50 hover:bg-gray-800/80 border border-gray-700/40'}`}
       whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(124, 58, 237, 0.1), 0 10px 10px -5px rgba(124, 58, 237, 0.04)" }}
       whileTap={{ scale: 0.98 }}
     >
-      <p className="text-xs text-gray-400">{title}</p>
+      <p className={` ${highlight ? "text-white text-sm font-semibold" : "text-gray-400 text-sm"}`}>{title}</p>
       <motion.div 
         className={`text-xl font-bold ${getScoreColor(score)}`}
         initial={{ scale: 0.5, opacity: 0 }}
@@ -519,21 +589,31 @@ function ScoreItem({ title, score, variants, highlight = false, onClick }: {
 }
 
 // Tab component with enhanced animations
-function Tab({ id, label, active, onClick }: { id: string; label: string; active: boolean; onClick: () => void }) {
-  return (
-    <motion.button
-      onClick={onClick}
-      className={`px-6 py-3 text-sm font-medium whitespace-nowrap relative
-        ${active ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
-      variants={tabVariants}
-      animate={active ? "active" : "inactive"}
-      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-      whileTap={{ scale: 0.98 }}
-    >
-      {label}
-    </motion.button>
-  );
-}
+const Tab = React.forwardRef(
+  function Tab({ id, label, active, onClick }: { 
+    id: string; 
+    label: string; 
+    active: boolean; 
+    onClick: () => void;
+  }, 
+  ref: React.ForwardedRef<HTMLButtonElement>
+  ) {
+    return (
+      <motion.button
+        ref={ref}
+        onClick={onClick}
+        className={`px-6 py-3 text-sm font-medium whitespace-nowrap relative
+          ${active ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+        variants={tabVariants}
+        animate={active ? "active" : "inactive"}
+        whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {label}
+      </motion.button>
+    );
+  }
+);
 
 // Animated suggestion item component
 function SuggestionItem({ 
