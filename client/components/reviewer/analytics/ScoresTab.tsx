@@ -1,11 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, useAnimation } from "framer-motion";
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle2, AlertCircle } from "lucide-react";
+import { CustomTooltip, CHART_ANIMATIONS } from "./ChartComponents";
 
 interface ScoreBreakdown {
   overall: number;
@@ -64,27 +66,79 @@ function getScoreInterpretation(score: number): { text: string; color: string; i
 }
 
 // Helper function to get bar color based on score
-function getBarColor(score: number): string {
-  if (score >= 80) return "#22c55e"; // green-500
-  if (score >= 70) return "#4ade80"; // green-400
-  if (score >= 60) return "#60a5fa"; // blue-400
-  if (score >= 50) return "#facc15"; // yellow-400
-  if (score >= 40) return "#fb923c"; // orange-400
-  return "#ef4444"; // red-500
+function getBarColor(score: number, isHovered: boolean = false): string {
+  const opacity = isHovered ? "cc" : ""; // Add hex opacity for hover state
+  if (score >= 80) return `#22c55e${opacity}`; // green-500
+  if (score >= 70) return `#4ade80${opacity}`; // green-400
+  if (score >= 60) return `#60a5fa${opacity}`; // blue-400
+  if (score >= 50) return `#facc15${opacity}`; // yellow-400
+  if (score >= 40) return `#fb923c${opacity}`; // orange-400
+  return `#ef4444${opacity}`; // red-500
 }
 
 const ScoresTab = ({ scoreBreakdown }: ScoresTabProps) => {
   // Transform score breakdown for chart
-  const chartData = [
-    { name: "Overall", score: scoreBreakdown.overall },
-    { name: "Content", score: scoreBreakdown.content },
-    { name: "ATS", score: scoreBreakdown.ats },
-    { name: "Formatting", score: scoreBreakdown.formatting },
-    { name: "Industry", score: scoreBreakdown.impact },
-    { name: "Skills", score: scoreBreakdown.skills },
-    { name: "Grammar", score: scoreBreakdown.grammar },
-    { name: "Clarity", score: scoreBreakdown.clarity }
-  ];
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const controls = useAnimation();
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [isChartVisible, setIsChartVisible] = useState(false);
+
+  // Prepare chart data with animation delay for staggered entry
+  useEffect(() => {
+    const data = [
+      { name: "Overall", score: 0, fullScore: scoreBreakdown.overall },
+      { name: "Content", score: 0, fullScore: scoreBreakdown.content },
+      { name: "ATS", score: 0, fullScore: scoreBreakdown.ats },
+      { name: "Formatting", score: 0, fullScore: scoreBreakdown.formatting },
+      { name: "Industry", score: 0, fullScore: scoreBreakdown.impact },
+      { name: "Skills", score: 0, fullScore: scoreBreakdown.skills },
+      { name: "Grammar", score: 0, fullScore: scoreBreakdown.grammar },
+      { name: "Clarity", score: 0, fullScore: scoreBreakdown.clarity }
+    ];
+    
+    setChartData(data);
+    
+    // Animation sequence for bars
+    if (isChartVisible) {
+      const animateData = async () => {
+        await controls.start({ opacity: 1 });
+        
+        // Animate each bar's height in sequence
+        for (let i = 0; i < data.length; i++) {
+          setTimeout(() => {
+            setChartData(prevData => prevData.map((item, idx) => 
+              idx === i ? { ...item, score: item.fullScore } : item
+            ));
+          }, i * 200);
+        }
+      };
+      
+      animateData();
+    }
+  }, [scoreBreakdown, isChartVisible, controls]);
+  
+  // Set up intersection observer for chart
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsChartVisible(true);
+        }
+      },
+      { threshold: 0.2 }
+    );
+    
+    if (chartRef.current) {
+      observer.observe(chartRef.current);
+    }
+    
+    return () => {
+      if (chartRef.current) {
+        observer.unobserve(chartRef.current);
+      }
+    };
+  }, []);
   
   // Descriptions for each score category
   const scoreDescriptions: Record<string, string> = {
@@ -97,15 +151,24 @@ const ScoresTab = ({ scoreBreakdown }: ScoresTabProps) => {
     grammar: "Grammar, spelling, punctuation, and language correctness",
     clarity: "How clear, concise, and easy to read your content is"
   };
+
+  const handleBarMouseOver = (data: any, index: number) => {
+    setActiveIndex(index);
+  };
+
+  const handleBarMouseLeave = () => {
+    setActiveIndex(null);
+  };
   
   return (
     <div className="space-y-8">
       <motion.div
+        ref={chartRef}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        animate={isChartVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.8 }}
       >
-        <Card>
+        <Card className="bg-background/50 border border-muted backdrop-blur-sm">
           <CardHeader>
             <CardTitle>Score Breakdown</CardTitle>
             <CardDescription>
@@ -118,8 +181,14 @@ const ScoresTab = ({ scoreBreakdown }: ScoresTabProps) => {
                 <BarChart
                   data={chartData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  onMouseMove={(e) => {
+                    if (e.activeTooltipIndex !== undefined) {
+                      handleBarMouseOver(e.activePayload?.[0].payload, e.activeTooltipIndex);
+                    }
+                  }}
+                  onMouseLeave={handleBarMouseLeave}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.5} />
                   <XAxis 
                     dataKey="name" 
                     axisLine={false}
@@ -127,35 +196,57 @@ const ScoresTab = ({ scoreBreakdown }: ScoresTabProps) => {
                     angle={-45}
                     textAnchor="end"
                     height={70}
+                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                   />
                   <YAxis 
                     domain={[0, 100]}
                     axisLine={false}
                     tickLine={false}
                     tickCount={6}
+                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                     label={{ 
                       value: 'Score (%)', 
                       angle: -90, 
                       position: 'insideLeft',
-                      style: { textAnchor: 'middle' }
+                      style: { textAnchor: 'middle', fill: 'hsl(var(--foreground))' }
                     }}
                   />
                   <Tooltip 
-                    formatter={(value: number) => [`${value}%`, 'Score']}
-                    labelStyle={{ fontWeight: 'bold' }}
-                    contentStyle={{ 
-                      backgroundColor: 'var(--card)',
-                      borderColor: 'var(--border)',
-                      borderRadius: '6px'
-                    }}
+                    content={<CustomTooltip />}
+                    cursor={{ opacity: 0.1 }}
                   />
                   <Bar 
                     dataKey="score" 
                     radius={[4, 4, 0, 0]}
+                    animationBegin={0}
+                    animationDuration={1000}
+                    animationEasing="ease-out"
                   >
                     {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={getBarColor(entry.score)} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={getBarColor(entry.fullScore, index === activeIndex)}
+                        stroke={index === activeIndex ? "hsl(var(--ring))" : "none"}
+                        strokeWidth={index === activeIndex ? 2 : 0}
+                        className="transition-all duration-200"
+                      >
+                        {index === activeIndex && (
+                          <animate 
+                            attributeName="opacity"
+                            values="0.8;1;0.8"
+                            dur="1.5s"
+                            repeatCount="indefinite"
+                          />
+                        )}
+                      </Cell>
                     ))}
+                    <LabelList 
+                      dataKey="score" 
+                      position="top" 
+                      formatter={(value: number) => `${value}%`} 
+                      fill="hsl(var(--foreground))"
+                      style={{ fontWeight: "bold", fontSize: 12 }}
+                    />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -175,18 +266,35 @@ const ScoresTab = ({ scoreBreakdown }: ScoresTabProps) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ 
+                scale: 1.02,
+                transition: { duration: 0.2 }
+              }}
             >
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex justify-between items-center">
                     <span className="capitalize">{category}</span>
-                    <span className={`text-lg ${color}`}>{score}%</span>
+                    <motion.span 
+                      className={`text-lg ${color}`}
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
+                    >
+                      {score}%
+                    </motion.span>
                   </CardTitle>
                   <CardDescription>{description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3">
-                    {icon}
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                    >
+                      {icon}
+                    </motion.div>
                     <div>
                       <p className={`font-medium ${color}`}>{text}</p>
                       <p className="text-sm text-muted-foreground">
