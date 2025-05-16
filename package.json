@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    // ...existing dependencies...
-    "recharts": "^2.7.3"
-  }
-}

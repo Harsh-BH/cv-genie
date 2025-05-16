@@ -43,35 +43,6 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Ensure scrollbars work properly across browsers */
-html {
-  overflow-y: scroll; /* Always show vertical scrollbar to prevent layout shifts */
-  scroll-behavior: smooth; /* Enable smooth scrolling */
-  height: 100%;
-}
-
-body {
-  height: 100%;
-  overflow-x: hidden; /* Hide horizontal overflow */
-  min-height: 100vh; /* Minimum height of viewport height */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
-}
-
-/* Force scrollbar to be visible in WebKit browsers */
-::-webkit-scrollbar {
-  width: 10px;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(120, 120, 120, 0.5);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(120, 120, 120, 0.8);
-}
-
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -105,21 +76,6 @@ body {
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
-}
-
-html, body {
-  height: 100%;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
-
-body {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.io-init * {
-  visibility: visible;
 }
 
 .dark {

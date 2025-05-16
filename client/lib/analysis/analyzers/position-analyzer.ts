@@ -55,6 +55,11 @@ export async function generatePositionedSuggestions(resume: StructuredResume): P
     
     return suggestions.map(suggestion => ({
       id: uuidv4(),
+      type: suggestion.category || 'content',
+      sectionType: suggestion.sectionTitle || 'General',
+      original: suggestion.textSnippet || '',
+      improved: suggestion.exampleFix || '',
+      reason: suggestion.reasoning || 'No reasoning provided',
       issue: suggestion.issue || 'Identified Issue',
       suggestion: suggestion.suggestion || 'Suggested Improvement',
       reasoning: suggestion.reasoning || 'No reasoning provided',

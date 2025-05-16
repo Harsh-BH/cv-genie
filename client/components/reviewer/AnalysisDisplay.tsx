@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatModelResponse, ensureValidScore } from '@/lib/utils/response-formatter';
+import { formatModelResponse } from '@/lib/utils/response-formatter';
 import { AnalysisData } from '@/types/analysis';
 
 // Enhanced animation variants
@@ -74,14 +74,16 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
     formatAllContent();
   }, [analysis]);
 
+  console.log('Formatted Content:',   analysis);
+
   // Ensure all scores are valid numbers
   const scoreBreakdown = {
-    overall: ensureValidScore(analysis.scoreBreakdown?.overall) * 10,
-    content: ensureValidScore(analysis.scoreBreakdown?.content) * 10,
-    ats: ensureValidScore(analysis.scoreBreakdown?.ats) * 10,
-    formatting: ensureValidScore(analysis.scoreBreakdown?.formatting) * 10,
-    impact: ensureValidScore(analysis.scoreBreakdown?.impact) * 10,
-    skills: ensureValidScore(analysis.scoreBreakdown?.skills) * 10
+    overall: (analysis.overallScore) * 10,
+    content: (analysis.contentScore) * 10,
+    ats: (analysis.atsOptimizationScore) * 10,
+    formatting: (analysis.formattingScore) * 10,
+    impact: (analysis.industryAlignmentScore) * 10,
+    skills: (analysis.skillsScore) * 10
   };
 
   // Color mapping based on score
