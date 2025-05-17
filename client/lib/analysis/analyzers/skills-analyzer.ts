@@ -3,21 +3,45 @@ import { generatePerplexityResponse, createStructuredPrompt } from '../api/perpl
 
 export async function analyzeSkills(resume: StructuredResume): Promise<string> {
   try {
+    // Extract target role/industry if available
+    
+    
     const skillsPrompt = createStructuredPrompt(
       resume,
-      `Analyze this resume's skills presentation. Focus on:
-       1. Comprehensiveness of skills listed
-       2. Relevance of skills to apparent target role/industry
-       3. Balance of technical, soft, and domain-specific skills
-       4. How well skills are demonstrated through experiences (not just listed)
-       5. Missing critical skills for their apparent target role
-       
-       Identify key strengths and gaps in the skills presentation.
-       Suggest improvements on how skills could be better presented or demonstrated.`,
-      'This analysis will focus on skills presentation, relevance, and gaps.'
+      `Provide a comprehensive analysis of this resume's skills presentation. 
+
+ANALYSIS AREAS:
+1. SKILLS INVENTORY (Comprehensiveness):
+   - Evaluate the range and depth of skills presented
+   - Identify if technical, soft, and domain-specific skills are well-balanced
+   - Note any industry-standard skills that appear outdated or cutting-edge
+
+2. INDUSTRY & ROLE ALIGNMENT:
+   - Assess how well the skills align with  'their apparent target role/industry'}
+   - Identify any critical missing skills for this career path
+   - Evaluate if skill proficiency levels (if mentioned) seem appropriate
+
+3. SKILLS DEMONSTRATION:
+   - Analyze how effectively skills are demonstrated through work experiences
+   - Identify which skills are merely listed versus substantiated with achievements
+   - Note if technical skills are backed by specific projects or certifications
+
+4. KEYWORD OPTIMIZATION:
+   - Evaluate the use of industry-specific keywords and phrases
+   - Identify opportunities to incorporate more ATS-friendly skill terms
+   - Assess if skill descriptions match current industry terminology
+
+RECOMMENDATIONS:
+- Provide 3-5 specific, actionable recommendations for improving skills presentation
+- Suggest ways to better demonstrate existing skills through accomplishments
+- Recommend any critical skills to add based on the apparent career target
+- Suggest optimal organization/categorization of skills if improvements needed
+
+Please provide a balanced assessment that acknowledges strengths while offering concrete improvement areas.`,
+      'This analysis evaluates the resume\'s skills presentation, focusing on relevance, demonstration, and optimization for the target role.'
     );
     
-    return await generatePerplexityResponse(skillsPrompt, 'sonar', 0.7);
+    return await generatePerplexityResponse(skillsPrompt, 'sonar', 0.6); // Reduced temperature for more focused analysis
   } catch (error) {
     console.error('Skills analysis error:', error);
     return `Error analyzing skills: ${error instanceof Error ? error.message : 'Unknown error'}`;

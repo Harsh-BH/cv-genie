@@ -4693,6 +4693,8 @@ export namespace Prisma {
     industryAlignmentScore: number | null
     formattingScore: number | null
     skillsScore: number | null
+    grammarScore: number | null
+    clarityScore: number | null
   }
 
   export type ResumeAnalysisSumAggregateOutputType = {
@@ -4704,6 +4706,8 @@ export namespace Prisma {
     industryAlignmentScore: number | null
     formattingScore: number | null
     skillsScore: number | null
+    grammarScore: number | null
+    clarityScore: number | null
   }
 
   export type ResumeAnalysisMinAggregateOutputType = {
@@ -4727,6 +4731,8 @@ export namespace Prisma {
     formattingScore: number | null
     skillsScore: number | null
     status: string | null
+    grammarScore: number | null
+    clarityScore: number | null
   }
 
   export type ResumeAnalysisMaxAggregateOutputType = {
@@ -4750,6 +4756,8 @@ export namespace Prisma {
     formattingScore: number | null
     skillsScore: number | null
     status: string | null
+    grammarScore: number | null
+    clarityScore: number | null
   }
 
   export type ResumeAnalysisCountAggregateOutputType = {
@@ -4775,6 +4783,9 @@ export namespace Prisma {
     aiGeneratedImprovements: number
     positionedSuggestions: number
     status: number
+    grammarScore: number
+    clarityScore: number
+    grammarIssues: number
     _all: number
   }
 
@@ -4788,6 +4799,8 @@ export namespace Prisma {
     industryAlignmentScore?: true
     formattingScore?: true
     skillsScore?: true
+    grammarScore?: true
+    clarityScore?: true
   }
 
   export type ResumeAnalysisSumAggregateInputType = {
@@ -4799,6 +4812,8 @@ export namespace Prisma {
     industryAlignmentScore?: true
     formattingScore?: true
     skillsScore?: true
+    grammarScore?: true
+    clarityScore?: true
   }
 
   export type ResumeAnalysisMinAggregateInputType = {
@@ -4822,6 +4837,8 @@ export namespace Prisma {
     formattingScore?: true
     skillsScore?: true
     status?: true
+    grammarScore?: true
+    clarityScore?: true
   }
 
   export type ResumeAnalysisMaxAggregateInputType = {
@@ -4845,6 +4862,8 @@ export namespace Prisma {
     formattingScore?: true
     skillsScore?: true
     status?: true
+    grammarScore?: true
+    clarityScore?: true
   }
 
   export type ResumeAnalysisCountAggregateInputType = {
@@ -4870,6 +4889,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: true
     positionedSuggestions?: true
     status?: true
+    grammarScore?: true
+    clarityScore?: true
+    grammarIssues?: true
     _all?: true
   }
 
@@ -4982,6 +5004,9 @@ export namespace Prisma {
     aiGeneratedImprovements: JsonValue | null
     positionedSuggestions: JsonValue | null
     status: string
+    grammarScore: number
+    clarityScore: number
+    grammarIssues: JsonValue | null
     _count: ResumeAnalysisCountAggregateOutputType | null
     _avg: ResumeAnalysisAvgAggregateOutputType | null
     _sum: ResumeAnalysisSumAggregateOutputType | null
@@ -5026,6 +5051,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: boolean
     positionedSuggestions?: boolean
     status?: boolean
+    grammarScore?: boolean
+    clarityScore?: boolean
+    grammarIssues?: boolean
     resume?: boolean | ResumeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["resumeAnalysis"]>
 
@@ -5052,6 +5080,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: boolean
     positionedSuggestions?: boolean
     status?: boolean
+    grammarScore?: boolean
+    clarityScore?: boolean
+    grammarIssues?: boolean
     resume?: boolean | ResumeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["resumeAnalysis"]>
 
@@ -5078,6 +5109,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: boolean
     positionedSuggestions?: boolean
     status?: boolean
+    grammarScore?: boolean
+    clarityScore?: boolean
+    grammarIssues?: boolean
     resume?: boolean | ResumeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["resumeAnalysis"]>
 
@@ -5104,9 +5138,12 @@ export namespace Prisma {
     aiGeneratedImprovements?: boolean
     positionedSuggestions?: boolean
     status?: boolean
+    grammarScore?: boolean
+    clarityScore?: boolean
+    grammarIssues?: boolean
   }
 
-  export type ResumeAnalysisOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "resumeId" | "executiveSummary" | "overview" | "contentQuality" | "atsCompatibility" | "industryFit" | "formattingReview" | "skillsAnalysis" | "careerTrajectory" | "improvementSuggestions" | "overallScore" | "contentScore" | "atsOptimizationScore" | "industryAlignmentScore" | "formattingScore" | "skillsScore" | "aiGeneratedImprovements" | "positionedSuggestions" | "status", ExtArgs["result"]["resumeAnalysis"]>
+  export type ResumeAnalysisOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "resumeId" | "executiveSummary" | "overview" | "contentQuality" | "atsCompatibility" | "industryFit" | "formattingReview" | "skillsAnalysis" | "careerTrajectory" | "improvementSuggestions" | "overallScore" | "contentScore" | "atsOptimizationScore" | "industryAlignmentScore" | "formattingScore" | "skillsScore" | "aiGeneratedImprovements" | "positionedSuggestions" | "status" | "grammarScore" | "clarityScore" | "grammarIssues", ExtArgs["result"]["resumeAnalysis"]>
   export type ResumeAnalysisInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     resume?: boolean | ResumeDefaultArgs<ExtArgs>
   }
@@ -5145,6 +5182,9 @@ export namespace Prisma {
       aiGeneratedImprovements: Prisma.JsonValue | null
       positionedSuggestions: Prisma.JsonValue | null
       status: string
+      grammarScore: number
+      clarityScore: number
+      grammarIssues: Prisma.JsonValue | null
     }, ExtArgs["result"]["resumeAnalysis"]>
     composites: {}
   }
@@ -5591,6 +5631,9 @@ export namespace Prisma {
     readonly aiGeneratedImprovements: FieldRef<"ResumeAnalysis", 'Json'>
     readonly positionedSuggestions: FieldRef<"ResumeAnalysis", 'Json'>
     readonly status: FieldRef<"ResumeAnalysis", 'String'>
+    readonly grammarScore: FieldRef<"ResumeAnalysis", 'Int'>
+    readonly clarityScore: FieldRef<"ResumeAnalysis", 'Int'>
+    readonly grammarIssues: FieldRef<"ResumeAnalysis", 'Json'>
   }
     
 
@@ -6081,7 +6124,10 @@ export namespace Prisma {
     skillsScore: 'skillsScore',
     aiGeneratedImprovements: 'aiGeneratedImprovements',
     positionedSuggestions: 'positionedSuggestions',
-    status: 'status'
+    status: 'status',
+    grammarScore: 'grammarScore',
+    clarityScore: 'clarityScore',
+    grammarIssues: 'grammarIssues'
   };
 
   export type ResumeAnalysisScalarFieldEnum = (typeof ResumeAnalysisScalarFieldEnum)[keyof typeof ResumeAnalysisScalarFieldEnum]
@@ -6444,6 +6490,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: JsonNullableFilter<"ResumeAnalysis">
     positionedSuggestions?: JsonNullableFilter<"ResumeAnalysis">
     status?: StringFilter<"ResumeAnalysis"> | string
+    grammarScore?: IntFilter<"ResumeAnalysis"> | number
+    clarityScore?: IntFilter<"ResumeAnalysis"> | number
+    grammarIssues?: JsonNullableFilter<"ResumeAnalysis">
     resume?: XOR<ResumeScalarRelationFilter, ResumeWhereInput>
   }
 
@@ -6470,6 +6519,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: SortOrderInput | SortOrder
     positionedSuggestions?: SortOrderInput | SortOrder
     status?: SortOrder
+    grammarScore?: SortOrder
+    clarityScore?: SortOrder
+    grammarIssues?: SortOrderInput | SortOrder
     resume?: ResumeOrderByWithRelationInput
   }
 
@@ -6499,6 +6551,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: JsonNullableFilter<"ResumeAnalysis">
     positionedSuggestions?: JsonNullableFilter<"ResumeAnalysis">
     status?: StringFilter<"ResumeAnalysis"> | string
+    grammarScore?: IntFilter<"ResumeAnalysis"> | number
+    clarityScore?: IntFilter<"ResumeAnalysis"> | number
+    grammarIssues?: JsonNullableFilter<"ResumeAnalysis">
     resume?: XOR<ResumeScalarRelationFilter, ResumeWhereInput>
   }, "id">
 
@@ -6525,6 +6580,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: SortOrderInput | SortOrder
     positionedSuggestions?: SortOrderInput | SortOrder
     status?: SortOrder
+    grammarScore?: SortOrder
+    clarityScore?: SortOrder
+    grammarIssues?: SortOrderInput | SortOrder
     _count?: ResumeAnalysisCountOrderByAggregateInput
     _avg?: ResumeAnalysisAvgOrderByAggregateInput
     _max?: ResumeAnalysisMaxOrderByAggregateInput
@@ -6558,6 +6616,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: JsonNullableWithAggregatesFilter<"ResumeAnalysis">
     positionedSuggestions?: JsonNullableWithAggregatesFilter<"ResumeAnalysis">
     status?: StringWithAggregatesFilter<"ResumeAnalysis"> | string
+    grammarScore?: IntWithAggregatesFilter<"ResumeAnalysis"> | number
+    clarityScore?: IntWithAggregatesFilter<"ResumeAnalysis"> | number
+    grammarIssues?: JsonNullableWithAggregatesFilter<"ResumeAnalysis">
   }
 
   export type UserCreateInput = {
@@ -6799,6 +6860,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: string
+    grammarScore?: number
+    clarityScore?: number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
     resume: ResumeCreateNestedOneWithoutAnalysesInput
   }
 
@@ -6825,6 +6889,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: string
+    grammarScore?: number
+    clarityScore?: number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisUpdateInput = {
@@ -6848,6 +6915,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
+    grammarScore?: IntFieldUpdateOperationsInput | number
+    clarityScore?: IntFieldUpdateOperationsInput | number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
     resume?: ResumeUpdateOneRequiredWithoutAnalysesNestedInput
   }
 
@@ -6874,6 +6944,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
+    grammarScore?: IntFieldUpdateOperationsInput | number
+    clarityScore?: IntFieldUpdateOperationsInput | number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisCreateManyInput = {
@@ -6899,6 +6972,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: string
+    grammarScore?: number
+    clarityScore?: number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisUpdateManyMutationInput = {
@@ -6922,6 +6998,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
+    grammarScore?: IntFieldUpdateOperationsInput | number
+    clarityScore?: IntFieldUpdateOperationsInput | number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisUncheckedUpdateManyInput = {
@@ -6947,6 +7026,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
+    grammarScore?: IntFieldUpdateOperationsInput | number
+    clarityScore?: IntFieldUpdateOperationsInput | number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -7292,6 +7374,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: SortOrder
     positionedSuggestions?: SortOrder
     status?: SortOrder
+    grammarScore?: SortOrder
+    clarityScore?: SortOrder
+    grammarIssues?: SortOrder
   }
 
   export type ResumeAnalysisAvgOrderByAggregateInput = {
@@ -7303,6 +7388,8 @@ export namespace Prisma {
     industryAlignmentScore?: SortOrder
     formattingScore?: SortOrder
     skillsScore?: SortOrder
+    grammarScore?: SortOrder
+    clarityScore?: SortOrder
   }
 
   export type ResumeAnalysisMaxOrderByAggregateInput = {
@@ -7326,6 +7413,8 @@ export namespace Prisma {
     formattingScore?: SortOrder
     skillsScore?: SortOrder
     status?: SortOrder
+    grammarScore?: SortOrder
+    clarityScore?: SortOrder
   }
 
   export type ResumeAnalysisMinOrderByAggregateInput = {
@@ -7349,6 +7438,8 @@ export namespace Prisma {
     formattingScore?: SortOrder
     skillsScore?: SortOrder
     status?: SortOrder
+    grammarScore?: SortOrder
+    clarityScore?: SortOrder
   }
 
   export type ResumeAnalysisSumOrderByAggregateInput = {
@@ -7360,6 +7451,8 @@ export namespace Prisma {
     industryAlignmentScore?: SortOrder
     formattingScore?: SortOrder
     skillsScore?: SortOrder
+    grammarScore?: SortOrder
+    clarityScore?: SortOrder
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -7910,6 +8003,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: string
+    grammarScore?: number
+    clarityScore?: number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisUncheckedCreateWithoutResumeInput = {
@@ -7934,6 +8030,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: string
+    grammarScore?: number
+    clarityScore?: number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisCreateOrConnectWithoutResumeInput = {
@@ -8047,6 +8146,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: JsonNullableFilter<"ResumeAnalysis">
     positionedSuggestions?: JsonNullableFilter<"ResumeAnalysis">
     status?: StringFilter<"ResumeAnalysis"> | string
+    grammarScore?: IntFilter<"ResumeAnalysis"> | number
+    clarityScore?: IntFilter<"ResumeAnalysis"> | number
+    grammarIssues?: JsonNullableFilter<"ResumeAnalysis">
   }
 
   export type ResumeCreateWithoutSectionsInput = {
@@ -8247,6 +8349,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: string
+    grammarScore?: number
+    clarityScore?: number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeSectionUpdateWithoutResumeInput = {
@@ -8296,6 +8401,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
+    grammarScore?: IntFieldUpdateOperationsInput | number
+    clarityScore?: IntFieldUpdateOperationsInput | number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisUncheckedUpdateWithoutResumeInput = {
@@ -8320,6 +8428,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
+    grammarScore?: IntFieldUpdateOperationsInput | number
+    clarityScore?: IntFieldUpdateOperationsInput | number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ResumeAnalysisUncheckedUpdateManyWithoutResumeInput = {
@@ -8344,6 +8455,9 @@ export namespace Prisma {
     aiGeneratedImprovements?: NullableJsonNullValueInput | InputJsonValue
     positionedSuggestions?: NullableJsonNullValueInput | InputJsonValue
     status?: StringFieldUpdateOperationsInput | string
+    grammarScore?: IntFieldUpdateOperationsInput | number
+    clarityScore?: IntFieldUpdateOperationsInput | number
+    grammarIssues?: NullableJsonNullValueInput | InputJsonValue
   }
 
 
