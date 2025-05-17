@@ -6,13 +6,9 @@ import UserProfile from "@/components/dashboard/UserProfile";
 import CVList from "@/components/dashboard/CVList";
 import CVAnalysisModal from "@/components/dashboard/CVAnalysisModal";
 import AnimatedInsight from "@/components/reviewer/AnimatedInsight";
+import AnalyticsGraphs from "@/components/dashboard/AnalyticsGraphs";
 
-// User data (will come from authentication)
-const user = {
-  name: "John Doe",
-  email: "john.doe@example.com",
-  // avatarUrl: "..."
-};
+
 
 interface CV {
   id: number;
@@ -144,6 +140,16 @@ export default function DashboardPage() {
           <p className="text-gray-300 mb-8">Welcome to your CV analysis hub</p>
         </motion.div>
 
+        {/* Analytics Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mb-10"
+        >
+          
+        </motion.div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left column - User profile */}
           <motion.div
@@ -152,7 +158,7 @@ export default function DashboardPage() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-1"
           >
-            <UserProfile user={user} />
+            <UserProfile  />
             
             <motion.div 
               className="mt-6 bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20"
@@ -193,6 +199,9 @@ export default function DashboardPage() {
           analysisData={analysisData}
           isLoading={isLoading}
         />
+
+<h2 className="text-2xl font-semibold text-white mb-4">Your CV Analytics</h2>
+<AnalyticsGraphs />
         
         {/* Error Toast */}
         {error && (
