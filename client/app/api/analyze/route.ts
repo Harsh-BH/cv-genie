@@ -21,6 +21,8 @@ interface AnalysisResult {
     formatting: number;
     impact: number;
     skills: number;
+    grammar: number;
+    clarity: number;
   };
   aiGeneratedImprovements: {
     summary: string | string[];
@@ -30,6 +32,18 @@ interface AnalysisResult {
     projects: any[];
   };
   positionedSuggestions: any[];
+  grammarIssues?: Array<{
+    id: string;
+    text: string;
+    explanation: string;
+    suggestion: string;
+    position: {
+      lineNumber?: number;
+      offset?: number;
+      length?: number;
+    };
+    severity: 'critical' | 'high' | 'medium' | 'low';
+  }>;
 }
 
 export async function POST(req: NextRequest) {
@@ -433,7 +447,9 @@ async function processAnalysis(resume: any, analysisId: number) {
                 ats: 50,
                 formatting: 50,
                 impact: 50,
-                skills: 50
+                skills: 50,
+                grammar: 50,
+                clarity: 50
             },
             aiGeneratedImprovements: result.aiGeneratedImprovements || {
                 summary: [],
@@ -442,7 +458,8 @@ async function processAnalysis(resume: any, analysisId: number) {
                 education: [],
                 projects: []
             },
-            positionedSuggestions: result.positionedSuggestions || []
+            positionedSuggestions: result.positionedSuggestions || [],
+            grammarIssues: result.grammarIssues || []
         };
         
         // Check if analysis contains content rather than just metadata
@@ -503,14 +520,21 @@ async function updateAnalysisInDatabase(analysisId: number, result: AnalysisResu
         skillsAnalysis: result.skillsAnalysis,
         careerTrajectory: result.careerTrajectory,
         improvementSuggestions: result.improvementSuggestions,
+        
+        // Updated scores with new fields
         overallScore: result.scoreBreakdown.overall,
         contentScore: result.scoreBreakdown.content,
         atsOptimizationScore: result.scoreBreakdown.ats,
         industryAlignmentScore: result.scoreBreakdown.impact,
         formattingScore: result.scoreBreakdown.formatting,
         skillsScore: result.scoreBreakdown.skills,
+        grammarScore: result.scoreBreakdown.grammar, // New field
+        clarityScore: result.scoreBreakdown.clarity, // New field
+        
+        // Pass through the other fields
         aiGeneratedImprovements: result.aiGeneratedImprovements,
         positionedSuggestions: result.positionedSuggestions,
+        grammarIssues: result.grammarIssues, // New field
         status: "completed"
       }
     });

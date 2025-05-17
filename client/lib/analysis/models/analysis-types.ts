@@ -11,11 +11,12 @@ export interface AnalysisResult {
   scoreBreakdown: ScoreBreakdown;
   aiGeneratedImprovements: AIGeneratedImprovements;
   positionedSuggestions: PositionedSuggestion[];
+  grammarIssues?: GrammarIssue[];
 }
 
 export interface PositionedSuggestion {
   id: string;
-  type: string;
+  type: 'content' | 'formatting' | 'ats' | 'skills' | 'industry' | 'overall' | 'grammar';
   sectionType: string;
   original: string;
   improved: string;
@@ -23,26 +24,26 @@ export interface PositionedSuggestion {
   issue: string;
   reasoning: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  category: 'content' | 'formatting' | 'ats' | 'skills' | 'industry' | 'overall';
+  category: 'content' | 'formatting' | 'ats' | 'skills' | 'industry' | 'overall' | 'grammar';
   position: {
     sectionTitle: string;
     textSnippet: string;
     lineNumber?: number;
-    charRange?: any;
+    charRange?: [number, number];
   };
 }
 
 export interface ResumeSection {
-  type: string;
-  heading?: string;
+  title: string;
   content: string;
 }
 
 export interface StructuredResume {
-  fileName: string;
-  fileData: string;
+  fileName?: string;
+  fileData?: string;
   rawContent: string;
   sections: ResumeSection[];
+  skills?: string[];
   user?: {
     name: string;
     email: string;
@@ -61,11 +62,24 @@ export interface ScoreBreakdown {
 }
 
 export interface AIGeneratedImprovements {
-  summary: string | string[];
-  bulletPoints?: string[];
-  achievements?: string[];
-  experience: any[];
-  skills: any[];
-  education: any[];
-  projects: any[];
+  summary: string;
+  bulletPoints: string[];
+  achievements: string[];
+  experience: string[];
+  skills: string[];
+  education: string[];
+  projects: string[];
+}
+
+export interface GrammarIssue {
+  id: string;
+  text: string;
+  explanation: string;
+  suggestion: string;
+  position: {
+    lineNumber?: number;
+    offset?: number;
+    length?: number;
+  };
+  severity: 'critical' | 'high' | 'medium' | 'low';
 }

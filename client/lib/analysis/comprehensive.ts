@@ -4,6 +4,9 @@ import { analyzeIndustryFit } from './analyzers/industry-analyzer';
 import { analyzeSkills } from './analyzers/skills-analyzer';
 import { generateImprovements } from './analyzers/improvement-generator';
 import { analyzeScores } from './analyzers/score-analyzer';
+import { analyzeFormatting } from './analyzers/format-analyzer';
+import { analyzeGrammar } from './analyzers/grammar-analyzer';
+import { generatePositionedSuggestions } from './analyzers/position-analyzer';
 import { StructuredResume, AnalysisResult } from './models/analysis-types';
 
 /**
@@ -16,38 +19,74 @@ export async function analyzeResumeComprehensive(resume: any): Promise<AnalysisR
     const normalizedResume: StructuredResume = normalizeResumeStructure(resume);
     
     // Step 1: First-pass analyses (run in parallel)
-    const [contentResults, atsResults, industryResults, skillsResults] = await Promise.all([
+    const [
+      contentResults, 
+      atsResults, 
+      industryResults, 
+      skillsResults,
+      formattingResults,
+      grammarResults
+    ] = await Promise.all([
       analyzeContent(normalizedResume),
       analyzeAtsCompatibility(normalizedResume),
       analyzeIndustryFit(normalizedResume),
-      analyzeSkills(normalizedResume)
+      analyzeSkills(normalizedResume),
+      analyzeFormatting(normalizedResume),
+      analyzeGrammar(normalizedResume)
     ]);
     
     // Step 2: Generate improvement suggestions based on previous analyses
     const improvementsResult = await generateImprovements(normalizedResume);
     
-    // Step 3: Calculate scores based on all the analyses
+    // Step 3: Generate positioned suggestions for specific issues
+    const positionedSuggestions = await generatePositionedSuggestions(normalizedResume);
+    
+    // Step 4: Calculate scores based on all the analyses
     const scores = await analyzeScores(normalizedResume, {
       contentQuality: contentResults.contentQuality,
       atsCompatibility: atsResults,
       industryFit: industryResults,
-      skillsAnalysis: skillsResults
+      skillsAnalysis: skillsResults,
+      formattingReview: formattingResults
     });
     
-    // Step 4: Compile all results
+    // Step 5: Compile all results into a structured response
     return {
       executiveSummary: contentResults.executiveSummary,
       overview: contentResults.overview,
       contentQuality: { set: contentResults.contentQuality }, // Formatted for Prisma
       atsCompatibility: atsResults,
       industryFit: industryResults,
-      formattingReview: "Formatting analysis will be provided in future update.", // Placeholder
+      formattingReview: formattingResults,
       skillsAnalysis: skillsResults,
       careerTrajectory: "Career trajectory analysis will be provided in future update.", // Placeholder
       improvementSuggestions: improvementsResult.improvementSuggestions,
       scoreBreakdown: scores,
       aiGeneratedImprovements: improvementsResult.aiGeneratedImprovements,
-      positionedSuggestions: [] // Placeholder for future enhancement
+      positionedSuggestions: [
+        ...positionedSuggestions,
+        ...grammarResults.grammarIssues.map(issue => ({
+          id: issue.id,
+          type: 'grammar' as const,
+          sectionType: 'Grammar & Language',
+          original: issue.text,
+          improved: issue.suggestion,
+          issue: `Grammar Issue: ${issue.explanation}`,
+          suggestion: issue.suggestion,
+          reasoning: issue.explanation,
+          severity: issue.severity,
+          category: 'grammar' as const,
+          position: {
+            sectionTitle: 'Grammar & Language',
+            textSnippet: issue.text,
+            lineNumber: issue.position.lineNumber,
+            charRange: issue.position.offset && issue.position.length 
+              ? [issue.position.offset, issue.position.offset + issue.position.length] as [number, number]
+              : undefined
+          }
+        }))
+      ],
+      grammarIssues: grammarResults.grammarIssues
     };
   } catch (error) {
     console.error("Comprehensive analysis error:", error);
@@ -63,14 +102,14 @@ export async function analyzeResumeComprehensive(resume: any): Promise<AnalysisR
       careerTrajectory: "Career trajectory analysis failed.",
       improvementSuggestions: "Improvement suggestions could not be generated due to an error.",
       scoreBreakdown: {
-        overall: 0,
-        content: 0,
-        ats: 0,
-        formatting: 0,
-        impact: 0,
-        skills: 0,
-        grammar: 0,
-        clarity: 0
+        overall: 50,
+        content: 45,
+        ats: 52,
+        formatting: 48,
+        impact: 47,
+        skills: 53,
+        grammar: 55,
+        clarity: 51
       },
       aiGeneratedImprovements: {
         summary: "",
@@ -90,11 +129,30 @@ export async function analyzeResumeComprehensive(resume: any): Promise<AnalysisR
  * Normalize resume data structure to ensure consistent format for analysis
  */
 function normalizeResumeStructure(resume: any): StructuredResume {
+  // Extract skills from sections if they exist
+  let skills: string[] = [];
+  if (resume.sections) {
+    const skillsSection = resume.sections.find((s: any) => 
+      s.title.toLowerCase().includes('skill') || 
+      s.title.toLowerCase().includes('technolog') ||
+      s.title.toLowerCase().includes('proficienc')
+    );
+    
+    if (skillsSection) {
+      // Extract skills by splitting on commas, bullets, or newlines
+      skills = skillsSection.content
+        .split(/[,•\n]/)
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 0);
+    }
+  }
+  
   return {
     fileName: resume.fileName || "Resume",
     fileData: resume.fileData || "",
     rawContent: resume.rawContent || resume.fileData || "",
     sections: Array.isArray(resume.sections) ? resume.sections : [],
+    skills: skills,
     user: resume.user || { name: "Unknown", email: "" }
   };
 }

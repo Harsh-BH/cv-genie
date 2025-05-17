@@ -76,5 +76,10 @@ model ResumeAnalysis {
   status                  String   @default("pending")
   resume                  Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 
+  grammarScore Int @default(0) // New field
+  clarityScore Int @default(0) // New field
+
+  grammarIssues Json? // New field
+
   @@index([resumeId])
 }

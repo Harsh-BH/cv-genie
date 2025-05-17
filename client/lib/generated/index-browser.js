@@ -173,7 +173,10 @@ exports.Prisma.ResumeAnalysisScalarFieldEnum = {
   skillsScore: 'skillsScore',
   aiGeneratedImprovements: 'aiGeneratedImprovements',
   positionedSuggestions: 'positionedSuggestions',
-  status: 'status'
+  status: 'status',
+  grammarScore: 'grammarScore',
+  clarityScore: 'clarityScore',
+  grammarIssues: 'grammarIssues'
 };
 
 exports.Prisma.SortOrder = {

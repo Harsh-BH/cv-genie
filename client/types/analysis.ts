@@ -42,19 +42,26 @@ export interface AIGeneratedImprovements {
 
 // Complete resume analysis data structure
 export interface AnalysisData {
-  id?: number;
-  resumeId?: number;
+  id?: string;
+  resumeId?: string;
+  userId?: string;
+  
+  // Executive summary and overviews
   executiveSummary: string;
   overview: string;
   contentQuality: string;
+  
+  // Compatibility reviews
   atsCompatibility: string;
   industryFit: string;
   formattingReview: string;
   skillsAnalysis: string;
-  careerTrajectory: string;
+  careerTrajectory?: string;
+  
+  // Improvement suggestions
   improvementSuggestions: string;
   
-  // Complete score fields
+  // Scores (0-100)
   overallScore: number;
   contentScore: number;
   atsOptimizationScore: number;
@@ -64,45 +71,48 @@ export interface AnalysisData {
   grammarScore: number;
   clarityScore: number;
   
-  // Additional derived data
-  currentImpactScore?: number;
-  potentialImprovement?: number;
-  sectionScores?: {
-    header?: number;
-    summary?: number;
-    experience?: number;
-    education?: number;
-    skills?: number;
-    [key: string]: number | undefined;
-  };
-  issues?: {
-    grammar?: Array<any>;
-    format?: Array<any>;
-    content?: Array<any>;
-    ats?: Array<any>;
-    [key: string]: Array<any> | undefined;
-  };
-  aiGeneratedImprovements?: {
-    summary: string | string[];
-    experience: any[];
-    skills: any[];
-    education: any[];
-    projects: any[];
-    [key: string]: any;
-  };
-  positionedSuggestions: Array<{
+  // AI-generated improvements
+  aiSummary?: string;
+  aiBulletPoints?: string[];
+  aiAchievements?: string[];
+  aiSkills?: string[];
+  
+  // Positioned suggestions for specific improvements
+  positionedSuggestions?: Array<{
     id: string;
     type: string;
-    section: string;
+    sectionType: string;
+    original: string;
+    improved: string;
+    issue: string;
     suggestion: string;
-    rationale: string;
-    position?: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
+    reasoning: string;
+    severity: 'critical' | 'high' | 'medium' | 'low';
+    category: string;
+    position: {
+      sectionTitle: string;
+      textSnippet: string;
+      lineNumber?: number;
+      charRange?: [number, number];
     };
   }>;
+  
+  // Grammar issues
+  grammarIssues?: Array<{
+    id: string;
+    text: string;
+    explanation: string;
+    suggestion: string;
+    position: {
+      lineNumber?: number;
+      offset?: number;
+      length?: number;
+    };
+    severity: 'critical' | 'high' | 'medium' | 'low';
+  }>;
+  
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // Structure used by the sidebar component
