@@ -111,21 +111,14 @@
   },
   "footer": {
     "links": [
-      {
-        "text": "Privacy",
-        "url": "#"
-      },
-      {
-        "text": "Terms",
-        "url": "#"
-      },
+     
       {
         "text": "Contact",
-        "url": "#"
+        "url": "/contact"
       },
       {
         "text": "About",
-        "url": "#"
+        "url": "/about"
       }
     ],
     "copyright": "© 2023 CV Genie. All rights reserved."
