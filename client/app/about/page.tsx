@@ -95,116 +95,118 @@ export default function AboutPage() {
       }}
       animate={gradientAnimation}
     >
-      {/* Enhanced animated cosmic background */}
-      <div className="fixed inset-0 z-0">
-        {/* Glowing gradient orbs */}
-        {Array.from({ length: 15 }).map((_, i) => (
-          <motion.div
-            key={`orb-${i}`}
-            className="absolute rounded-full"
-            style={{
-              width: Math.random() * 300 + 50,
-              height: Math.random() * 300 + 50,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              background: `radial-gradient(circle, rgba(${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 255)}, 0.2) 0%, rgba(${Math.floor(Math.random() * 50)}, ${Math.floor(Math.random() * 50)}, ${Math.floor(Math.random() * 150)}, 0) 70%)`,
-              filter: 'blur(50px)',
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: [0.1, 0.3, 0.1], 
-              scale: [1, 1.2, 1],
-              x: [0, Math.random() * 50 - 25, 0],
-              y: [0, Math.random() * 50 - 25, 0],
-            }}
-            transition={{
-              duration: 15 + Math.random() * 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-
-        {/* Cosmic dust particles */}
-        {Array.from({ length: 80 }).map((_, i) => (
-          <motion.div
-            key={`dust-${i}`}
-            className="absolute rounded-full bg-white"
-            style={{
-              width: Math.random() * 2 + 1,
-              height: Math.random() * 2 + 1,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              boxShadow: '0 0 3px rgba(255, 255, 255, 0.8)',
-            }}
-            animate={{
-              opacity: [0.1, 0.8, 0.1],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: Math.random() * 5 + 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: Math.random() * 5,
-            }}
-          />
-        ))}
-
-        {/* SVG constellation patterns */}
-        <svg className="fixed inset-0 w-full h-full opacity-30" viewBox="0 0 100 100">
-          <defs>
-            <linearGradient id="constellationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#a855f7" stopOpacity="0.6" />
-            </linearGradient>
-          </defs>
-          
-          {/* Dynamic constellation lines */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <motion.path
-              key={`constellation-${i}`}
-              d={`M ${Math.random() * 100} ${Math.random() * 100} Q ${Math.random() * 100} ${Math.random() * 100}, ${Math.random() * 100} ${Math.random() * 100}`}
-              stroke="url(#constellationGradient)"
-              strokeWidth="0.2"
-              fill="none"
-              initial={{ pathLength: 0, opacity: 0 }}
+      {/* Enhanced animated cosmic background - client-side only */}
+      {isLoaded && (
+        <div className="fixed inset-0 z-0">
+          {/* Glowing gradient orbs */}
+          {Array.from({ length: 15 }).map((_, i) => (
+            <motion.div
+              key={`orb-${i}`}
+              className="absolute rounded-full"
+              style={{
+                width: Math.random() * 300 + 50,
+                height: Math.random() * 300 + 50,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                background: `radial-gradient(circle, rgba(${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 255)}, 0.2) 0%, rgba(${Math.floor(Math.random() * 50)}, ${Math.floor(Math.random() * 50)}, ${Math.floor(Math.random() * 150)}, 0) 70%)`,
+                filter: 'blur(50px)',
+              }}
+              initial={{ opacity: 0 }}
               animate={{ 
-                pathLength: [0, 1, 0],
-                opacity: [0, 0.6, 0]
+                opacity: [0.1, 0.3, 0.1], 
+                scale: [1, 1.2, 1],
+                x: [0, Math.random() * 50 - 25, 0],
+                y: [0, Math.random() * 50 - 25, 0],
               }}
               transition={{
-                duration: Math.random() * 15 + 10,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: Math.random() * 10,
-              }}
-            />
-          ))}
-          
-          {/* Constellation points */}
-          {Array.from({ length: 20 }).map((_, i) => (
-            <motion.circle
-              key={`star-${i}`}
-              cx={Math.random() * 100}
-              cy={Math.random() * 100}
-              r={Math.random() * 0.5 + 0.2}
-              fill="#ffffff"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ 
-                scale: [0, 1, 0],
-                opacity: [0, 0.8, 0]
-              }}
-              transition={{
-                duration: Math.random() * 8 + 5,
+                duration: 15 + Math.random() * 10,
                 repeat: Infinity,
                 ease: "easeInOut",
                 delay: Math.random() * 5,
               }}
             />
           ))}
-        </svg>
-      </div>
+
+          {/* Cosmic dust particles */}
+          {Array.from({ length: 80 }).map((_, i) => (
+            <motion.div
+              key={`dust-${i}`}
+              className="absolute rounded-full bg-white"
+              style={{
+                width: Math.random() * 2 + 1,
+                height: Math.random() * 2 + 1,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                boxShadow: '0 0 3px rgba(255, 255, 255, 0.8)',
+              }}
+              animate={{
+                opacity: [0.1, 0.8, 0.1],
+                scale: [1, 1.5, 1],
+              }}
+              transition={{
+                duration: Math.random() * 5 + 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+
+          {/* SVG constellation patterns */}
+          <svg className="fixed inset-0 w-full h-full opacity-30" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="constellationGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#6366f1" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#a855f7" stopOpacity="0.6" />
+              </linearGradient>
+            </defs>
+            
+            {/* Dynamic constellation lines */}
+            {Array.from({ length: 10 }).map((_, i) => (
+              <motion.path
+                key={`constellation-${i}`}
+                d={`M ${Math.random() * 100} ${Math.random() * 100} Q ${Math.random() * 100} ${Math.random() * 100}, ${Math.random() * 100} ${Math.random() * 100}`}
+                stroke="url(#constellationGradient)"
+                strokeWidth="0.2"
+                fill="none"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ 
+                  pathLength: [0, 1, 0],
+                  opacity: [0, 0.6, 0]
+                }}
+                transition={{
+                  duration: Math.random() * 15 + 10,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: Math.random() * 10,
+                }}
+              />
+            ))}
+            
+            {/* Constellation points */}
+            {Array.from({ length: 20 }).map((_, i) => (
+              <motion.circle
+                key={`star-${i}`}
+                cx={Math.random() * 100}
+                cy={Math.random() * 100}
+                r={Math.random() * 0.5 + 0.2}
+                fill="#ffffff"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ 
+                  scale: [0, 1, 0],
+                  opacity: [0, 0.8, 0]
+                }}
+                transition={{
+                  duration: Math.random() * 8 + 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: Math.random() * 5,
+                }}
+              />
+            ))}
+          </svg>
+        </div>
+      )}
 
       <div className="relative z-10">
         {/* Hero Section with enhanced animations */}
@@ -436,8 +438,8 @@ export default function AboutPage() {
                   transition={{ delay: 2.4, duration: 0.5 }}
                 />
                 
-                {/* Animated sparkles */}
-                {Array.from({ length: 8 }).map((_, i) => (
+                {/* Animated sparkles - client-side only */}
+                {isLoaded && Array.from({ length: 8 }).map((_, i) => (
                   <motion.circle
                     key={i}
                     cx={100 + Math.cos(Math.PI * 2 * i / 8) * 90}
@@ -756,31 +758,6 @@ export default function AboutPage() {
                       transition={{ duration: 1.5 }}
                     />
                     
-                    {/* Animated particles flowing along the path */}
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <motion.circle
-                        key={`flow-${i}`}
-                        r="3"
-                        fill="#a855f7"
-                        filter="url(#neonGlow)"
-                        initial={{ opacity: 0 }}
-                        animate={{
-                          opacity: [0, 1, 0],
-                          offsetDistance: ['0%', '100%']
-                        }}
-                        style={{
-                          offsetPath: "path('M 10,100 C 30,60 70,20 100,50 C 130,80 170,60 190,100')",
-                          offsetRotate: "auto"
-                        }}
-                        transition={{
-                          duration: 4,
-                          delay: i * 0.8,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      />
-                    ))}
-                    
                     {/* Process step glowing circles */}
                     <motion.circle 
                       cx="10" 
@@ -821,23 +798,53 @@ export default function AboutPage() {
                       whileHover={{ scale: 1.5 }}
                     />
                     
-                    {/* Additional cosmic dust particles */}
-                    {Array.from({ length: 30 }).map((_, i) => (
-                      <motion.circle
-                        key={`dust-${i}`}
-                        cx={Math.random() * 180 + 10}
-                        cy={Math.random() * 180 + 10}
-                        r={Math.random() * 2 + 1}
-                        fill="#ffffff"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: [0, 0.7, 0], scale: [0, 1, 0] }}
-                        transition={{
-                          duration: Math.random() * 2 + 1,
-                          repeat: Infinity,
-                          delay: Math.random() * 2
-                        }}
-                      />
-                    ))}
+                    {/* Animated particles and dust - client-side only */}
+                    {isLoaded && (
+                      <>
+                        {/* Animated particles flowing along the path */}
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <motion.circle
+                            key={`flow-${i}`}
+                            r="3"
+                            fill="#a855f7"
+                            filter="url(#neonGlow)"
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: [0, 1, 0],
+                              offsetDistance: ['0%', '100%']
+                            }}
+                            style={{
+                              offsetPath: "path('M 10,100 C 30,60 70,20 100,50 C 130,80 170,60 190,100')",
+                              offsetRotate: "auto"
+                            }}
+                            transition={{
+                              duration: 4,
+                              delay: i * 0.8,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        ))}
+                      
+                        {/* Additional cosmic dust particles */}
+                        {Array.from({ length: 30 }).map((_, i) => (
+                          <motion.circle
+                            key={`dust-${i}`}
+                            cx={Math.random() * 180 + 10}
+                            cy={Math.random() * 180 + 10}
+                            r={Math.random() * 2 + 1}
+                            fill="#ffffff"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 0.7, 0], scale: [0, 1, 0] }}
+                            transition={{
+                              duration: Math.random() * 2 + 1,
+                              repeat: Infinity,
+                              delay: Math.random() * 2
+                            }}
+                          />
+                        ))}
+                      </>
+                    )}
                   </svg>
                 </div>
               </motion.div>
@@ -936,7 +943,7 @@ export default function AboutPage() {
           </div>
         </section>
         
-        {/* About the Maker Section with enhanced glass morphism */}
+        {/* About the Makers Section with enhanced glass morphism */}
         <section className="py-16 px-4 sm:px-6 md:px-8 lg:px-16 max-w-7xl mx-auto mb-16 relative">
           <motion.div 
             className="absolute inset-0 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]"
@@ -958,256 +965,470 @@ export default function AboutPage() {
               transition={{ duration: 0.6 }}
               style={{ textShadow: '0 0 10px rgba(132,90,223,0.3)' }}
             >
-              About the Maker
+              About the Makers
             </motion.h2>
             
-            <div className="flex flex-col md:flex-row items-center gap-16">
-              <motion.div 
-                className="flex-1 flex justify-center"
-                initial={{ opacity: 0, rotateY: 90 }}
-                whileInView={{ opacity: 1, rotateY: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-              >
+            {/* Grid layout for two people */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+              {/* First Person */}
+              <div className="flex flex-col md:flex-row items-center gap-8">
                 <motion.div 
-                  className="relative w-64 h-64 rounded-full overflow-hidden border-2 border-white/30"
-                  animate={floatingAnimation}
-                  whileHover={{ scale: 1.05, rotate: 5 }}
-                >
-                  {/* Glowing background for the avatar */}
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{
-                      background: 'radial-gradient(circle, rgba(111, 76, 255, 0.4) 0%, rgba(66, 51, 122, 0.2) 50%, rgba(0, 0, 0, 0) 70%)',
-                    }}
-                    animate={{
-                      scale: [1, 1.1, 1],
-                      opacity: [0.4, 0.6, 0.4]
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                  
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/40 to-purple-600/40 flex items-center justify-center text-white text-xl font-bold backdrop-blur-sm">
-                    <motion.span 
-                      animate={{ 
-                        textShadow: ['0 0 5px #ffffff', '0 0 15px #ffffff', '0 0 5px #ffffff'] 
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity 
-                      }}
-                    >
-                      Photo
-                    </motion.span>
-                  </div>
-                  
-                  {/* Abstract animated shapes around the photo */}
-                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-                    <defs>
-                      <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
-                        <stop offset="100%" stopColor="rgba(111, 76, 255, 0.4)" />
-                      </linearGradient>
-                    </defs>
-                    
-                    {/* Animated circles */}
-                    {[...Array(8)].map((_, i) => (
-                      <motion.circle
-                        key={i}
-                        cx="50"
-                        cy="50"
-                        r={40 + i*3}
-                        fill="none"
-                        stroke="url(#circleGradient)"
-                        strokeWidth="0.5"
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ 
-                          scale: [0.8, 1.2, 0.8], 
-                          opacity: [0.1, 0.3, 0.1],
-                          rotate: [0, 180, 360] 
-                        }}
-                        transition={{
-                          duration: 8 + i,
-                          repeat: Infinity,
-                          delay: i * 0.5,
-                          ease: "easeInOut"
-                        }}
-                        style={{ transformOrigin: '50px 50px' }}
-                      />
-                    ))}
-                    
-                    {/* Cosmic dust particles */}
-                    {[...Array(15)].map((_, i) => (
-                      <motion.circle 
-                        key={`dust-maker-${i}`}
-                        cx={50 + Math.cos(Math.PI * 2 * i / 15) * (Math.random() * 20 + 30)}
-                        cy={50 + Math.sin(Math.PI * 2 * i / 15) * (Math.random() * 20 + 30)}
-                        r={Math.random() * 1 + 0.5}
-                        fill="#ffffff"
-                        animate={{
-                          opacity: [0, 0.8, 0],
-                          scale: [0, 1, 0]
-                        }}
-                        transition={{
-                          duration: Math.random() * 2 + 1,
-                          repeat: Infinity,
-                          delay: Math.random() * 2,
-                          ease: "easeInOut"
-                        }}
-                      />
-                    ))}
-                  </svg>
-                  
-                  {/* Uncomment and update when you have an image */}
-                  {/* <Image 
-                    src="/path/to/maker-photo.jpg" 
-                    alt="Creator of CV Genie" 
-                    fill
-                    className="object-cover" 
-                  /> */}
-                </motion.div>
-              </motion.div>
-              
-              <motion.div 
-                className="flex-1"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-              >
-                <motion.h3 
-                  className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-br from-white to-purple-200"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  className="flex-shrink-0"
+                  initial={{ opacity: 0, rotateY: 90 }}
+                  whileInView={{ opacity: 1, rotateY: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.6 }}
-                  style={{ textShadow: '0 0 10px rgba(132,90,223,0.3)' }}
+                  transition={{ duration: 0.8 }}
                 >
-                  Hello, I'm Harsh!
-                </motion.h3>
-                
-                <motion.p 
-                  className="text-lg text-indigo-100/90 mb-6"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                >
-                  I created CV Genie to solve a problem I faced myself - creating an impressive resume that truly highlights one's skills and experiences.
-                </motion.p>
-                
-                <motion.p 
-                  className="text-lg text-indigo-100/90 mb-6"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                >
-                  With a background in software engineering and AI, I built CV Genie to combine beautiful design with intelligent content optimization.
-                </motion.p>
-                
-                <div className="flex gap-4">
-                  <motion.a
-                    href="https://github.com/yourusername"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative backdrop-blur-md bg-black/30 text-white p-3 rounded-full border border-white/10"
-                    whileHover={{ 
-                      scale: 1.2,
-                      boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
-                    }}
-                    whileTap={{ scale: 0.95 }}
+                  <motion.div 
+                    className="relative w-48 h-48 rounded-full overflow-hidden border-2 border-white/30"
+                    animate={floatingAnimation}
+                    whileHover={{ scale: 1.05, rotate: 5 }}
                   >
-                    {/* Glow effect */}
-                    <motion.div 
-                      className="absolute inset-0 -z-10 rounded-full"
+                    {/* Glowing background for the avatar */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: 'radial-gradient(circle, rgba(111, 76, 255, 0.4) 0%, rgba(66, 51, 122, 0.2) 50%, rgba(0, 0, 0, 0) 70%)',
+                      }}
                       animate={{
-                        boxShadow: [
-                          '0 0 0px rgba(111, 76, 255, 0)',
-                          '0 0 10px rgba(111, 76, 255, 0.5)',
-                          '0 0 0px rgba(111, 76, 255, 0)'
-                        ]
+                        scale: [1, 1.1, 1],
+                        opacity: [0.4, 0.6, 0.4]
                       }}
                       transition={{
-                        duration: 2,
+                        duration: 4,
                         repeat: Infinity,
                         ease: "easeInOut"
                       }}
                     />
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                    
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/40 to-purple-600/40 flex items-center justify-center text-white text-xl font-bold backdrop-blur-sm">
+                      <motion.span 
+                        animate={{ 
+                          textShadow: ['0 0 5px #ffffff', '0 0 15px #ffffff', '0 0 5px #ffffff'] 
+                        }}
+                        transition={{ 
+                          duration: 2, 
+                          repeat: Infinity 
+                        }}
+                      >
+                        Photo
+                      </motion.span>
+                    </div>
+                    
+                    {/* Abstract animated shapes around the photo */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+                      <defs>
+                        <linearGradient id="circleGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+                          <stop offset="100%" stopColor="rgba(111, 76, 255, 0.4)" />
+                        </linearGradient>
+                      </defs>
+                      
+                      {/* Animated circles */}
+                      {[...Array(8)].map((_, i) => (
+                        <motion.circle
+                          key={i}
+                          cx="50"
+                          cy="50"
+                          r={40 + i*3}
+                          fill="none"
+                          stroke="url(#circleGradient1)"
+                          strokeWidth="0.5"
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ 
+                            scale: [0.8, 1.2, 0.8], 
+                            opacity: [0.1, 0.3, 0.1],
+                            rotate: [0, 180, 360] 
+                          }}
+                          transition={{
+                            duration: 8 + i,
+                            repeat: Infinity,
+                            delay: i * 0.5,
+                            ease: "easeInOut"
+                          }}
+                          style={{ transformOrigin: '50px 50px' }}
+                        />
+                      ))}
+                      
+                      {/* Cosmic dust particles - client-side only */}
+                      {isLoaded && [...Array(15)].map((_, i) => (
+                        <motion.circle 
+                          key={`dust-maker1-${i}`}
+                          cx={50 + Math.cos(Math.PI * 2 * i / 15) * (Math.random() * 20 + 30)}
+                          cy={50 + Math.sin(Math.PI * 2 * i / 15) * (Math.random() * 20 + 30)}
+                          r={Math.random() * 1 + 0.5}
+                          fill="#ffffff"
+                          animate={{
+                            opacity: [0, 0.8, 0],
+                            scale: [0, 1, 0]
+                          }}
+                          transition={{
+                            duration: Math.random() * 2 + 1,
+                            repeat: Infinity,
+                            delay: Math.random() * 2,
+                            ease: "easeInOut"
+                          }}
+                        />
+                      ))}
                     </svg>
-                  </motion.a>
-                  
-                  <motion.a
-                    href="https://linkedin.com/in/yourusername"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative backdrop-blur-md bg-blue-600/30 text-white p-3 rounded-full border border-white/10"
-                    whileHover={{ 
-                      scale: 1.2,
-                      boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
-                    }}
-                    whileTap={{ scale: 0.95 }}
+                  </motion.div>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex-1"
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <motion.h3 
+                    className="text-2xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-br from-white to-purple-200"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                    style={{ textShadow: '0 0 10px rgba(132,90,223,0.3)' }}
                   >
-                    {/* Glow effect */}
-                    <motion.div 
-                      className="absolute inset-0 -z-10 rounded-full"
+                    Hello, I'm Harsh!
+                  </motion.h3>
+                  
+                  <motion.p 
+                    className="text-md text-indigo-100/90 mb-4"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                  >
+                    I created CV Genie to solve a problem I faced myself - creating an impressive resume that truly highlights one's skills and experiences.
+                  </motion.p>
+                  
+                  <div className="flex gap-3">
+                    <motion.a
+                      href="https://github.com/yourusername"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative backdrop-blur-md bg-black/30 text-white p-2 rounded-full border border-white/10"
+                      whileHover={{ 
+                        scale: 1.2,
+                        boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <motion.div 
+                        className="absolute inset-0 -z-10 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            '0 0 0px rgba(111, 76, 255, 0)',
+                            '0 0 10px rgba(111, 76, 255, 0.5)',
+                            '0 0 0px rgba(111, 76, 255, 0)'
+                          ]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                      </svg>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="https://linkedin.com/in/yourusername"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative backdrop-blur-md bg-blue-600/30 text-white p-2 rounded-full border border-white/10"
+                      whileHover={{ 
+                        scale: 1.2,
+                        boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <motion.div 
+                        className="absolute inset-0 -z-10 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            '0 0 0px rgba(111, 76, 255, 0)',
+                            '0 0 10px rgba(111, 76, 255, 0.5)',
+                            '0 0 0px rgba(111, 76, 255, 0)'
+                          ]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.7
+                        }}
+                      />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                      </svg>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="mailto:harsh@example.com"
+                      className="relative backdrop-blur-md bg-red-500/30 text-white p-2 rounded-full border border-white/10"
+                      whileHover={{ 
+                        scale: 1.2,
+                        boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <motion.div 
+                        className="absolute inset-0 -z-10 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            '0 0 0px rgba(111, 76, 255, 0)',
+                            '0 0 10px rgba(111, 76, 255, 0.5)',
+                            '0 0 0px rgba(111, 76, 255, 0)'
+                          ]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 1.4
+                        }}
+                      />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </motion.a>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Second Person */}
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <motion.div 
+                  className="flex-shrink-0"
+                  initial={{ opacity: 0, rotateY: 90 }}
+                  whileInView={{ opacity: 1, rotateY: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                  <motion.div 
+                    className="relative w-48 h-48 rounded-full overflow-hidden border-2 border-white/30"
+                    animate={floatingAnimation}
+                    whileHover={{ scale: 1.05, rotate: -5 }}
+                  >
+                    {/* Glowing background for the avatar */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: 'radial-gradient(circle, rgba(166, 76, 255, 0.4) 0%, rgba(86, 51, 122, 0.2) 50%, rgba(0, 0, 0, 0) 70%)',
+                      }}
                       animate={{
-                        boxShadow: [
-                          '0 0 0px rgba(111, 76, 255, 0)',
-                          '0 0 10px rgba(111, 76, 255, 0.5)',
-                          '0 0 0px rgba(111, 76, 255, 0)'
-                        ]
+                        scale: [1, 1.1, 1],
+                        opacity: [0.4, 0.6, 0.4]
                       }}
                       transition={{
-                        duration: 2,
+                        duration: 4.5,
                         repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 0.7
+                        ease: "easeInOut"
                       }}
                     />
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/40 to-indigo-600/40 flex items-center justify-center text-white text-xl font-bold backdrop-blur-sm">
+                      <motion.span 
+                        animate={{ 
+                          textShadow: ['0 0 5px #ffffff', '0 0 15px #ffffff', '0 0 5px #ffffff'] 
+                        }}
+                        transition={{ 
+                          duration: 2, 
+                          repeat: Infinity,
+                          delay: 0.5
+                        }}
+                      >
+                        Photo
+                      </motion.span>
+                    </div>
+                    
+                    {/* Abstract animated shapes around the photo */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+                      <defs>
+                        <linearGradient id="circleGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+                          <stop offset="100%" stopColor="rgba(166, 76, 255, 0.4)" />
+                        </linearGradient>
+                      </defs>
+                      
+                      {/* Animated circles */}
+                      {[...Array(8)].map((_, i) => (
+                        <motion.circle
+                          key={i}
+                          cx="50"
+                          cy="50"
+                          r={40 + i*3}
+                          fill="none"
+                          stroke="url(#circleGradient2)"
+                          strokeWidth="0.5"
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ 
+                            scale: [0.8, 1.2, 0.8], 
+                            opacity: [0.1, 0.3, 0.1],
+                            rotate: [0, -180, -360] 
+                          }}
+                          transition={{
+                            duration: 8 + i,
+                            repeat: Infinity,
+                            delay: i * 0.5,
+                            ease: "easeInOut"
+                          }}
+                          style={{ transformOrigin: '50px 50px' }}
+                        />
+                      ))}
+                      
+                      {/* Cosmic dust particles - client-side only */}
+                      {isLoaded && [...Array(15)].map((_, i) => (
+                        <motion.circle 
+                          key={`dust-maker2-${i}`}
+                          cx={50 + Math.cos(Math.PI * 2 * i / 15) * (Math.random() * 20 + 30)}
+                          cy={50 + Math.sin(Math.PI * 2 * i / 15) * (Math.random() * 20 + 30)}
+                          r={Math.random() * 1 + 0.5}
+                          fill="#ffffff"
+                          animate={{
+                            opacity: [0, 0.8, 0],
+                            scale: [0, 1, 0]
+                          }}
+                          transition={{
+                            duration: Math.random() * 2 + 1,
+                            repeat: Infinity,
+                            delay: Math.random() * 2,
+                            ease: "easeInOut"
+                          }}
+                        />
+                      ))}
                     </svg>
-                  </motion.a>
-                  
-                  <motion.a
-                    href="mailto:youremail@example.com"
-                    className="relative backdrop-blur-md bg-red-500/30 text-white p-3 rounded-full border border-white/10"
-                    whileHover={{ 
-                      scale: 1.2,
-                      boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
-                    }}
-                    whileTap={{ scale: 0.95 }}
+                  </motion.div>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex-1"
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                >
+                  <motion.h3 
+                    className="text-2xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-br from-white to-purple-200"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    style={{ textShadow: '0 0 10px rgba(132,90,223,0.3)' }}
                   >
-                    {/* Glow effect */}
-                    <motion.div 
-                      className="absolute inset-0 -z-10 rounded-full"
-                      animate={{
-                        boxShadow: [
-                          '0 0 0px rgba(111, 76, 255, 0)',
-                          '0 0 10px rgba(111, 76, 255, 0.5)',
-                          '0 0 0px rgba(111, 76, 255, 0)'
-                        ]
+                    I'm Akshath!
+                  </motion.h3>
+                  
+                  <motion.p 
+                    className="text-md text-indigo-100/90 mb-4"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                  >
+                    With expertise in UI/UX design, I ensure that CV Genie delivers beautiful, professional resumes that make a strong visual impact while maintaining readability.
+                  </motion.p>
+                  
+                  <div className="flex gap-3">
+                    <motion.a
+                      href="https://github.com/priyauser"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative backdrop-blur-md bg-black/30 text-white p-2 rounded-full border border-white/10"
+                      whileHover={{ 
+                        scale: 1.2,
+                        boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
                       }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 1.4
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <motion.div 
+                        className="absolute inset-0 -z-10 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            '0 0 0px rgba(111, 76, 255, 0)',
+                            '0 0 10px rgba(111, 76, 255, 0.5)',
+                            '0 0 0px rgba(111, 76, 255, 0)'
+                          ]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.2
+                        }}
+                      />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                      </svg>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="https://linkedin.com/in/priyalinkedin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative backdrop-blur-md bg-blue-600/30 text-white p-2 rounded-full border border-white/10"
+                      whileHover={{ 
+                        scale: 1.2,
+                        boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
                       }}
-                    />
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </motion.a>
-                </div>
-              </motion.div>
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <motion.div 
+                        className="absolute inset-0 -z-10 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            '0 0 0px rgba(111, 76, 255, 0)',
+                            '0 0 10px rgba(111, 76, 255, 0.5)',
+                            '0 0 0px rgba(111, 76, 255, 0)'
+                          ]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 0.9
+                        }}
+                      />
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                      </svg>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="mailto:priya@example.com"
+                      className="relative backdrop-blur-md bg-red-500/30 text-white p-2 rounded-full border border-white/10"
+                      whileHover={{ 
+                        scale: 1.2,
+                        boxShadow: '0 0 15px rgba(111, 76, 255, 0.5)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <motion.div 
+                        className="absolute inset-0 -z-10 rounded-full"
+                        animate={{
+                          boxShadow: [
+                            '0 0 0px rgba(111, 76, 255, 0)',
+                            '0 0 10px rgba(111, 76, 255, 0.5)',
+                            '0 0 0px rgba(111, 76, 255, 0)'
+                          ]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: 1.6
+                        }}
+                      />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </motion.a>
+                  </div>
+                </motion.div>
+              </div>
             </div>
           </div>
         </section>
