@@ -46,36 +46,64 @@ export async function GET(req: NextRequest) {
       }
     });
 
-    // Transform data to include score from analysis
+    // Transform data to include detailed scores from analysis
     const formattedResumes = resumes.map((resume) => {
-      // Get the score from the most recent analysis or default to null
-      const rawScore = resume.analyses.length > 0 
-        ? resume.analyses[0].overallScore 
-        : null;
-
-      // Format the score correctly
-      let score = rawScore;
+      // Get the analysis or default values
+      const analysis = resume.analyses.length > 0 ? resume.analyses[0] : null;
       
-      // If score is not null, ensure it's in the proper format
-      if (score !== null) {
+      // Format the overall score
+      let overallScore = analysis?.overallScore ?? null;
+      
+      // Process overall score if exists
+      if (overallScore !== null) {
         // If score is between 0-1, convert to percentage (0-100)
-        if (score >= 0 && score <= 1) {
-          score = Math.round(score * 100);
+        if (overallScore >= 0 && overallScore <= 1) {
+          overallScore = Math.round(overallScore * 100);
         } 
         // Otherwise ensure it's a rounded integer
         else {
-          score = Math.round(score);
+          overallScore = Math.round(overallScore);
         }
         
         // Make sure the score is within 0-100 range
-        score = Math.max(0, Math.min(100, score));
+        overallScore = Math.max(0, Math.min(100, overallScore));
       }
-
+      
+      // Helper function to format all scores consistently
+      const formatScore = (score: number | null): number | null => {
+        if (score === null) return null;
+        
+        // If score is between 0-1, convert to percentage
+        if (score >= 0 && score <= 1) {
+          score = Math.round(score * 100);
+        } else {
+          score = Math.round(score);
+        }
+        
+        // Ensure score is within 0-100 range
+        return Math.max(0, Math.min(100, score));
+      };
+      
+      // Return formatted resume with all available scores
       return {
         id: resume.id,
         fileName: resume.fileName,
         updatedAt: resume.updatedAt,
-        score: score
+        score: overallScore, // For backward compatibility
+        scores: {
+          overall: overallScore,
+          content: formatScore(analysis?.contentScore ?? null),
+          atsOptimization: formatScore(analysis?.atsOptimizationScore ?? null),
+          industryAlignment: formatScore(analysis?.industryAlignmentScore ?? null),
+          formatting: formatScore(analysis?.formattingScore ?? null),
+          skills: formatScore(analysis?.skillsScore ?? null),
+          grammar: formatScore(analysis?.grammarScore ?? null),
+          clarity: formatScore(analysis?.clarityScore ?? null)
+        },
+        // Include analysis status if available
+        analysisStatus: analysis?.status ?? null,
+        // Include analysis creation date for reference
+        analysisDate: analysis?.createdAt ?? null
       };
     });
 
