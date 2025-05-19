@@ -1,191 +1,279 @@
-<!-- filepath: /home/harsh1/github-repos/cv-genie/client/README.md -->
+
 <div align="center">
   <img src="public/logo.png" alt="CV Genie Logo" width="200"/>
   <h1>CV Genie</h1>
   <p><strong>AI-powered resume analysis and optimization platform</strong></p>
-  
-  [![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue.svg)](https://www.typescriptlang.org/)
-  [![Next.js](https://img.shields.io/badge/Next.js-14.0.0-black.svg)](https://nextjs.org/)
-  [![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)](https://reactjs.org/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.3.0-38B2AC.svg)](https://tailwindcss.com/)
-  [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-4.9.5-blue.svg" alt="TypeScript" />
+  </a>
+  <a href="https://nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-14.0.0-black.svg" alt="Next.js" />
+  </a>
+  <a href="https://reactjs.org/">
+    <img src="https://img.shields.io/badge/React-18.2.0-61DAFB.svg" alt="React" />
+  </a>
+  <a href="https://tailwindcss.com/">
+    <img src="https://img.shields.io/badge/Tailwind%20CSS-3.3.0-38B2AC.svg" alt="Tailwind CSS" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" />
+  </a>
 </div>
+
+---
 
 ## ✨ Overview
 
-CV Genie helps job seekers create professional, ATS-friendly resumes with AI-powered analysis and optimization. Upload your existing resume, get instant feedback, and apply AI-suggested improvements to enhance your chances of landing interviews.
+**CV Genie** helps job seekers craft professional, ATS-friendly resumes with AI-powered analysis and optimization. Upload your resume, receive instant feedback, and enhance it with AI-suggested improvements tailored to your target industry.
+
+---
 
 ## 🧠 AI Technology
 
-### Perplexity AI
+### 🔹 Perplexity AI
 
-CV Genie utilizes Perplexity's advanced language models for:
+- **Content Analysis**: Identifies strengths and weaknesses using deep semantic understanding  
+- **Industry-Specific Recommendations**: Tailored suggestions aligned with industry standards  
+- **Natural Language Generation**: Rewrites resume bullets for impact and clarity  
+- **ATS Optimization**: Analyzes keywords to improve compatibility with applicant tracking systems  
 
-- **Content Analysis**: Deep semantic understanding of resume content to identify strengths and weaknesses
-- **Industry-Specific Recommendations**: Tailored suggestions based on target industry standards
-- **Natural Language Generation**: Human-like rewrites of resume bullets for greater impact and clarity
-- **ATS Optimization**: Intelligent keyword analysis to improve applicant tracking system compatibility
+### 🔸 Sonar Model
 
-### Sonar Model
+- **Document Structure Analysis**: Parses formatting and structural elements  
+- **Visual Element Recognition**: Understands spatial relationships in resumes  
+- **Multimodal Processing**: Handles both text and visuals  
+- **Language-Agnostic Analysis**: Maintains consistent quality across languages  
 
-The Sonar model is integrated for:
-
-- **Document Structure Analysis**: Advanced parsing of resume structure and formatting
-- **Visual Element Recognition**: Understanding the spatial relationships and hierarchy within documents
-- **Multimodal Processing**: Handling both text and visual aspects of resume documents
-- **Language-Agnostic Analysis**: Supporting resumes in multiple languages with consistent quality
+---
 
 ## 🚀 Features
 
-- **🔍 Smart Resume Analysis**
-  - ATS compatibility checking
-  - Keyword optimization
-  - Content gap identification
-  - Format and structure evaluation
+### 🔍 Smart Resume Analysis
+- ATS compatibility check  
+- Keyword optimization  
+- Content gap detection  
+- Formatting evaluation  
 
-- **💡 AI-Powered Optimization**
-  - Action verb enhancement
-  - Accomplishment highlighting
-  - Quantifiable metrics suggestions
-  - Industry-specific terminology recommendations
+### 💡 AI-Powered Optimization
+- Enhanced action verbs  
+- Achievement-focused phrasing  
+- Metrics-based suggestions  
+- Industry-specific terminology  
 
-- **🎨 Design & Formatting**
-  - Professional template selection
-  - Customizable formatting options
-  - Typography optimization
-  - White space balancing
+### 🎨 Design & Formatting
+- Professional templates  
+- Custom formatting  
+- Typography enhancements  
+- Balanced white space  
 
-- **📄 Document Management**
-  - Multiple resume versions
-  - Section management
-  - Version history
-  - PDF export in high quality
+### 📄 Document Management
+- Multiple resume versions  
+- Section rearrangement  
+- Version history tracking  
+- High-quality PDF exports  
 
-- **🔧 Customization Tools**
-  - Role-specific tailoring
-  - Company-specific adjustments
-  - Industry alignment
-  - Personal branding options
+### 🔧 Customization Tools
+- Role-specific tailoring  
+- Company-level adjustments  
+- Industry alignment  
+- Personal branding support  
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js, React, TypeScript, Tailwind CSS
-- **State Management**: React Context API, Zustand
-- **Forms**: React Hook Form, Zod
-- **UI Components**: Radix UI, Shadcn UI
-- **Backend**: Node.js with TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth.js
-- **Testing**: Jest, React Testing Library
-- **CI/CD**: GitHub Actions
-- **AI Integration**: Perplexity AI API, Sonar Model API
+- **Frontend**: Next.js, React, TypeScript, Tailwind CSS  
+- **State Management**: React Context API, Zustand  
+- **Forms**: React Hook Form, Zod  
+- **UI**: Radix UI, Shadcn UI  
+- **Backend**: Node.js (TypeScript)  
+- **Database**: PostgreSQL with Prisma ORM  
+- **Authentication**: NextAuth.js  
+- **Testing**: Jest, React Testing Library  
+- **CI/CD**: GitHub Actions  
+- **AI Integration**: Perplexity AI API, Sonar Model API  
+
+---
 
 ## 📁 Project Structure
-client/               # Next.js frontend application
-├── app/              # App router pages and layouts
+
+```
+
+client/               # Next.js frontend
+├── app/              # App router pages/layouts
 ├── components/       # Reusable UI components
 ├── hooks/            # Custom React hooks
 ├── lib/              # Core functionality
 │   └── generated/    # Prisma client and types
-├── prisma/           # Database schema and migrations
-├── providers/        # React context providers
+├── prisma/           # DB schema and migrations
+├── providers/        # Context providers
 ├── public/           # Static assets
-├── styles/           # Global CSS styles
-├── types/            # TypeScript type definitions
+├── styles/           # Global CSS
+├── types/            # TypeScript definitions
 └── utils/            # Utility functions
 
+````
 
-## 🚀 Getting Started
+---
 
-### Prerequisites
+## 🧪 Getting Started
 
-- Node.js (v18 or higher)
-- PostgreSQL database
-- npm or yarn
-- AI API keys (for Perplexity and Sonar)
+### ✅ Prerequisites
 
-### Installation
+- Node.js v18+
+- PostgreSQL
+- `npm` or `yarn`
+- Perplexity & Sonar AI API keys
+
+---
+
+### ⚙️ Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/cv-genie.git
-   cd cv-genie/client
 
-2. **Install Dependencies**
+```bash
+git clone https://github.com/yourusername/cv-genie.git
+cd cv-genie/client
+````
+
+2. **Install dependencies**
+
+```bash
 npm install
 # or
 yarn install
+```
 
-3. **Set up environment variables Create a .env.local file with:**
+3. **Set up environment variables**
+
+Create a `.env.local` file:
+
+```env
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/cvgenie"
 DIRECT_URL="postgresql://username:password@localhost:5432/cvgenie"
 
-# Auth
+# Authentication
 NEXTAUTH_SECRET="your-nextauth-secret"
 NEXTAUTH_URL="http://localhost:3000"
 
 # AI Services
 PERPLEXITY_API_KEY="your-perplexity-api-key"
+SONAR_API_KEY="your-sonar-api-key"
+```
 
 4. **Initialize the database**
-npx prisma db push
-# Optional: seed with sample data
-npx prisma db seed
 
-5. **Run the development server**
+```bash
+npx prisma db push
+# (Optional) Seed with sample data:
+npx prisma db seed
+```
+
+5. **Start the development server**
+
+```bash
 npm run dev
 # or
 yarn dev
+```
 
-**Open http://localhost:3000 in your browser**
+Visit [http://localhost:3000](http://localhost:3000)
 
-📦 Build and Deployment
+---
 
-**Build for production**
+## 📦 Build & Deployment
+
+### 🔨 Build for production
+
+```bash
 npm run build
 # or
 yarn build
+```
 
-**Run production build**
+### 🚀 Start production server
+
+```bash
 npm start
 # or
 yarn start
-**Testing**
-# Run all tests
+```
+
+---
+
+## 🧪 Testing
+
+Run all tests:
+
+```bash
 npm test
+```
 
-# Run tests with coverage
+Run with coverage:
+
+```bash
 npm test -- --coverage
+```
 
-# Run specific test file
+Run specific test file:
+
+```bash
 npm test -- components/ResumeAnalyzer.test.tsx
+```
 
+---
 
-**Documentation**
-For detailed documentation, see:
+## 📚 Documentation
 
-API Documentation
-Component Library
-AI Integration Guide
-🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+* [API Docs](#) *(To be linked)*
+* [Component Library](#) *(To be linked)*
+* [AI Integration Guide](#) *(To be linked)*
 
-Fork the repository
-Create your feature branch (git checkout -b feature/amazing-feature)
-Commit your changes (git commit -m 'Add some amazing feature')
-Push to the branch (git push origin feature/amazing-feature)
-Open a Pull Request
-📜 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+---
 
-🙏 Acknowledgements
-Perplexity AI for providing advanced language models
-Sonar Model for document analysis capabilities
-Next.js for the React framework
-Tailwind CSS for styling
-Prisma for database access
+## 🤝 Contributing
 
+Contributions are welcome!
 
+1. Fork the repository
+2. Create a feature branch
 
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. Commit your changes
 
+   ```bash
+   git commit -m 'Add amazing feature'
+   ```
+4. Push the branch
+
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+5. Open a Pull Request
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgements
+
+* [Perplexity AI](https://www.perplexity.ai/) — for advanced language model support
+* [Sonar Model](#) — for document structure analysis
+* [Next.js](https://nextjs.org/) — for the React framework
+* [Tailwind CSS](https://tailwindcss.com/) — for utility-first styling
+* [Prisma](https://www.prisma.io/) — for ORM and database management
+
+---
+
+```
+
+Let me know if you'd like a downloadable version or to generate a badge/markdown viewer preview.
+```
