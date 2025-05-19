@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="public/logo.png" alt="CV Genie Logo" width="200"/>
+  <img src="client/public/logo.svg" alt="CV Genie Logo" width="200"/>
   <h1>CV Genie</h1>
   <p><strong>AI-powered resume analysis and optimization platform</strong></p>
 
@@ -273,7 +273,3 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ---
 
-```
-
-Let me know if you'd like a downloadable version or to generate a badge/markdown viewer preview.
-```
