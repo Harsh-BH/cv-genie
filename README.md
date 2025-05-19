@@ -273,7 +273,3 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ---
 
-```
-
-Let me know if you'd like a downloadable version or to generate a badge/markdown viewer preview.
-```
