@@ -1,0 +1,25 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#4F46E5" opacity="0.1" />
+  
+  <!-- Document Base -->
+  <path d="M60 40C60 35.5817 63.5817 32 68 32H112L140 60V160C140 164.418 136.418 168 132 168H68C63.5817 168 60 164.418 60 160V40Z" fill="white" stroke="#4F46E5" stroke-width="4"/>
+  
+  <!-- Document Fold -->
+  <path d="M112 32L140 60H120C115.582 60 112 56.4183 112 52V32Z" fill="#E0E7FF" stroke="#4F46E5" stroke-width="4"/>
+  
+  <!-- Genie Lamp -->
+  <path d="M85 120C85 120 89 100 115 100C141 100 145 120 145 120" stroke="#4F46E5" stroke-width="4" stroke-linecap="round"/>
+  <path d="M75 120H155C155 120 155 128 145 128H85C75 128 75 120 75 120Z" fill="#818CF8" stroke="#4F46E5" stroke-width="4"/>
+  
+  <!-- Magic Sparkles -->
+  <circle cx="125" cy="90" r="3" fill="#4F46E5"/>
+  <circle cx="135" cy="85" r="2" fill="#4F46E5"/>
+  <path d="M115 85L118 82M115 80V76M110 85L107 82" stroke="#4F46E5" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Document Lines -->
+  <line x1="75" y1="80" x2="105" y2="80" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="92" x2="95" y2="92" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="142" x2="125" y2="142" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="75" y1="154" x2="115" y2="154" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+</svg>
