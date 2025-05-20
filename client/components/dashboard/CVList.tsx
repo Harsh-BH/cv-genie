@@ -1,6 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from 'react';
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2 } from "lucide-react";
 
 interface CV {
   id: number;
@@ -12,9 +14,12 @@ interface CV {
 interface CVListProps {
   cvs: CV[];
   onCVSelect: (cv: CV) => void;
+  onCVDelete?: (cv: CV) => void;
 }
 
-export default function CVList({ cvs, onCVSelect }: CVListProps) {
+export default function CVList({ cvs, onCVSelect, onCVDelete }: CVListProps) {
+  const [cvToDelete, setCvToDelete] = useState<CV | null>(null);
+  
   // Animation variants
   const container = {
     hidden: { opacity: 0 },
@@ -49,6 +54,20 @@ export default function CVList({ cvs, onCVSelect }: CVListProps) {
     
     // Default fallback
     return 70;
+  };
+  
+  // Handle delete button click
+  const handleDeleteClick = (cv: CV, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    setCvToDelete(cv);
+  };
+  
+  // Handle confirm delete
+  const confirmDelete = () => {
+    if (cvToDelete && onCVDelete) {
+      onCVDelete(cvToDelete);
+      setCvToDelete(null);
+    }
   };
 
   return (
@@ -99,7 +118,7 @@ export default function CVList({ cvs, onCVSelect }: CVListProps) {
                 variants={item}
                 whileHover={{ scale: 1.01 }}
                 onClick={() => onCVSelect(cv)}
-                className="p-4 bg-gray-700/40 rounded-lg cursor-pointer border border-gray-700 hover:border-purple-400/30 transition-colors"
+                className="p-4 bg-gray-700/40 rounded-lg cursor-pointer border border-gray-700 hover:border-purple-400/30 transition-colors relative group"
               >
                 <div className="flex justify-between items-center">
                   <div>
@@ -126,6 +145,21 @@ export default function CVList({ cvs, onCVSelect }: CVListProps) {
                         {scoreValue}
                       </div>
                     </motion.div>
+                    
+                    {/* Delete button */}
+                    {onCVDelete && (
+                      <motion.button
+                        onClick={(e) => handleDeleteClick(cv, e)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="ml-2 p-2 rounded-full hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition-colors"
+                        title="Delete CV"
+                      >
+                        <Trash2 size={18} />
+                      </motion.button>
+                    )}
                   </div>
                 </div>
               </motion.li>
@@ -133,6 +167,55 @@ export default function CVList({ cvs, onCVSelect }: CVListProps) {
           })}
         </motion.ul>
       )}
+      
+      {/* Delete confirmation modal */}
+      <AnimatePresence mode='wait'>
+        {cvToDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className=" fixed top-0 left-0 rounded-xl inset-0 bg-purple-950/50 backdrop-blur-xs transition z-50 flex items-center justify-center"
+            onClick={() => setCvToDelete(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-black rounded-xl border shadow-2xl shadow-black/60 max-w-md w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className='w-[100%] h-[100%] rounded-xl bg-white/10 p-6'>
+              <h3 className="text-xl font-bold text-white mb-4">Delete CV</h3>
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete <span className="text-purple-400 font-semibold">{cvToDelete.fileName}</span>? This action cannot be undone.
+              </p>
+              
+              <div className="flex justify-end space-x-3">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
+                  onClick={() => setCvToDelete(null)}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+                  onClick={confirmDelete}
+                >
+                  Delete
+                </motion.button>
+              </div>
+              </div>
+            </motion.div>
+            
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

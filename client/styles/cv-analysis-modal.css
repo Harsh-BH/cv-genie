@@ -1,0 +1,278 @@
+/* ===== CV ANALYSIS MODAL - ENHANCED STYLING ===== */
+
+/* ---------- COLOR SYSTEM ---------- */
+:root {
+  --modal-bg-primary: rgba(17, 24, 39, 0.95);
+  --modal-bg-secondary: rgba(31, 41, 55, 0.5);
+  --modal-border: rgba(139, 92, 246, 0.2);
+  --modal-accent: #8b5cf6;
+  --modal-accent-light: rgba(139, 92, 246, 0.3);
+  --modal-success: #10b981;
+  --modal-warning: #f59e0b;
+  --modal-info: #3b82f6;
+  --modal-danger: #ef4444;
+  --modal-text-primary: #ffffff;
+  --modal-text-secondary: #d1d5db;
+  --modal-text-muted: #9ca3af;
+}
+
+/* ---------- MODAL CONTAINER STYLING ---------- */
+.cv-analysis-modal {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cv-analysis-modal-content {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.95));
+  border: 1px solid var(--modal-border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 
+              0 0 25px -5px rgba(139, 92, 246, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* ---------- HEADER STYLING ---------- */
+.modal-header {
+  background: linear-gradient(to right, rgba(109, 40, 217, 0.5), rgba(17, 24, 39, 0.5));
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.tab-button {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: var(--modal-accent);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.tab-button.active::after {
+  width: 80%;
+}
+
+.tab-button:hover::after {
+  width: 60%;
+}
+
+/* ---------- SCORE VISUALIZATIONS ---------- */
+.score-circle {
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));
+}
+
+.score-bar {
+  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.score-bar-bg {
+  background: linear-gradient(90deg, rgba(55, 65, 81, 0.3), rgba(55, 65, 81, 0.1));
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* ---------- CONTENT SECTIONS ---------- */
+.analysis-section {
+  border: 1px solid rgba(55, 65, 81, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.analysis-section:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(17, 24, 39, 0.1),
+              0 10px 10px -5px rgba(17, 24, 39, 0.04);
+}
+
+.executive-summary {
+  border-left: 4px solid var(--modal-accent);
+}
+
+.strengths-section {
+  border-left: 4px solid var(--modal-success);
+}
+
+.weaknesses-section {
+  border-left: 4px solid var(--modal-warning);
+}
+
+.suggestion-item {
+  background-color: rgba(55, 65, 81, 0.3);
+  border-left: 3px solid var(--modal-accent-light);
+  transition: all 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: rgba(55, 65, 81, 0.5);
+  border-left-color: var(--modal-accent);
+}
+
+/* ---------- ICONS AND BADGES ---------- */
+.section-icon {
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.icon-success {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--modal-success);
+}
+
+.icon-warning {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: var(--modal-warning);
+}
+
+.icon-info {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: var(--modal-info);
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+/* ---------- UTILITY CLASSES ---------- */
+.text-gradient {
+  background: linear-gradient(90deg, #8b5cf6, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glassmorphism {
+  background: rgba(31, 41, 55, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ---------- TEXT FORMATTING ---------- */
+.cv-analysis-modal-content h3,
+.cv-analysis-modal-content h4,
+.cv-analysis-modal-content h5,
+.cv-analysis-modal-content h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: var(--modal-text-primary);
+  line-height: 1.3;
+}
+
+.cv-analysis-modal-content h3 {
+  font-size: 1.25rem;
+}
+
+.cv-analysis-modal-content h4 {
+  font-size: 1.125rem;
+  color: #d7c5fc;
+}
+
+.cv-analysis-modal-content h5 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #bcabf4;
+}
+
+.cv-analysis-modal-content p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.cv-analysis-modal-content strong {
+  color: #f9fafb;
+  font-weight: 600;
+}
+
+.cv-analysis-modal-content em {
+  font-style: italic;
+  color: #d1d5db;
+}
+
+.cv-analysis-modal-content ul {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.cv-analysis-modal-content li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.cv-analysis-modal-content li::before {
+  content: "•";
+  color: var(--modal-info);
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
+
+/* Section specific styling */
+.executive-summary h4 {
+  color: #d7c5fc;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+  padding-bottom: 0.5rem;
+}
+
+.executive-summary h5 {
+  color: #bcabf4;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Resume section formatting */
+.cv-section-title {
+  font-weight: 600;
+  color: var(--modal-accent);
+  margin-bottom: 0.5rem;
+}
+
+.cv-section-content {
+  margin-left: 1rem;
+  border-left: 2px solid rgba(139, 92, 246, 0.2);
+  padding-left: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Better table formatting for any tables in the content */
+.cv-analysis-modal-content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1rem 0;
+}
+
+.cv-analysis-modal-content th,
+.cv-analysis-modal-content td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.2);
+}
+
+.cv-analysis-modal-content th {
+  font-weight: 600;
+  color: var(--modal-text-primary);
+  background-color: rgba(55, 65, 81, 0.1);
+}
