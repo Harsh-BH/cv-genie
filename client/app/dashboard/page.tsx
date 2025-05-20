@@ -7,7 +7,7 @@ import CVList from "@/components/dashboard/CVList";
 import CVAnalysisModal from "@/components/dashboard/CVAnalysisModal";
 import AnimatedInsight from "@/components/reviewer/AnimatedInsight";
 import AnalyticsGraphs from "@/components/dashboard/AnalyticsGraphs";
-
+import { Trash2 } from "lucide-react";
 
 
 interface CV {
@@ -71,6 +71,43 @@ export default function DashboardPage() {
       setError(err instanceof Error ? err.message : "An error occurred while fetching your CVs");
     } finally {
       setIsLoadingCVs(false);
+    }
+  };
+
+  const handleCVDelete = async (cv: CV) => {
+    try {
+      setError(null);
+      
+      const response = await fetch(`/api/deleteCV/${cv.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to delete CV: ${response.statusText}`);
+      }
+      
+      const responseData = await response.json();
+      
+      if (responseData.success) {
+        // Remove the deleted CV from the list
+        setCvs(prevCvs => prevCvs.filter(item => item.id !== cv.id));
+        
+        // If the deleted CV is currently selected, deselect it
+        if (selectedCV && selectedCV.id === cv.id) {
+          setSelectedCV(null);
+          setAnalysisData(null);
+        }
+      } else {
+        throw new Error(responseData.error || "Failed to delete CV");
+      }
+    } catch (err) {
+      console.error("Error deleting CV:", err);
+      setError(err instanceof Error ? err.message : "An error occurred while deleting your CV");
     }
   };
 
@@ -186,7 +223,11 @@ export default function DashboardPage() {
                 <p className="ml-4 text-white/70">Loading your CVs...</p>
               </div>
             ) : (
-              <CVList cvs={cvs} onCVSelect={handleCVSelect} />
+              <CVList 
+                cvs={cvs} 
+                onCVSelect={handleCVSelect} 
+                onCVDelete={handleCVDelete} 
+              />
             )}
           </motion.div>
         </div>
