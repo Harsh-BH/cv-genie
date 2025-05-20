@@ -42,7 +42,7 @@ export interface PerplexityOptions {
 }
 
 const defaultOptions: PerplexityOptions = {
-  model: 'llama-3-sonar-small-32k-online',  // Using latest model
+  model: 'sonar',  // Using latest model
   temperature: 0.7,
   maxTokens: 2048,
   retries: MAX_RETRIES
