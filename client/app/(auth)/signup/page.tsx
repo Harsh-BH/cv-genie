@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { AuthForm } from "@/components/auth/AuthForm";
 import ClientThemeProvider from "@/components/auth/ClientThemeProvider";
+import { AuthRedirectGuard } from "@/components/auth/AuthGuard";
 
 export const metadata: Metadata = {
   title: "Sign Up - CV Genie",
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function SignUpPage() {
   return (
     <ClientThemeProvider>
-      <AuthForm type="signup" />
+      <AuthRedirectGuard>
+        <AuthForm type="signup" />
+      </AuthRedirectGuard>
     </ClientThemeProvider>
   );
 }

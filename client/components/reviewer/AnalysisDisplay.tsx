@@ -28,7 +28,7 @@ const itemVariants = {
 const tabVariants = {
   inactive: { color: "var(--text-secondary)", borderColor: "transparent" },
   active: { 
-    color: "var(--text-primary)", 
+    color: "white", 
     borderColor: "var(--accent-color)",
     transition: { duration: 0.3 }
   },
@@ -125,8 +125,6 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
     formatAllContent();
   }, [analysis]);
 
-  console.log('Formatted Content:',   analysis);
-
   // Ensure all scores are valid numbers
   const scoreBreakdown = {
     overall: (analysis.overallScore) ,
@@ -157,6 +155,21 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
     if (score >= 30) return 'Poor';
     return 'Critical';
   };
+
+  // Memoize formatted content to prevent unnecessary re-renders
+  const memoizedContent = React.useMemo(() => {
+    return {
+      executiveSummary: formatModelResponse(analysis.executiveSummary || ''),
+      overview: formatModelResponse(analysis.overview || ''),
+      contentQuality: formatModelResponse(analysis.contentQuality || ''),
+      atsCompatibility: formatModelResponse(analysis.atsCompatibility || ''),
+      formattingReview: formatModelResponse(analysis.formattingReview || ''),
+      skillsAnalysis: formatModelResponse(analysis.skillsAnalysis || ''),
+      industryFit: formatModelResponse(analysis.industryFit || ''),
+      careerTrajectory: formatModelResponse(analysis.careerTrajectory || ''),
+      improvementSuggestions: formatModelResponse(analysis.improvementSuggestions || '')
+    };
+  }, [analysis]);
 
   return (
     <motion.div
@@ -342,50 +355,30 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
 
       {/* Tab Content with enhanced animations */}
       <div className="p-6 max-h-[calc(100vh-24rem)] overflow-y-auto custom-scrollbar">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.4 }}
             className="min-h-[300px]"
           >
+           
             {activeTab === 'overview' && (
-              <motion.div 
-                className="space-y-6"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <motion.div variants={itemVariants} className="prose prose-invert max-w-none">
-                  <motion.h3 
-                    className="text-lg font-semibold text-purple-300"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
-                  >
+              <div className="space-y-6">
+                <div className="prose prose-invert max-w-none">
+                  <h3 className="text-lg font-semibold text-purple-300">
                     Executive Summary
-                  </motion.h3>
-                  <motion.div 
-                    variants={contentFadeIn}
-                    dangerouslySetInnerHTML={{ __html: formattedContent.executiveSummary }}
-                  />
+                  </h3>
+                  <div dangerouslySetInnerHTML={{ __html: memoizedContent.executiveSummary }} />
                   
-                  <motion.h3 
-                    className="text-lg font-semibold text-purple-300 mt-6"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
+                  <h3 className="text-lg font-semibold text-purple-300 mt-6">
                     Detailed Overview
-                  </motion.h3>
-                  <motion.div 
-                    variants={contentFadeIn}
-                    dangerouslySetInnerHTML={{ __html: formattedContent.overview }}
-                  />
-                </motion.div>
-              </motion.div>
+                  </h3>
+                  <div dangerouslySetInnerHTML={{ __html: memoizedContent.overview }} />
+                </div>
+              </div>
             )}
 
             {/* Other tab content sections with similar animations */}
@@ -520,33 +513,29 @@ function TabContent({
   hideScore?: boolean;
 }) {
   return (
-    <motion.div 
-      className="space-y-4"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.div 
-        className="flex justify-between items-center"
-        variants={itemVariants}
-      >
+    <div className="space-y-4 w-full">
+      <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-purple-300">{title}</h3>
         {!hideScore && (
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end ml-4 flex-shrink-0">
             <span className={`text-xl font-bold ${scoreColor}`}>
               {Math.round(score)}%
             </span>
             <span className="text-xs text-gray-400">{scoreLabel}</span>
           </div>
         )}
-      </motion.div>
+      </div>
       
-      <motion.div
-        className="prose prose-invert max-w-none"
-        variants={contentFadeIn}
-        dangerouslySetInnerHTML={{ __html: content }}
+      <div
+        className="prose prose-invert prose-content max-w-full break-words overflow-x-hidden"
+        dangerouslySetInnerHTML={{ 
+          __html: content.replace(
+            /&lt;span class="highlight-metric"&gt;(.*?)&lt;\/span&gt;/g,
+            '<span class="highlight-metric">$1</span>'
+          )
+        }}
       />
-    </motion.div>
+    </div>
   );
 }
 
@@ -589,6 +578,7 @@ function ScoreItem({ title, score, variants, highlight = false, onClick }: {
 }
 
 // Tab component with enhanced animations
+// Tab component with enhanced animations
 const Tab = React.forwardRef(
   function Tab({ id, label, active, onClick }: { 
     id: string; 
@@ -603,10 +593,12 @@ const Tab = React.forwardRef(
         ref={ref}
         onClick={onClick}
         className={`px-6 py-3 text-sm font-medium whitespace-nowrap relative
-          ${active ? 'text-white' : 'text-gray-400 hover:text-gray-300'}`}
+          ${active 
+            ? 'text-white bg-white/5' 
+            : 'text-gray-400 hover:text-white'}`}
         variants={tabVariants}
         animate={active ? "active" : "inactive"}
-        whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+        whileHover={{ backgroundColor: active ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.03)" }}
         whileTap={{ scale: 0.98 }}
       >
         {label}

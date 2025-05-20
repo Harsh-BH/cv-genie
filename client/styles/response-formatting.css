@@ -221,6 +221,31 @@
   transform-origin: center;
 }
 
+/* Update the highlight-metric class to ensure proper rendering */
+.highlight-metric {
+  word-break: normal !important; /* Changed from break-word */
+  display: inline !important;
+  color: #60a5fa !important;
+  font-weight: 600 !important;
+  padding: 0 0.25rem !important;
+  background-color: rgba(8, 145, 178, 0.1) !important;
+  border-radius: 0.25rem !important;
+  max-width: none !important; /* Changed from 20% */
+  overflow-wrap: normal !important; /* Changed from break-word */
+}
+
+/* Add specific handling for education sections */
+.prose p strong + span,
+.prose p em + span,
+.prose div strong + span {
+  margin-left: 0.25rem !important;
+}
+
+/* Force breaks on long institution names and other content */
+.prose {
+  word-break: break-word;
+}
+
 .cv-analysis-response .highlight-positive {
   color: var(--success);
   font-weight: 500;
@@ -337,6 +362,7 @@
 .cv-analysis-response li {
   margin-bottom: var(--space-xs);
   position: relative;
+
   padding-left: 1.2rem;
   animation: fadeInUp 0.5s ease-out;
   animation-fill-mode: both;
@@ -787,6 +813,9 @@
     display: none;
   }
 }
+
+
+
 
 /* ---------- DARK MODE SUPPORT ---------- */
 @media (prefers-color-scheme: dark) {
