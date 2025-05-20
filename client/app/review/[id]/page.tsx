@@ -307,7 +307,18 @@ export default function ReviewerPage() {
         transition={{ duration: 0.5 }}
       >
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <button 
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              Home
+            </Link>
+            
+            <button 
               onClick={() => {
                 // Create and download PDF report
                 alert('PDF report generation not implemented yet');
@@ -319,6 +330,8 @@ export default function ReviewerPage() {
               </svg>
               Download Report
             </button>
+          </div>
+          
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -347,8 +360,6 @@ export default function ReviewerPage() {
               </svg>
               Resources
             </button>
-            
-            
           </motion.div>
         </div>
       </motion.header>

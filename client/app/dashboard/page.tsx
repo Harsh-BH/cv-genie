@@ -136,7 +136,7 @@ export default function DashboardPage() {
           animate={{ y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
+          <h1 className="text-4xl font-bold text-white lg:mt-20">Dashboard</h1>
           <p className="text-gray-300 mb-8">Welcome to your CV analysis hub</p>
         </motion.div>
 
