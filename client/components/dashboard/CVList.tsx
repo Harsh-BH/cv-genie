@@ -176,14 +176,14 @@ export default function CVList({ cvs, onCVSelect, onCVDelete }: CVListProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className=" fixed top-0 left-0 rounded-xl inset-0 bg-purple-950/50 backdrop-blur-xs transition z-50 flex items-center justify-center"
+            className=" fixed top-0 left-0 rounded-xl inset-0 bg-black/40 backdrop-blur-xs transition z-50 flex items-center justify-center"
             onClick={() => setCvToDelete(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-black rounded-xl border shadow-2xl shadow-black/60 max-w-md w-full mx-4"
+              className="bg-black rounded-xl border-1 border-white/40 shadow-2xl shadow-black/60 max-w-md w-full mx-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className='w-[100%] h-[100%] rounded-xl bg-white/10 p-6'>
