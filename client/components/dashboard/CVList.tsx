@@ -71,9 +71,9 @@ export default function CVList({ cvs, onCVSelect, onCVDelete }: CVListProps) {
   };
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
+    <div className="bg-gray-800/50 backdrop-blur-sm p-6 min-h-full rounded-xl border border-purple-500/20">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-white">Your CV Analysis</h2>
+        <h2 className="text-2xl font-semibold text-white">Your CVs</h2>
         
         <motion.a
           href="/upload"
