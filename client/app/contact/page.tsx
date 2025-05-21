@@ -96,7 +96,7 @@ export default function ContactPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            Have a bug to report or a suggestion to make? We'd love to hear from you!
+            Have a bug to report or a suggestion to make? We&apos;d love to hear from you!
           </motion.p>
         </div>
 
@@ -127,7 +127,7 @@ export default function ContactPage() {
               >
                 <FiCheckCircle className="text-green-500 text-6xl mb-4" />
                 <h3 className="text-2xl font-medium text-gray-900 mb-2">Thanks for reaching out!</h3>
-                <p className="text-gray-600">We've received your message and will get back to you shortly.</p>
+                <p className="text-gray-600">We&apos;ve received your message and will get back to you shortly.</p>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">

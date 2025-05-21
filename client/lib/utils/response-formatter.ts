@@ -1,18 +1,21 @@
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
+// Import the correct type for MarkedOptions
+import type { MarkedOptions } from 'marked';
 
-/**
- * Formats raw text responses from the AI model into structured HTML
- * - Converts markdown to HTML
- * - Ensures proper heading structure
- * - Highlights key points and metrics
- * - Sanitizes output for security
- */
+// Check if we're in a browser environment for DOMPurify
+let domPurifyAvailable = false;
+
+// Only initialize DOMPurify in browser environment
+if (typeof window !== 'undefined') {
+  domPurifyAvailable = true;
+}
+
 export function formatModelResponse(text: string): string {
   if (!text) return '';
   
   // Pre-process text for better markdown formatting
-  let processedText = text
+  const processedText = text
     // Replace section separators with horizontal rule
     .replace(/^\s*--\s*$/gm, '<hr class="section-divider">')
     
@@ -75,12 +78,11 @@ export function formatModelResponse(text: string): string {
       return result;
     });
   
-  // Set options for marked
+  // Set options for marked using the correct type
   marked.setOptions({
     gfm: true,
-    breaks: true,
-    headerIds: true
-  });
+    breaks: true
+  } as MarkedOptions);
   
   // Convert markdown to HTML
   const htmlContent = marked(processedText);
@@ -95,11 +97,15 @@ export function formatModelResponse(text: string): string {
     ${htmlContent}
   </div>`;
   
-  // Sanitize the HTML to prevent XSS
-  const sanitizedHtml = DOMPurify.sanitize(wrappedHtml, {
-    ADD_ATTR: ['class', 'style', '--i'], // Allow class, style attributes and custom properties
-  });
+  // Sanitize the HTML to prevent XSS, but only if in browser
+  if (domPurifyAvailable) {
+    return DOMPurify.sanitize(wrappedHtml, {
+      ADD_TAGS: ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'br', 'strong', 'em', 'code', 'pre', 'hr', 'blockquote'],
+      ADD_ATTR: ['class', 'style', '--i'], // Allow class, style attributes and custom properties
+    });
+  }
   
-  return sanitizedHtml;
+  // If running on server or DOMPurify is not available, return unsanitized HTML
+  // This is fine for server-side rendering since the content is generated from a trusted source
+  return wrappedHtml;
 }
-

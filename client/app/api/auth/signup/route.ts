@@ -5,6 +5,14 @@ import bcrypt from "bcryptjs";
 import fs from "fs";
 import os from "os";
 
+// Define file info interface
+interface FileInfo {
+  filepath: string;
+  originalFilename: string;
+  mimetype: string;
+  size: number;
+}
+
 export const config = {
   api: {
     bodyParser: false,
@@ -22,7 +30,7 @@ async function requestToFormData(req: NextRequest) {
   // Create a boundary string for the form data
   const formData = await req.formData();
   const fields: Record<string, string[]> = {};
-  const files: Record<string, any[]> = {};
+  const files: Record<string, FileInfo[]> = {}; // Fixed: Replaced any[] with FileInfo[]
   
   // Process each form entry
   for (const [name, value] of formData.entries()) {
@@ -81,7 +89,7 @@ export async function POST(req: NextRequest) {
       existingUser = await prisma.user.findUnique({
         where: { email }
       });
-    } catch (dbError: any) {
+    } catch (dbError: unknown) { // Fixed: Changed any to unknown
       console.error("Database error checking existing user:", dbError);
       return NextResponse.json({ error: "Database connection error" }, { status: 500 });
     }
@@ -120,27 +128,32 @@ export async function POST(req: NextRequest) {
           avatar: avatarUrl, // Using the correct field from your schema
         },
       });
-    } catch (createError: any) {
+    } catch (createError: unknown) { // Fixed: Changed any to unknown
       console.error("Error creating user:", createError);
       return NextResponse.json({ 
         error: "Failed to create user account",
-        details: process.env.NODE_ENV === 'development' ? createError.message : undefined
+        details: process.env.NODE_ENV === 'development' ? 
+          (createError instanceof Error ? createError.message : String(createError)) : 
+          undefined
       }, { status: 500 });
     }
     
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = newUser;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _password, ...userWithoutPassword } = newUser;
     
     return NextResponse.json({ 
       success: true, 
       data: userWithoutPassword
     });
     
-  } catch (err: any) {
-    console.error("Signup error:", err);
+  } catch (error: unknown) { // Fixed: Changed any to unknown and renamed err to error
+    console.error("Signup error:", error);
     return NextResponse.json({ 
       error: "Internal Server Error",
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? 
+        (error instanceof Error ? error.message : String(error)) : 
+        undefined
     }, { status: 500 });
   }
 }

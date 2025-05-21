@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 
 export default function AboutPage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -1089,7 +1088,7 @@ export default function AboutPage() {
                     transition={{ duration: 0.6 }}
                     style={{ textShadow: '0 0 10px rgba(132,90,223,0.3)' }}
                   >
-                    Hello, I'm Harsh!
+                    Hello, I am Harsh!
                   </motion.h3>
                   
                   <motion.p 
@@ -1099,7 +1098,7 @@ export default function AboutPage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                   >
-                    I created CV Genie to solve a problem I faced myself - creating an impressive resume that truly highlights one's skills and experiences.
+                    I created CV Genie to solve a problem I faced myself - creating an impressive resume that truly highlights one&apos;s skills and experiences.
                   </motion.p>
                   
                   <div className="flex gap-3">
@@ -1319,7 +1318,7 @@ export default function AboutPage() {
                     transition={{ duration: 0.6, delay: 0.3 }}
                     style={{ textShadow: '0 0 10px rgba(132,90,223,0.3)' }}
                   >
-                    I'm Akshath!
+                    I&apos;m Akshath!
                   </motion.h3>
                   
                   <motion.p 

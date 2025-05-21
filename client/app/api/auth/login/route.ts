@@ -6,19 +6,18 @@ import jwt from "jsonwebtoken";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password } = body;
+    const { email, password } = body; // First 'password' declaration here
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
-    // Find user by email with explicit error handling
     let user;
     try {
       user = await prisma.user.findUnique({
         where: { email }
       });
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
       console.error("Database error:", dbError);
       return NextResponse.json({ error: "Database connection error" }, { status: 500 });
     }
@@ -27,12 +26,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    // Verify password
+    // Check if password exists in the user record
+    if (!user.password) {
+      return NextResponse.json({ error: "Account setup is incomplete" }, { status: 401 });
+    }
+
+    // Verify password - now TypeScript knows password is a string
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    
+
     if (!isPasswordValid) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-    }
+}
 
     // Generate JWT token
     const token = jwt.sign(
@@ -43,9 +47,10 @@ export async function POST(req: NextRequest) {
       process.env.JWT_SECRET || "fallback-secret-not-for-production",
       { expiresIn: '7d' } // Extended expiration for persistent login
     );
-    
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
+
+    // Remove password from response using ESLint disable comment
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _userPassword, ...userWithoutPassword } = user;
 
     // Create the response object
     const response = NextResponse.json({
@@ -54,10 +59,7 @@ export async function POST(req: NextRequest) {
         user: userWithoutPassword,
       }
     });
-    
-    // Set HTTP-only cookie with the JWT token
-    // maxAge is in seconds: 7 days = 7 * 24 * 60 * 60 = 604800 seconds
-    // Set HTTP-only cookie with the JWT token
+
     response.cookies.set({
       name: 'auth_token',
       value: token,
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    // 👇 Set a non-HttpOnly cookie for client-side UI login state
+    // Set a non-HttpOnly cookie for client-side UI login state
     response.cookies.set({
       name: 'isLoggedIn',
       value: 'true',
@@ -79,16 +81,15 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-
     return response;
     
-  } catch (err: any) {
-    console.error("Login error:", err);
+  } catch (error: unknown) { // Fixed: Changed any to unknown
+    console.error("Login error:", error);
     return NextResponse.json({ 
       error: "Internal Server Error",
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? 
+        (error instanceof Error ? error.message : String(error)) : 
+        undefined
     }, { status: 500 });
   }
 }
-
-

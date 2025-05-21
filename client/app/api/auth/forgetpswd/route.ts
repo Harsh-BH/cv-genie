@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'; // Removed unused import
 
 export async function POST(req: NextRequest) {
 try {
@@ -15,8 +16,14 @@ try {
         user = await prisma.user.findUnique({
             where: { email }
         });
-    } catch (dbError: any) {
+    } catch (dbError: unknown) {
         console.error("Database error:", dbError);
+        
+        if (dbError instanceof PrismaClientKnownRequestError) {
+            // Handle specific Prisma errors
+            console.error("Prisma code:", dbError.code);
+        }
+        
         return NextResponse.json({ error: "Database connection error" }, { status: 500 });
     }
 
@@ -32,11 +39,17 @@ try {
         });
 
         return NextResponse.json({ message: "Password updated successfully" }, { status: 200 });
-    } catch (updateError: any) {
+    } catch (updateError: unknown) {
         console.error("Update error:", updateError);
+        
+        // Still handle PrismaClientKnownRequestError with type narrowing
+        if (updateError instanceof PrismaClientKnownRequestError) {
+            console.error("Prisma error code:", updateError.code);
+        }
+        
         return NextResponse.json({ error: "Error updating password" }, { status: 500 });
     }
-} catch (error) {
+} catch (error: unknown) {
     console.error("Unexpected error:", error);
     return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
 }

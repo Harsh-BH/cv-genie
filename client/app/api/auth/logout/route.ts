@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+// Remove the unused req parameter if it exists
+export async function POST() {
   try {
     // Create a response
     const response = NextResponse.json({
@@ -11,12 +12,17 @@ export async function POST(req: NextRequest) {
     // Clear the auth_token cookie
     response.cookies.delete('auth_token');
     
+    // Also clear the isLoggedIn cookie used for client-side state
+    response.cookies.delete('isLoggedIn');
+    
     return response;
-  } catch (err: any) {
-    console.error("Logout error:", err);
+  } catch (error: unknown) {
+    console.error("Logout error:", error);
     return NextResponse.json({ 
       error: "Internal Server Error",
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? 
+        (error instanceof Error ? error.message : String(error)) : 
+        undefined
     }, { status: 500 });
   }
 }

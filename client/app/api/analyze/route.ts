@@ -3,6 +3,14 @@ import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import { analyzeResumeComprehensive } from "@/lib/analysis/comprehensive";
 import { isPdfData } from "@/lib/analysis/pdf-extractor";
+import type { Resume, ResumeSection, User } from "@/lib/generated";
+import type { AnalysisResult as ExternalAnalysisResult } from "@/lib/analysis/models/analysis-types";
+
+type ResumeWithRelations = Resume & {
+  sections: ResumeSection[];
+  user: User;
+  rawContent?: string;
+};
 
 interface AnalysisResult {
   executiveSummary: string;
@@ -26,12 +34,42 @@ interface AnalysisResult {
   };
   aiGeneratedImprovements: {
     summary: string | string[];
-    experience: any[];
-    skills: any[];
-    education: any[];
-    projects: any[];
+    experience: string[] | Array<{ // Updated to handle both string[] and object array
+      id?: string;
+      original?: string;
+      improved?: string;
+      explanation?: string;
+    }>;
+    skills: Array<{
+      id?: string;
+      original?: string;
+      improved?: string;
+      explanation?: string;
+    }>;
+    education: Array<{
+      id?: string;
+      original?: string;
+      improved?: string;
+      explanation?: string;
+    }>;
+    projects: Array<{
+      id?: string;
+      original?: string;
+      improved?: string;
+      explanation?: string;
+    }>;
   };
-  positionedSuggestions: any[];
+  positionedSuggestions: Array<{
+    id?: string;
+    text?: string;
+    suggestion?: string;
+    reason?: string;
+    position?: {
+      section?: string;
+      lineNumber?: number;
+      offset?: number;
+    };
+  }>;
   grammarIssues?: Array<{
     id: string;
     text: string;
@@ -45,6 +83,7 @@ interface AnalysisResult {
     severity: 'critical' | 'high' | 'medium' | 'low';
   }>;
 }
+
 
 export async function POST(req: NextRequest) {
     try {
@@ -60,9 +99,9 @@ export async function POST(req: NextRequest) {
         try {
             const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as { userId: number };
             userId = decoded.userId;
-        } catch (err: any) {
+        } catch (err: unknown) {
             const message =
-                err.name === "TokenExpiredError"
+                err instanceof jwt.TokenExpiredError
                     ? "Token expired"
                     : "Invalid token";
             return new Response(JSON.stringify({ error: message }), {
@@ -70,6 +109,8 @@ export async function POST(req: NextRequest) {
                 headers: { "Content-Type": "application/json" },
             });
         }
+
+        // Rest of the code...
 
         // Parse request body
         const body = await req.json();
@@ -187,8 +228,11 @@ export async function GET(req: NextRequest) {
     try {
       const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as { userId: number };
       userId = decoded.userId;
-    } catch (err: any) {
-      const message = err.name === "TokenExpiredError" ? "Token expired" : "Invalid token";
+    } catch (err: unknown) {
+      const message = 
+          err instanceof jwt.TokenExpiredError 
+          ? "Token expired" 
+          : "Invalid token";
       return new Response(JSON.stringify({ error: message }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
@@ -284,7 +328,7 @@ export async function GET(req: NextRequest) {
 }
 
 // Make the processAnalysis function more defensive against undefined results
-async function processAnalysis(resume: any, analysisId: number) {
+async function processAnalysis(resume: ResumeWithRelations, analysisId: number) {
     try {
         // Log the resume type to debug
         console.log("====== RESUME ANALYSIS START ======");
@@ -462,13 +506,6 @@ async function processAnalysis(resume: any, analysisId: number) {
             grammarIssues: result.grammarIssues || []
         };
         
-        // Check if analysis contains content rather than just metadata
-        const contentAnalyzed = [
-            safeResult.executiveSummary,
-            safeResult.overview,
-            safeResult.industryFit
-        ].join(' ');
-        
         // Update the analysis record with the safe results
         await updateAnalysisInDatabase(analysisId, safeResult);
         
@@ -502,9 +539,32 @@ async function processAnalysis(resume: any, analysisId: number) {
     }
 }
 
-// Add this function or adjust your existing one
-async function updateAnalysisInDatabase(analysisId: number, result: AnalysisResult) {
+async function updateAnalysisInDatabase(analysisId: number, result: ExternalAnalysisResult | AnalysisResult) {
   try {
+    // Process the aiGeneratedImprovements to ensure correct format
+    const processedImprovements = {
+      summary: result.aiGeneratedImprovements?.summary || [],
+      experience: Array.isArray(result.aiGeneratedImprovements?.experience) 
+        ? result.aiGeneratedImprovements.experience.map(item => 
+            typeof item === 'string' 
+              ? { original: item, improved: item, explanation: '' } 
+              : item
+          )
+        : [],
+      skills: result.aiGeneratedImprovements?.skills || [],
+      education: result.aiGeneratedImprovements?.education || [],
+      projects: result.aiGeneratedImprovements?.projects || []
+    };
+
+    // Convert arrays to proper JSON format for Prisma
+    const processedPositionedSuggestions = result.positionedSuggestions 
+      ? JSON.parse(JSON.stringify(result.positionedSuggestions || []))
+      : [];
+      
+    const processedGrammarIssues = result.grammarIssues
+      ? JSON.parse(JSON.stringify(result.grammarIssues || []))
+      : [];
+
     // Map the AnalysisResult to the database schema
     await prisma.resumeAnalysis.update({
       where: {
@@ -513,7 +573,7 @@ async function updateAnalysisInDatabase(analysisId: number, result: AnalysisResu
       data: {
         executiveSummary: result.executiveSummary,
         overview: result.overview,
-        contentQuality: result.contentQuality.set, // Use the 'set' property
+        contentQuality: result.contentQuality?.set || "No content quality analysis available.",
         atsCompatibility: result.atsCompatibility,
         industryFit: result.industryFit,
         formattingReview: result.formattingReview,
@@ -522,19 +582,18 @@ async function updateAnalysisInDatabase(analysisId: number, result: AnalysisResu
         improvementSuggestions: result.improvementSuggestions,
         
         // Updated scores with new fields
-        overallScore: result.scoreBreakdown.overall,
-        contentScore: result.scoreBreakdown.content,
-        atsOptimizationScore: result.scoreBreakdown.ats,
-        industryAlignmentScore: result.scoreBreakdown.impact,
-        formattingScore: result.scoreBreakdown.formatting,
-        skillsScore: result.scoreBreakdown.skills,
-        grammarScore: result.scoreBreakdown.grammar, // New field
-        clarityScore: result.scoreBreakdown.clarity, // New field
+        overallScore: result.scoreBreakdown?.overall || 0,
+        contentScore: result.scoreBreakdown?.content || 0,
+        atsOptimizationScore: result.scoreBreakdown?.ats || 0,
+        industryAlignmentScore: result.scoreBreakdown?.impact || 0,
+        formattingScore: result.scoreBreakdown?.formatting || 0,
+        skillsScore: result.scoreBreakdown?.skills || 0,
+        grammarScore: result.scoreBreakdown?.grammar || 0,
         
-        // Pass through the other fields
-        aiGeneratedImprovements: result.aiGeneratedImprovements,
-        positionedSuggestions: result.positionedSuggestions,
-        grammarIssues: result.grammarIssues, // New field
+        // Convert complex objects to Prisma-compatible JSON
+        aiGeneratedImprovements: JSON.parse(JSON.stringify(processedImprovements)),
+        positionedSuggestions: processedPositionedSuggestions,
+        grammarIssues: processedGrammarIssues,
         status: "completed"
       }
     });

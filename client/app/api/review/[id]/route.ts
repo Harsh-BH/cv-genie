@@ -1,7 +1,12 @@
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 import { calculateSectionScores, extractIssues } from "@/lib/analysis/helpers";
+
+interface JwtPayload {
+  userId: number;
+  [key: string]: unknown;
+}
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -24,16 +29,21 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     let userId: number;
     try {
-      const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as { userId: number };
+      const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as JwtPayload;
       userId = decoded.userId;
-    } catch (err: any) {
-      const message = err.name === "TokenExpiredError" ? "Token expired" : "Invalid token";
+    } catch (err: unknown) {
+      // Use instanceof for proper type checking
+      let message = "Invalid token";
+      if (err instanceof TokenExpiredError) {
+        message = "Token expired";
+      }
+      
       return new Response(JSON.stringify({ error: message }), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });
     }
-    
+
     // Get the resume
     const resume = await prisma.resume.findUnique({
       where: { id: resumeId },

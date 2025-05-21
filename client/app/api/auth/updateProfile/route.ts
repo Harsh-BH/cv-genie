@@ -5,6 +5,21 @@ import jwt from "jsonwebtoken";
 import fs from "fs";
 import os from "os";
 
+// Define file info interface
+interface FileInfo {
+  filepath: string;
+  originalFilename: string;
+  mimetype: string;
+  size: number;
+}
+
+// Define JWT payload interface
+interface JwtPayload {
+  userId: number;
+  email?: string;
+  [key: string]: unknown;
+}
+
 export const config = {
   api: {
     bodyParser: false,
@@ -21,7 +36,7 @@ cloudinary.config({
 async function requestToFormData(req: NextRequest) {
   const formData = await req.formData();
   const fields: Record<string, string[]> = {};
-  const files: Record<string, any[]> = {};
+  const files: Record<string, FileInfo[]> = {}; // Fixed: Changed any[] to FileInfo[]
   
   // Process each form entry
   for (const [name, value] of formData.entries()) {
@@ -63,9 +78,14 @@ async function requestToFormData(req: NextRequest) {
 
 function getUserIdFromToken(token: string): number | null {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret-not-for-production") as any;
+    const decoded = jwt.verify(
+      token, 
+      process.env.JWT_SECRET || "fallback-secret-not-for-production"
+    ) as JwtPayload; // Fixed: Changed any to JwtPayload
+    
     return decoded.userId;
-  } catch (error) {
+  } catch (jwtError) { // Fixed: Renamed error to jwtError to avoid unused variable warning
+    console.error("JWT verification error:", jwtError);
     return null;
   }
 }
@@ -88,8 +108,8 @@ export async function PUT(req: NextRequest) {
 
     const { fields, files } = await requestToFormData(req);
     
-    // Prepare update data
-    const updateData: any = {};
+    // Prepare update data with explicit type
+    const updateData: Record<string, string> = {}; // Fixed: Changed any to Record<string, string>
     
     // Update name if provided
     if (fields.name && fields.name[0]) {
@@ -121,20 +141,21 @@ export async function PUT(req: NextRequest) {
       where: { id: userId },
       data: updateData,
     });
-    
+
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = updatedUser;
-    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _password, ...userWithoutPassword } = updatedUser;
+
     return NextResponse.json({ 
       success: true, 
       data: userWithoutPassword
     });
     
-  } catch (err: any) {
-    console.error("Update profile error:", err);
+  } catch (error: unknown) { // Fixed: Changed any to unknown
+    console.error("Update profile error:", error);
     return NextResponse.json({ 
-      error: err.message || "Internal Server Error",
-      details: err.toString()
+      error: error instanceof Error ? error.message : "Internal Server Error",
+      details: String(error)
     }, { status: 500 });
   }
 }

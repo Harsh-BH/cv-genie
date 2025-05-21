@@ -16,9 +16,9 @@ export async function GET(req: NextRequest) {
         try {
             const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as { userId: number };
             userId = decoded.userId;
-        } catch (err: any) {
+        } catch (err: unknown) {
             const message =
-                err.name === "TokenExpiredError"
+                err instanceof jwt.TokenExpiredError
                     ? "Token expired"
                     : "Invalid token";
             return new Response(JSON.stringify({ error: message }), {

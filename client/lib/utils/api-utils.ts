@@ -37,7 +37,7 @@ export async function callPerplexityAPI(
     });
 
     if (!response.ok) {
-      const errorText = await response.text().catch(e => "Could not read error response");
+      const errorText = await response.text().catch(() => "Could not read error response");
       console.error(`Perplexity API error (${response.status}): ${errorText}`);
       
       // Check for specific error types

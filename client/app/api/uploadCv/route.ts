@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
+
+// Define JWT payload interface
+interface JwtPayload {
+  userId: number;
+  [key: string]: unknown;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,13 +18,13 @@ export async function POST(req: NextRequest) {
 
     let userId: number;
     try {
-      const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as { userId: number };
+      const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as JwtPayload;
       userId = decoded.userId;
-    } catch (err: any) {
-      const message =
-        err.name === "TokenExpiredError"
-          ? "Token expired"
-          : "Invalid token";
+    } catch (err: unknown) {
+      // Use instanceof for type-safe error checking
+      const message = err instanceof TokenExpiredError
+        ? "Token expired"
+        : "Invalid token";
       return NextResponse.json({ error: message }, { status: 401 });
     }
 
@@ -67,12 +73,14 @@ export async function POST(req: NextRequest) {
       fileName: file.name,
       fileType: file.type
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Upload error:", err);
     return NextResponse.json(
       {
         error: "Upload failed",
-        details: process.env.NODE_ENV === "development" ? err.message : undefined,
+        details: process.env.NODE_ENV === "development" 
+          ? (err instanceof Error ? err.message : String(err)) 
+          : undefined,
       },
       { status: 500 }
     );

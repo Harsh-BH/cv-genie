@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import IconMap from "@/components/IconMap";
 import AnimatedSvg from "@/components/AnimatedSvg";
@@ -432,7 +431,7 @@ export default function Home() {
                 <p className="text-white/80 italic relative font-outfit">
                   {/* Animated underline effect for key phrases */}
                   <motion.span className="relative">
-                    "{testimonial.text}"
+                    &quot;{testimonial.text}&quot;
                     <motion.span 
                       className="absolute -bottom-1 left-0 w-full h-px bg-gradient-to-r from-pink-500/50 to-purple-500/50"
                       initial={{ scaleX: 0 }}
