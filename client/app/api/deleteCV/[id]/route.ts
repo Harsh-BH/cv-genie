@@ -1,9 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+// Define a type for JWT payload
+interface JwtPayload {
+  userId: number;
+  [key: string]: unknown;
+}
+
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> | { id: string } }
+) {
   try {
+    // Handle both Promise and direct object cases
+    const params = 'then' in context.params 
+      ? await context.params 
+      : context.params;
+    
+    // Extract the CV ID from route parameters
+    const cvId = params.id;
+    
+    if (!cvId) {
+      return NextResponse.json({ error: "CV ID is required" }, { status: 400 });
+    }
+    
     // Get auth_token cookie for authentication
     const authToken = req.cookies.get('auth_token')?.value;
     
@@ -14,10 +35,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     // Verify token
     let userId;
     try {
-      const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET || "fallback-secret-not-for-production") as { userId: number };
+      const decodedToken = jwt.verify(
+        authToken, 
+        process.env.JWT_SECRET || "fallback-secret-not-for-production"
+      ) as JwtPayload;
+      
       userId = decodedToken.userId;
-    } catch (jwtError: any) {
-      if (jwtError.name === "TokenExpiredError") {
+    } catch (jwtError: unknown) {
+      // Type narrowing to handle specific JWT errors
+      if (jwtError instanceof TokenExpiredError) {
         return NextResponse.json({ error: "Token expired" }, { status: 401 });
       }
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -27,38 +53,25 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ error: "Invalid token payload" }, { status: 401 });
     }
 
-    // Get CV ID from route parameters
-    const cvId = params.id;
-    
-    if (!cvId) {
-      return NextResponse.json({ error: "CV ID is required" }, { status: 400 });
-    }
-
-    // Verify that the CV belongs to the user
-    const cv = await prisma.resume.findFirst({
+    // Verify CV belongs to user before deletion (optional security check)
+    const resume = await prisma.resume.findUnique({
       where: {
         id: parseInt(cvId),
-        userId: userId
+      },
+      select: {
+        id: true,
+        userId: true,
       }
     });
 
-    if (!cv) {
-      return NextResponse.json({ error: "CV not found or access denied" }, { status: 404 });
+    if (!resume) {
+      return NextResponse.json({ error: "CV not found" }, { status: 404 });
     }
 
-    // Delete any associated analysis
-    await prisma.resumeAnalysis.deleteMany({
-      where: {
-        resumeId: parseInt(cvId)
-      }
-    });
-
-    // Delete any resume sections
-    await prisma.resumeSection.deleteMany({
-      where: {
-        resumeId: parseInt(cvId)
-      }
-    });
+    // Ensure the CV belongs to the authenticated user
+    if (resume.userId !== userId) {
+      return NextResponse.json({ error: "Unauthorized to delete this CV" }, { status: 403 });
+    }
 
     // Delete the CV
     await prisma.resume.delete({
@@ -71,11 +84,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       success: true,
       message: "CV deleted successfully" 
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting CV:", error);
     return NextResponse.json({ 
       error: "An error occurred while deleting the CV",
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? 
+        (error instanceof Error ? error.message : String(error)) : 
+        undefined
     }, { status: 500 });
   }
 }

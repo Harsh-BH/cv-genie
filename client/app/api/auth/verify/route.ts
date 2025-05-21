@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
+
+// Define a type for JWT payload
+interface JwtPayload {
+  userId: number;
+  [key: string]: unknown;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -14,12 +20,20 @@ export async function GET(req: NextRequest) {
     // Verify token
     let userId;
     try {
-      const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET || "fallback-secret-not-for-production") as { userId: number };
+      const decodedToken = jwt.verify(
+        authToken, 
+        process.env.JWT_SECRET || "fallback-secret-not-for-production"
+      ) as JwtPayload;
+      
       userId = decodedToken.userId;
-    } catch (jwtError: any) {
-      if (jwtError.name === "TokenExpiredError") {
+    } catch (jwtError: unknown) {
+      // Check for specific JWT error types
+      if (jwtError instanceof TokenExpiredError) {
         return NextResponse.json({ error: "Token expired" }, { status: 401 });
       }
+      
+      // Log the error but don't expose details to client
+      console.error("JWT verification error:", jwtError);
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -51,11 +65,13 @@ export async function GET(req: NextRequest) {
       }
     });
     
-  } catch (err: any) {
-    console.error("Verification error:", err);
+  } catch (error: unknown) {
+    console.error("Verification error:", error);
     return NextResponse.json({ 
       error: "Internal Server Error",
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? 
+        (error instanceof Error ? error.message : String(error)) : 
+        undefined
     }, { status: 500 });
   }
 }

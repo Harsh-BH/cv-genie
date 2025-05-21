@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
+
+// Define a type for JWT payload
+interface JwtPayload {
+  userId: number;
+  [key: string]: unknown;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,10 +23,14 @@ export async function GET(req: NextRequest) {
     // Verify token
     let userId: number;
     try {
-      const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as { userId: number };
+      const decoded = jwt.verify(authToken, process.env.JWT_SECRET!) as JwtPayload;
       userId = decoded.userId;
-    } catch (err: any) {
-      const message = err.name === "TokenExpiredError" ? "Token expired" : "Invalid token";
+    } catch (err: unknown) {
+      // Use type checking for more specific error handling
+      const message = err instanceof TokenExpiredError 
+        ? "Token expired" 
+        : "Invalid token";
+      
       return NextResponse.json(
         { status: 401, message },
         { status: 401 }

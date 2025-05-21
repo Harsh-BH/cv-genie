@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 
+// Define a type for the JWT token payload
+interface JwtPayload {
+  userId: number;
+  email?: string;
+  // Change any to unknown for additional properties
+  [key: string]: unknown;
+}
+
 export async function GET(req: NextRequest) {
   try {
     // Get the token from cookies
@@ -14,13 +22,14 @@ export async function GET(req: NextRequest) {
     // Verify and decode the token
     let decoded;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret-not-for-production");
-    } catch (error) {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret-not-for-production") as JwtPayload;
+    } catch (jwtError) { // Fixed: Using the error variable
+      console.error("JWT verification error:", jwtError);
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     
-    // Get user from database
-    const userId = (decoded as any).userId;
+    // Get user from database - Fixed: No more any type
+    const userId = decoded.userId;
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -29,7 +38,7 @@ export async function GET(req: NextRequest) {
         name: true,
         createdAt: true,
         updatedAt: true,
-        avatar: true, // Assuming you have an avatar field
+        avatar: true,
         // Add other fields you want to return, excluding sensitive ones
       }
     });
@@ -39,8 +48,13 @@ export async function GET(req: NextRequest) {
     }
     
     return NextResponse.json({ user: user, status: 200 });
-  } catch (err: any) {
-    console.error("Auth check error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } catch (error: unknown) { // Fixed: Changed any to unknown
+    console.error("Auth check error:", error);
+    return NextResponse.json({ 
+      error: "Internal Server Error",
+      details: process.env.NODE_ENV === 'development' ? 
+        (error instanceof Error ? error.message : String(error)) : 
+        undefined
+    }, { status: 500 });
   }
 }

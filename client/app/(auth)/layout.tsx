@@ -1,7 +1,5 @@
-
 "use client"
 import Link from "next/link";
-import { Metadata } from "next";
 import { AnimatedBackground } from "@/components/auth/AnimatedBackground";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
