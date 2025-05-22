@@ -10,14 +10,9 @@ interface JwtPayload {
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Handle both Promise and direct object cases
-    const params = 'then' in context.params 
-      ? await context.params 
-      : context.params;
-    
     // Extract the CV ID from route parameters
     const cvId = params.id;
     

@@ -8,7 +8,10 @@ interface JwtPayload {
   [key: string]: unknown;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const resumeId = parseInt(params.id);
     

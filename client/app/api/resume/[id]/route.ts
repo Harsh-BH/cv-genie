@@ -12,11 +12,10 @@ export const runtime = "nodejs";
 
 export async function GET(
     req: NextRequest,
-    context: { params: { id: string } }
+    { params }: { params: { id: string } }
   ) {
     try {
-      // Remove the incorrect 'await' here
-      const param = context.params.id;
+      const param = params.id;
       const resumeId = parseInt(param); 
 
       // 1️⃣ Extract and verify auth token
