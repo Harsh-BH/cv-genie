@@ -13,17 +13,24 @@ interface FileInfo {
   size: number;
 }
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// REPLACE the old config
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
+
+// WITH these new App Router segment configs
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
+
+// Rest of your code remains the same...
 
 // Helper function to convert Web API Request to Node.js readable stream
 async function requestToFormData(req: NextRequest) {

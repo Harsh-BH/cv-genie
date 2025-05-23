@@ -8,6 +8,7 @@ interface JwtPayload {
   [key: string]: unknown;
 }
 
+// Updated function signature for Next.js 15+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -20,7 +21,7 @@ export async function DELETE(
       return NextResponse.json({ error: "CV ID is required" }, { status: 400 });
     }
     
-    // Get auth_token cookie for authentication
+    // Rest of your code remains unchanged...
     const authToken = req.cookies.get('auth_token')?.value;
     
     if (!authToken) {

@@ -11,9 +11,32 @@ interface CVDisplayProps {
     id: string;
     bounds: { x: number; y: number; width: number; height: number } | null;
   } | null;
+  activeSuggestion?: {
+    id: string;
+    type: string;
+    sectionType: string;
+    original: string;
+    improved: string;
+    issue: string;
+    suggestion: string;
+    reasoning: string;
+    severity: "critical" | "high" | "medium" | "low";
+    category: string;
+    position: {
+      sectionTitle: string;
+      textSnippet: string;
+      lineNumber?: number;
+      charRange?: [number, number];
+    };
+  } | null;
 }
 
-export default function CVDisplay({ resumeId, activeHighlight, activeElement }: CVDisplayProps) {
+export default function CVDisplay({ 
+  resumeId, 
+  activeHighlight, 
+  activeElement, 
+  activeSuggestion 
+}: CVDisplayProps) {
   const [scale, setScale] = useState(1);
   const [loading, setLoading] = useState(true);
   const [cvUrl, setCvUrl] = useState<string | null>(null);
@@ -60,6 +83,38 @@ export default function CVDisplay({ resumeId, activeHighlight, activeElement }: 
       }
     };
   }, [resumeId]);
+
+  // Implement suggestion highlight logic
+  const renderSuggestionHighlight = () => {
+    if (!activeSuggestion) return null;
+    
+    // If we have bounds for this suggestion, render a highlight
+    if (activeElement && activeElement.bounds) {
+      const { bounds } = activeElement;
+      
+      return (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute bg-yellow-300/30 border-2 border-yellow-400 rounded-md pointer-events-none"
+          style={{
+            left: bounds.x,
+            top: bounds.y,
+            width: bounds.width,
+            height: bounds.height,
+            zIndex: 10
+          }}
+        >
+          {/* Optional: Add a tooltip or badge showing suggestion info */}
+          <div className="absolute -top-8 left-0 bg-yellow-500 text-xs text-black px-2 py-1 rounded whitespace-nowrap">
+            {activeSuggestion.suggestion}
+          </div>
+        </motion.div>
+      );
+    }
+    
+    return null;
+  };
 
   if (loading) {
     return (
@@ -139,15 +194,23 @@ export default function CVDisplay({ resumeId, activeHighlight, activeElement }: 
                     }}
                   />
                 )}
+                
+                {/* Add suggestion highlight for images */}
+                {activeSuggestion && renderSuggestionHighlight()}
               </div>
             ) : (
               // For PDF files
-              <iframe
-                src={cvUrl || ''}
-                className="w-full h-[80vh]"
-                title="CV Preview"
-                style={{ transform: `scale(${scale})`, transformOrigin: 'center top' }}
-              />
+              <div className="relative">
+                <iframe
+                  src={cvUrl || ''}
+                  className="w-full h-[80vh]"
+                  title="CV Preview"
+                  style={{ transform: `scale(${scale})`, transformOrigin: 'center top' }}
+                />
+                
+                {/* Add suggestion highlight for PDFs */}
+                {activeSuggestion && renderSuggestionHighlight()}
+              </div>
             )}
           </div>
         </div>

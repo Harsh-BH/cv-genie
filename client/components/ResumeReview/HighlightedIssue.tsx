@@ -44,12 +44,13 @@ const severityColors = {
   low: 'text-blue-500 bg-blue-100 border-blue-500'
 };
 
-const severityBadgeVariants = {
+// Update severityBadgeVariants to use only valid Badge variants
+const severityBadgeVariants: Record<IssueSeverity, "default" | "outline" | "destructive" | "secondary"> = {
   critical: 'destructive',
-  high: 'orange',
-  medium: 'yellow',
+  high: 'destructive',     // Changed from 'orange'
+  medium: 'secondary',     // Changed from 'yellow' 
   low: 'default'
-} as const;
+};
 
 export const HighlightedIssue: React.FC<HighlightedIssueProps> = ({ issue, onApplyFix }) => {
   const { textSnippet, sectionTitle } = issue.position;
