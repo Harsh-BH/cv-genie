@@ -110,6 +110,51 @@ export interface AnalysisData {
     };
     severity: 'critical' | 'high' | 'medium' | 'low';
   }>;
+
+  issues?: {
+    grammar?: Array<{
+      id: string;
+      text: string;
+      suggestion: string;
+      severity: string;
+    }>;
+    format?: Array<{
+      id: string;
+      text: string;
+      suggestion: string;
+      severity: string;
+    }>;
+    content?: Array<{
+      id: string;
+      text: string;
+      suggestion: string;
+      severity: string;
+    }>;
+    ats?: Array<{
+      id: string;
+      text: string;
+      suggestion: string;
+      severity: string;
+    }>;
+    [key: string]: Array<{
+      id: string;
+      text: string;
+      suggestion: string;
+      severity: string;
+    }> | undefined;
+  };
+
+    sectionScores?: {
+    summary?: number;
+    experience?: number;
+    education?: number;
+    skills?: number;
+    header?: number;
+    [key: string]: number | undefined;
+  };
+  
+  currentImpactScore?: number;
+  potentialImprovement?: number;
   
   createdAt?: Date;
   updatedAt?: Date;

@@ -1,4 +1,4 @@
-import { ScoreBreakdown } from './score-analyzer';
+import { ScoreBreakdown } from '../models/analysis-types';
 
 /**
  * Generates color values for score visualization

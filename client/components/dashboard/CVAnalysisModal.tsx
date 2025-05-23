@@ -12,7 +12,7 @@ interface CV {
   score: number;
 }
 
-interface AnalysisData {
+export interface AnalysisData {
   overallScore: number;
   executiveSummary: string;
   overview: string;

@@ -5,8 +5,8 @@ export function calculateSectionScores(resume: any, analysis: any) {
   
   // Get sections from resume
   if (resume.sections) {
-    // Map section titles to standardized keys
-    const sectionMap: Record<string, string> = {
+    // Update the type definition to accept string arrays
+    const sectionMap: Record<string, string[]> = {
       header: ['header', 'contact', 'personal', 'information'],
       summary: ['summary', 'profile', 'objective', 'about'],
       experience: ['experience', 'work', 'employment', 'professional'],

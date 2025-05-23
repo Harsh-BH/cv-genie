@@ -34,9 +34,13 @@ export interface PositionedSuggestion {
 }
 
 export interface ResumeSection {
+  id: number;        // Add this to match your implementation
   title: string;
+  type: string;
   content: string;
+  order: number;
 }
+
 
 export interface StructuredResume {
   fileName?: string;

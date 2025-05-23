@@ -63,8 +63,11 @@ const AnimatedRadar = ({ data }: { data: Array<{ subject: string, value: number,
   }, [data]);
   
   // Custom interactive radar with hover effect
-  const handleMouseEnter = (data: any, index: number) => {
-    setHoveredIndex(index);
+  const handleMouseEnter = (data: any, e: React.MouseEvent<SVGPolygonElement, MouseEvent>) => {
+    // Use the activeIndex or payload from the data instead
+    if (data && data.activeIndex !== undefined) {
+      setHoveredIndex(data.activeIndex);
+    }
   };
   
   const handleMouseLeave = () => {
@@ -376,8 +379,12 @@ const OverviewTab = ({ scoreData, performanceMetrics, issuesByType, scoreBreakdo
                     </Tooltip>
                   </TooltipProvider>
                   <Badge 
-                    variant={metric.value >= 70 ? "success" : metric.value >= 50 ? "warning" : "destructive"}
-                    className={`ml-2 transition-all duration-300 ${hoveredMetric === index ? 'scale-110' : ''}`}
+                    variant={metric.value >= 70 ? "default" : metric.value >= 50 ? "secondary" : "destructive"}
+                    className={`ml-2 transition-all duration-300 ${
+                      metric.value >= 70 ? "bg-green-500 text-white" : 
+                      metric.value >= 50 ? "bg-yellow-500 text-white" : 
+                      ""
+                    } ${hoveredMetric === index ? 'scale-110' : ''}`}
                   >
                     {metric.value}%
                   </Badge>

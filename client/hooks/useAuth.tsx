@@ -199,28 +199,31 @@ export function useAuth(): AuthHookReturn {
     }
   }, []);
 
-  // Authenticated fetch wrapper that handles token issues
-  const authFetch = useCallback(async <T>(url: string, options: RequestInit = {}): Promise<T> => {
+  // First, define the type for authFetch separately for clarity
+  type AuthFetchFunction = <T>(url: string, options?: RequestInit) => Promise<T>;
+
+  // Then use it in your useCallback
+  const authFetch = useCallback<AuthFetchFunction>(async (url, options = {}) => {
     try {
-      // Don't check auth before every request - trust the cookie
+      // Create a new headers object that TypeScript can understand
+      const headers = new Headers(options.headers || {});
+      if (!headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+      }
+
+      // Create the fetch options with the proper headers
       const fetchOptions: RequestInit = {
         ...options,
-        credentials: 'include', // Include the auth_token cookie
-        headers: {
-          ...options.headers,
-          'Content-Type': options.headers?.['Content-Type'] || 'application/json',
-        }
+        credentials: 'include',
+        headers: headers,
       };
       
       const response = await fetch(url, fetchOptions);
       
-      // Handle authentication errors
+      // Rest of your function remains the same
       if (response.status === 401) {
         setIsAuthenticated(false);
-        // Update the auth state to reflect we're not authenticated
         await checkAuth();
-        
-        // Redirect to login
         router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
         throw new Error('Authentication required');
       }

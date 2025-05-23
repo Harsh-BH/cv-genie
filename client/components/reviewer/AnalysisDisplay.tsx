@@ -295,49 +295,49 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
             label="Overview" 
             active={activeTab === 'overview'} 
             onClick={() => setActiveTab('overview')}
-            ref={(el) => tabRefs.current['overview'] = el}
+            ref={(el) => {tabRefs.current['overview'] = el;}}
           />
           <Tab 
             id="content" 
             label="Content" 
             active={activeTab === 'content'} 
             onClick={() => setActiveTab('content')}
-            ref={(el) => tabRefs.current['content'] = el}
+            ref={(el) => {tabRefs.current['content'] = el;}}
           />
           <Tab 
             id="ats" 
             label="ATS" 
             active={activeTab === 'ats'} 
             onClick={() => setActiveTab('ats')}
-            ref={(el) => tabRefs.current['ats'] = el}
+            ref={(el) => {tabRefs.current['ats'] = el;}}
           />
           <Tab 
             id="formatting" 
             label="Formatting" 
             active={activeTab === 'formatting'} 
             onClick={() => setActiveTab('formatting')}
-            ref={(el) => tabRefs.current['formatting'] = el}
+            ref={(el) => {tabRefs.current['formatting'] = el;}}
           />
           <Tab 
             id="skills" 
             label="Skills" 
             active={activeTab === 'skills'} 
             onClick={() => setActiveTab('skills')}
-            ref={(el) => tabRefs.current['skills'] = el}
+            ref={(el) => {tabRefs.current['skills'] = el;}}
           />
           <Tab 
             id="industry" 
             label="Industry" 
             active={activeTab === 'industry'} 
             onClick={() => setActiveTab('industry')}
-            ref={(el) => tabRefs.current['industry'] = el}
+            ref={(el) => {tabRefs.current['industry'] = el;}}
           />
           <Tab 
             id="suggestions" 
             label="Suggestions" 
             active={activeTab === 'suggestions'} 
             onClick={() => setActiveTab('suggestions')}
-            ref={(el) => tabRefs.current['suggestions'] = el}
+            ref={(el) => {tabRefs.current['suggestions'] = el;}}
           />
           
           {/* Animated active tab indicator - update to use dynamic widths */}

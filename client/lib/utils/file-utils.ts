@@ -106,7 +106,9 @@ This may be because:
 Please try uploading a different version of your resume, or copy-paste the text directly into the editor.`;
   } catch (error) {
     console.error("All PDF text extraction methods failed:", error);
-    throw new Error(`PDF text extraction failed: ${error.message}`);
+    throw new Error(`PDF text extraction failed: ${
+      error instanceof Error ? error.message : String(error)
+    }`);
   }
 }
 
