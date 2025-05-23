@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "ES2018", // Changed from ES2017 to ES2018 for regex dotAll flag support
     "lib": [
       "dom",
       "dom.iterable",
@@ -28,8 +29,7 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true,
-    "target": "ES2017"
+    "strictNullChecks": true
   },
   "include": [
     "**/*.js",

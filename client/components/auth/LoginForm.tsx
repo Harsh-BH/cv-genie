@@ -8,11 +8,13 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
-
+  const router = useRouter();
+  const auth = useAuth(); // This returns the AuthHookReturn interface
+  
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -23,8 +25,24 @@ export function LoginForm() {
     const password = formData.get("password") as string;
 
     try {
-      await login(email, password);
+      // Use the fetch method directly since your hook doesn't have login/signin
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Login failed');
+      }
+      
+      await auth.checkAuth(); // Update the auth state
       toast.success("Logged in successfully!");
+      router.push('/dashboard');
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(error.message || "Failed to login");
@@ -33,6 +51,7 @@ export function LoginForm() {
     }
   }
 
+  // Rest of your component remains the same...
   // Animation variants
   const formVariants = {
     hidden: { opacity: 0, y: 20 },

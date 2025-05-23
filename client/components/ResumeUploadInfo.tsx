@@ -1,6 +1,5 @@
 import React from 'react';
-import { Alert, Box, Typography, Paper } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
 
 interface ResumeUploadInfoProps {
   variant?: 'brief' | 'detailed';
@@ -12,55 +11,52 @@ interface ResumeUploadInfoProps {
 export default function ResumeUploadInfo({ variant = 'brief' }: ResumeUploadInfoProps) {
   if (variant === 'brief') {
     return (
-      <Alert 
-        severity="info" 
-        icon={<InfoIcon />}
-        sx={{ mb: 2 }}
-      >
-        <Typography variant="body2">
+      <div className="flex items-center p-4 mb-4 bg-blue-50 border-l-4 border-blue-400 rounded-md">
+        <InformationCircleIcon className="h-5 w-5 text-blue-400 mr-2" />
+        <p className="text-sm text-gray-700">
           For best results, use <strong>DOCX</strong> or text-based PDF files. Scanned PDFs may not work properly.
-        </Typography>
-      </Alert>
+        </p>
+      </div>
     );
   }
 
   return (
-    <Paper sx={{ p: 2, mb: 3, bgcolor: 'background.paper' }}>
-      <Typography variant="h6" gutterBottom>
+    <div className="p-6 mb-6 bg-white rounded-lg shadow-sm">
+      <h3 className="text-lg font-medium mb-2">
         Supported Resume Formats
-      </Typography>
+      </h3>
       
-      <Typography variant="body2" paragraph>
+      <p className="text-sm text-gray-600 mb-3">
         Our system works best with the following file types:
-      </Typography>
+      </p>
       
-      <Box component="ul" sx={{ pl: 2 }}>
-        <Typography component="li" variant="body2">
+      <ul className="list-disc pl-5 mb-4">
+        <li className="text-sm text-gray-700 mb-1">
           <strong>Microsoft Word (.docx)</strong> - Best option for analysis
-        </Typography>
-        <Typography component="li" variant="body2">
+        </li>
+        <li className="text-sm text-gray-700 mb-1">
           <strong>Text-based PDFs</strong> - PDFs created from digital sources
-        </Typography>
-        <Typography component="li" variant="body2">
+        </li>
+        <li className="text-sm text-gray-700 mb-1">
           <strong>Plain Text (.txt)</strong> - Simple but effective
-        </Typography>
-      </Box>
+        </li>
+      </ul>
       
-      <Typography variant="subtitle1" sx={{ mt: 2 }}>
+      <h4 className="text-md font-medium mt-4 mb-2">
         Having problems?
-      </Typography>
+      </h4>
       
-      <Box component="ul" sx={{ pl: 2 }}>
-        <Typography component="li" variant="body2">
+      <ul className="list-disc pl-5">
+        <li className="text-sm text-gray-700 mb-1">
           Copy and paste your resume text directly into the editor
-        </Typography>
-        <Typography component="li" variant="body2">
+        </li>
+        <li className="text-sm text-gray-700 mb-1">
           Ensure PDFs aren't password protected or contain only scanned images
-        </Typography>
-        <Typography component="li" variant="body2">
+        </li>
+        <li className="text-sm text-gray-700 mb-1">
           Remove any special formatting or symbols that might cause issues
-        </Typography>
-      </Box>
-    </Paper>
+        </li>
+      </ul>
+    </div>
   );
 }

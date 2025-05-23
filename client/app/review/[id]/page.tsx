@@ -10,7 +10,6 @@ import AnalyticsSection from "@/components/reviewer/AnalyticsSection";
 import LoadingScreen from "@/components/shared/LoadingScreen";
 import ErrorMessage from "@/components/shared/ErrorMessage";
 import { AnalysisData } from "@/types/analysis";
-import ExternalResources from "@/components/reviewer/ExternalResources";
 import ResourcesSidebar from "@/components/reviewer/ResourcesSidebar";
 import { ResourceCategory } from "@/lib/data/resource-links";
 
@@ -257,12 +256,13 @@ export default function ReviewerPage() {
   };
 
   // Find the positioned suggestion based on activeItemId
+    // Find the positioned suggestion based on activeItemId
   const getActiveSuggestion = () => {
     if (!activeItemId || !analysisData) return null;
     
-    return analysisData.positionedSuggestions.find(suggestion => 
+    return analysisData.positionedSuggestions?.find(suggestion => 
       suggestion.id === activeItemId
-    );
+    ) || null;
   };
 
   if (isLoading) {

@@ -20,11 +20,16 @@ interface JwtPayload {
   [key: string]: unknown;
 }
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// REPLACE this deprecated config
+// export const config = {
+//   api: {
+//     bodyParser: false,
+//   },
+// };
+
+// WITH these new App Router segment configs
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
