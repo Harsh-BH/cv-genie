@@ -12,7 +12,7 @@ interface CV {
   score: number;
 }
 
-interface AnalysisData {
+export type AnalysisData = {
   executiveSummary: string;
   overview: string;
   contentQuality: string;
@@ -53,7 +53,7 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
     if (!text) return [];
     
     // First, replace markdown code blocks with proper HTML
-    let processedText = text.replace(/```(.*?)```/gs, (match, codeContent) => {
+    let processedText = text.replace(/```([\s\S]*?)```/g, (match, codeContent) => {
       return `<pre><code>${codeContent.trim()}</code></pre>`;
     });
     
@@ -69,7 +69,7 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
     processedText = processedText.replace(/^-\s+(.*)$/gm, '<li>$1</li>');
     
     // Wrap list items in ul tags
-    processedText = processedText.replace(/<li>.*?<\/li>(\s*<li>.*?<\/li>)*/gs, (match) => {
+    processedText = processedText.replace(/<li>[\s\S]*?<\/li>(\s*<li>[\s\S]*?<\/li>)*/g, (match) => {
       return `<ul>${match}</ul>`;
     });
     
@@ -114,8 +114,8 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
     const weaknesses: string[] = [];
     
     // Simple regex-based extraction (could be improved)
-    const strengthsMatch = overview.match(/strengths[:\s]+(.*?)(?=weaknesses|\n\s*\n|$)/si);
-    const weaknessesMatch = overview.match(/weaknesses[:\s]+(.*?)(?=strengths|\n\s*\n|$)/si);
+    const strengthsMatch = overview.match(/strengths[:\s]+([\s\S]*?)(?=weaknesses|\n\s*\n|$)/i);
+    const weaknessesMatch = overview.match(/weaknesses[:\s]+([\s\S]*?)(?=strengths|\n\s*\n|$)/i);
     
     if (strengthsMatch && strengthsMatch[1]) {
       strengths.push(...strengthsMatch[1].split(/[-•*]\s*/).filter(item => item.trim().length > 0));
