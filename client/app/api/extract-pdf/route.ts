@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { isPdfData } from "@/lib/analysis/pdf-extractor";
-import pdfParse from 'pdf-parse';
 
+// Don't import pdf-parse at the top level
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -23,9 +23,20 @@ export async function POST(req: NextRequest) {
     // Convert Base64 to buffer
     const buffer = Buffer.from(dataWithoutPrefix, 'base64');
     
-    // Extract text
-    const result = await pdfParse(buffer);
+    // Import pdf-parse dynamically at runtime
+    const pdfParse = (await import('pdf-parse')).default;
     
+    // Extract text using a try-catch block specifically for PDF parsing
+    let result;
+    try {
+      result = await pdfParse(buffer);
+    } catch (parseError) {
+      console.error("PDF parse error:", parseError);
+      return NextResponse.json({ 
+        error: "Failed to parse PDF content: " + (parseError instanceof Error ? parseError.message : String(parseError))
+      }, { status: 500 });
+    }
+
     // Validate extracted text
     if (!result.text || result.text.trim().length < 10) {
       return NextResponse.json({ 

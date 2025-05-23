@@ -207,7 +207,13 @@ const AnalyticsSection = ({ analysis }: AnalyticsSectionProps) => {
                 >
                   {scoreBreakdown.overall}%
                 </motion.div>
-                <Badge variant={scoreBreakdown.overall >= 70 ? "success" : scoreBreakdown.overall >= 50 ? "warning" : "destructive"}>
+                <Badge 
+                  variant={scoreBreakdown.overall >= 70 ? "default" : scoreBreakdown.overall >= 50 ? "secondary" : "destructive"}
+                  className={`
+                    ${scoreBreakdown.overall >= 70 ? "bg-green-500 text-white" : ""} 
+                    ${scoreBreakdown.overall >= 50 && scoreBreakdown.overall < 70 ? "bg-yellow-500 text-white" : ""}
+                  `}
+                >
                   {scoreBreakdown.overall >= 70 ? "Good" : scoreBreakdown.overall >= 50 ? "Average" : "Needs Work"}
                 </Badge>
               </div>
@@ -307,8 +313,14 @@ const AnalyticsSection = ({ analysis }: AnalyticsSectionProps) => {
                 >
                   {scoreBreakdown.ats}%
                 </motion.div>
-                <Badge variant={scoreBreakdown.ats >= 70 ? "success" : scoreBreakdown.ats >= 50 ? "warning" : "destructive"}>
-                  {scoreBreakdown.ats >= 70 ? "Strong" : scoreBreakdown.ats >= 50 ? "Moderate" : "Weak"}
+                <Badge 
+                  variant={scoreBreakdown.overall >= 70 ? "default" : scoreBreakdown.overall >= 50 ? "secondary" : "destructive"}
+                  className={`
+                    ${scoreBreakdown.overall >= 70 ? "bg-green-500 text-white" : ""} 
+                    ${scoreBreakdown.overall >= 50 && scoreBreakdown.overall < 70 ? "bg-yellow-500 text-white" : ""}
+                  `}
+                >
+                  {scoreBreakdown.overall >= 70 ? "Good" : scoreBreakdown.overall >= 50 ? "Average" : "Needs Work"}
                 </Badge>
               </div>
             </CardContent>

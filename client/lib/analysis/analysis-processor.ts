@@ -147,7 +147,7 @@ async function updateAnalysisInDatabase(analysisId: number, result: AnalysisResu
         industryAlignmentScore: result.scoreBreakdown.impact,
         formattingScore: result.scoreBreakdown.formatting,
         skillsScore: result.scoreBreakdown.skills,
-        aiGeneratedImprovements: result.aiGeneratedImprovements,
+        aiGeneratedImprovements: result.aiGeneratedImprovements as any,
         positionedSuggestions: result.positionedSuggestions as any,
         status: "completed"
       },
