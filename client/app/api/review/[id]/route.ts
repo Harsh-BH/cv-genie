@@ -8,12 +8,12 @@ interface JwtPayload {
   [key: string]: unknown;
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest) {
   try {
-    const resumeId = parseInt(params.id);
+    // Extract resume ID from URL
+    const url = new URL(req.url);
+    const param = url.pathname.split("/").pop();
+    const resumeId = parseInt(param ?? "");
     
     if (isNaN(resumeId)) {
       return new Response(JSON.stringify({ error: "Invalid resume ID" }), {
