@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import UserProfile from "@/components/dashboard/UserProfile";
 import CVList from "@/components/dashboard/CVList";
 import CVAnalysisModal from "@/components/dashboard/CVAnalysisModal";
+import type { AnalysisData } from "@/components/dashboard/CVAnalysisModal";
 import AnimatedInsight from "@/components/reviewer/AnimatedInsight";
 import AnalyticsGraphs from "@/components/dashboard/AnalyticsGraphs";
 
@@ -16,79 +17,7 @@ interface CV {
   score: number;
 }
 
-// Update the AnalysisData interface to match the one expected by CVAnalysisModal
-interface AnalysisData {
-  overallScore: number;
-  executiveSummary: string;
-  overview: string;
-  strengths: string[];
-  weaknesses: string[];
-  improvement_suggestions: string[];
-  sections: {
-    [key: string]: {
-      score: number;
-      feedback: string;
-      issues?: Array<{
-        type: string;
-        description: string;
-        suggestion: string;
-        severity: string;
-      }>;
-    };
-  };
-  contentQuality: {
-    score: number;
-    feedback: string;
-  };
-  atsCompatibility: {
-    score: number;
-    feedback: string;
-    keywords?: {
-      missing: string[];
-      found: string[];
-    };
-  };
-  visualPresentation: {
-    score: number;
-    feedback: string;
-  };
-  relevance: {
-    score: number;
-    feedback: string;
-  };
-  technicalSkills: {
-    score: number;
-    feedback: string;
-  };
-  softSkills: {
-    score: number;
-    feedback: string;
-  };
-  experience: {
-    score: number;
-    feedback: string;
-  };
-  education: {
-    score: number;
-    feedback: string;
-  };
-  achievements: {
-    score: number;
-    feedback: string;
-  };
-  language: {
-    score: number;
-    feedback: string;
-  };
-  impact: {
-    score: number;
-    feedback: string;
-  };
-  brevity: {
-    score: number;
-    feedback: string;
-  };
-}
+// Using AnalysisData interface imported from CVAnalysisModal component
 
 export default function DashboardPage() {
   const [cvs, setCvs] = useState<CV[]>([]);
