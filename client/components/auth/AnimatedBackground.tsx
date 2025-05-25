@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 
 export function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme, systemTheme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">("light");
+  
+  // Determine if we're in dark mode
+  useEffect(() => {
+    const isDark = 
+      theme === "dark" || 
+      (theme === "system" && systemTheme === "dark");
+    
+    setCurrentTheme(isDark ? "dark" : "light");
+  }, [theme, systemTheme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -14,7 +26,6 @@ export function AnimatedBackground() {
 
     // Set canvas dimensions
     const setCanvasDimensions = () => {
-      // Non-null assertion here
       canvas!.width = window.innerWidth;
       canvas!.height = window.innerHeight;
     };
@@ -33,15 +44,19 @@ export function AnimatedBackground() {
       color: string;
 
       constructor() {
-        // Non-null assertions here
         this.x = Math.random() * canvas!.width;
         this.y = Math.random() * canvas!.height;
         this.size = Math.random() * 5 + 1;
         this.speedX = Math.random() * 1 - 0.5;
         this.speedY = Math.random() * 1 - 0.5;
         
-        const opacity = Math.random() * 0.4 + 0.1; // 0.1 to 0.5
-        this.color = `rgba(168, 85, 247, ${opacity})`;
+        // Higher base opacity for more visibility
+        const opacity = Math.random() * 0.4 + 0.3; // 0.3 to 0.7
+        
+        // More vibrant colors for both themes
+        this.color = currentTheme === "dark" 
+          ? `rgba(192, 132, 252, ${opacity})` // Bright vibrant purple for dark theme
+          : `rgba(31, 41, 55, ${opacity})`; // Dark gray for light theme
       }
 
       update(): void {
@@ -50,7 +65,6 @@ export function AnimatedBackground() {
 
         if (this.size > 0.2) this.size -= 0.01;
 
-        // Non-null assertions here
         if (this.x < 0 || this.x > canvas!.width) this.speedX *= -1;
         if (this.y < 0 || this.y > canvas!.height) this.speedY *= -1;
       }
@@ -65,7 +79,6 @@ export function AnimatedBackground() {
 
     // Create particle array
     const particlesArray: Particle[] = [];
-    // Non-null assertions here
     const numberOfParticles = Math.min(100, Math.floor((canvas!.width * canvas!.height) / 10000));
     
     for (let i = 0; i < numberOfParticles; i++) {
@@ -83,9 +96,14 @@ export function AnimatedBackground() {
           const distance = Math.sqrt(dx * dx + dy * dy);
           
           if (distance < maxDistance) {
-            const opacity = 1 - distance / maxDistance;
-            ctx!.strokeStyle = `rgba(168, 85, 247, ${opacity * 0.2})`;
-            ctx!.lineWidth = 1;
+            // Increase the opacity factor for more visible connections
+            const opacity = (1 - distance / maxDistance) * 0.5; // Increased from 0.2 to 0.5
+            
+            ctx!.strokeStyle = currentTheme === "dark"
+              ? `rgba(192, 132, 252, ${opacity})` // Bright vibrant purple for dark theme
+              : `rgba(31, 41, 55, ${opacity})`; // Dark gray for light theme
+            
+            ctx!.lineWidth = 1.5; // Slightly thicker lines for visibility
             ctx!.beginPath();
             ctx!.moveTo(particlesArray[a].x, particlesArray[a].y);
             ctx!.lineTo(particlesArray[b].x, particlesArray[b].y);
@@ -97,7 +115,6 @@ export function AnimatedBackground() {
 
     // Animation loop
     function animate() {
-      // Non-null assertions here
       ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
       
       particlesArray.forEach(particle => {
@@ -114,12 +131,12 @@ export function AnimatedBackground() {
     return () => {
       window.removeEventListener("resize", setCanvasDimensions);
     };
-  }, []);
+  }, [currentTheme]); // Re-initialize when theme changes
 
   return (
     <canvas 
       ref={canvasRef} 
-      className="absolute inset-0 z-0 opacity-70"
+      className="absolute inset-0 z-0 opacity-100" // Increased from opacity-70 to opacity-80
       style={{ pointerEvents: "none" }}
     />
   );
