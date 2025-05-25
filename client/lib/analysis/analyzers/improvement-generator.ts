@@ -124,7 +124,7 @@ For one project (or create a recommended project description based on experience
       'This content generation provides specific, ready-to-implement improvements across all resume sections.'
     );
     
-    const specificImprovements = await generatePerplexityResponse(specificImprovementsPrompt, 'claude-3-opus-20240229', 0.8);
+    const specificImprovements = await generatePerplexityResponse(specificImprovementsPrompt, 'sonar', 0.8);
     
     // Enhanced parsing logic for each section
     function extractSection(text: string, sectionName: string): string {
