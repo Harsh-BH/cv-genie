@@ -14,9 +14,9 @@ const protectedPaths = [
 const publicPaths = [
   '/',
   '/login',
-  '/register',
+  '/signup',
   '/api/auth/login',
-  '/api/auth/register'
+  '/api/auth/signup'
 ];
 
 export async function middleware(request: NextRequest) {
@@ -43,6 +43,18 @@ export async function middleware(request: NextRequest) {
 
   // Get the token from the cookies
   const token = request.cookies.get('auth_token')?.value;
+  // Get non-httpOnly cookie flag as a fallback
+  const isLoggedInFlag = request.cookies.get('isLoggedIn')?.value === 'true';
+
+  // For debugging on Vercel - add custom header to check cookies
+  const response = NextResponse.next();
+  response.headers.set('x-middleware-cache', 'no-cache');
+  
+  // If we have the isLoggedIn flag cookie and we're on Vercel, trust it
+  // This prevents unnecessary redirections when auth_token might not be immediately detected
+  if (process.env.VERCEL && isLoggedInFlag && isProtectedPath) {
+    return response;
+  }
 
   // If no token exists and the path is protected, redirect to login
   if (!token && isProtectedPath) {
@@ -52,7 +64,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // If there's a token and the path is a login/register page, redirect to dashboard
-  if (token && isPublicPath && (path === '/login' || path === '/register')) {
+  if (token && isPublicPath && (path === '/login' || path === '/signup')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -73,7 +85,10 @@ export async function middleware(request: NextRequest) {
       new URL('/login', request.url)
     );
     
+    // Remove the auth cookies to clean up the invalid session
     response.cookies.delete('auth_token');
+    response.cookies.delete('isLoggedIn');
+    
     return response;
   }
 }

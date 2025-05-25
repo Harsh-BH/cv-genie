@@ -28,7 +28,8 @@ const Navbar = () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            credentials: 'include', // Ensure cookies are sent with the request
         });
 
         const data = await res.json();
