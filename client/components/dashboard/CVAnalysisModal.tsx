@@ -12,77 +12,31 @@ interface CV {
   score: number;
 }
 
-export interface AnalysisData {
-  overallScore: number;
+export type AnalysisData = {
   executiveSummary: string;
   overview: string;
-  strengths: string[];
-  weaknesses: string[];
-  improvement_suggestions: string[];
-  sections: {
-    [key: string]: {
-      score: number;
-      feedback: string;
-      issues?: Array<{
-        type: string;
-        description: string;
-        suggestion: string;
-        severity: string;
-      }>;
-    };
+  contentQuality: string;
+  atsCompatibility: string;
+  industryFit: string;
+  formattingReview: string;
+  skillsAnalysis: string;
+  careerTrajectory: string;
+  improvementSuggestions: string;
+  overallScore: number;
+  contentScore: number;
+  atsOptimizationScore: number;
+  industryAlignmentScore: number;
+  formattingScore: number;
+  skillsScore: number;
+  status: string;
+  aiGeneratedImprovements?: {
+    summary: string[];
+    experience: any[];
+    skills: string[];
+    education: any[];
+    projects: any[];
   };
-  contentQuality: {
-    score: number;
-    feedback: string;
-  };
-  atsCompatibility: {
-    score: number;
-    feedback: string;
-    keywords?: {
-      missing: string[];
-      found: string[];
-    };
-  };
-  visualPresentation: {
-    score: number;
-    feedback: string;
-  };
-  relevance: {
-    score: number;
-    feedback: string;
-  };
-  technicalSkills: {
-    score: number;
-    feedback: string;
-  };
-  softSkills: {
-    score: number;
-    feedback: string;
-  };
-  experience: {
-    score: number;
-    feedback: string;
-  };
-  education: {
-    score: number;
-    feedback: string;
-  };
-  achievements: {
-    score: number;
-    feedback: string;
-  };
-  language: {
-    score: number;
-    feedback: string;
-  };
-  impact: {
-    score: number;
-    feedback: string;
-  };
-  brevity: {
-    score: number;
-    feedback: string;
-  };
+  positionedSuggestions?: any[];
 }
 
 interface CVAnalysisModalProps {
