@@ -33,7 +33,6 @@ export default function UploadPage() {
   const [fileSize, setFileSize] = useState(0);
   const [uploadError, setUploadError] = useState('');
   const [resumeId, setResumeId] = useState<number | null>(null);
-  const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
   const router = useRouter();
 
   // Remove the separate checkAuth effect - rely on useAuth's built-in verification
@@ -164,8 +163,6 @@ export default function UploadPage() {
       router.push(`/review/${resumeId}?newUpload=true`);
     }
   };
-
-  
 
   // Requirements for upload checklist
   const uploadRequirements = [
