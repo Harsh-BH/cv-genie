@@ -9,7 +9,6 @@ import {
   SuccessIcon,
   Particles,
   DecorativeSphere,
-  FileIcon,
   ProgressBar,
   EnhancedWaveBackground,
   LoadingSpinner,
@@ -23,9 +22,10 @@ import {
   ServerProcessingAnimation,
   GradientRing
 } from './animationsofUpload';
+import { NextRequest, NextResponse } from 'next/server';
 
 export default function UploadPage() {
-  const { isAuthenticated, isLoading, authFetch } = useAuth();
+  const { isAuthenticated, isLoading, authFetch, checkAuth, authChecked } = useAuth();
   const [dragActive, setDragActive] = useState(false);
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'processing' | 'success'>('idle');
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -34,6 +34,13 @@ export default function UploadPage() {
   const [uploadError, setUploadError] = useState('');
   const [resumeId, setResumeId] = useState<number | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+      if (!authChecked) {
+        console.log('[UploadPage] Initial auth check...');
+        checkAuth();
+      }
+    }, [authChecked, checkAuth]);
 
   // Remove the separate checkAuth effect - rely on useAuth's built-in verification
 

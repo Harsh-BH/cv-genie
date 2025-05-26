@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaCircleUser } from "react-icons/fa6";
 import { RiMenu3Fill, RiCloseFill } from "react-icons/ri";
 import { FaUser, FaUpload, FaSignOutAlt } from "react-icons/fa";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const {isAuthenticated, logout} = useAuth();
     const [hydrated, setHydrated] = useState(false);
     const [avatar, setAvatar] = useState('');
     const [userName, setUserName] = useState('');
@@ -18,26 +19,12 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
-        const flag = getCookie('isLoggedIn');
-        setIsAuthenticated(flag === 'true');
         setHydrated(true);
     }, []);
 
     const Logout = async () => {
-        const res = await fetch('/api/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        const data = await res.json();
-
-        if(data.success) {
-            setIsAuthenticated(false);
-            setIsMobileMenuOpen(false);
-            window.location.href = '/';
-        }
+        await logout();
+        setIsMobileMenuOpen(false);
     }
 
     const getUserDetails = async () => {
@@ -257,10 +244,10 @@ const Navbar = () => {
                                 whileTap={{ scale: 0.95 }}
                                 className="relative overflow-visible"
                             >
-                                <Link href="/dashboard" className="text-white w-[38px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105 overflow-visible">
-                                    <div className="relative group overflow-visible">
+                                <Link href="/dashboard" className="text-white w-[40px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105 overflow-visible">
+                                    <div className="relative group overflow-hidden aspect-square w-[38px] h-[38px] rounded-full">
                                         {avatar ? 
-                                            <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full" alt="User Avatar"/>
+                                            <img src={avatar} width={38} height={38} className="object-cover object-center w-full h-full rounded-full" alt="User Avatar"/>
                                             :
                                             <div className="text-[34.98px] text-white/60"><FaCircleUser /></div>
                                         }

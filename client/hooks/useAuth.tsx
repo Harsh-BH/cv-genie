@@ -158,37 +158,38 @@ export interface AuthHookReturn {
   checkAuth: () => Promise<boolean>;
   authFetch: <T>(url: string, options?: RequestInit) => Promise<T>;
   logout: () => Promise<void>;
+  authChecked: boolean; 
 }
 
 export function useAuth(): AuthHookReturn {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState<boolean>(false); // Add this state
   const router = useRouter();
 
-  // Check if the user is authenticated - simplified version
   const checkAuth = useCallback(async (): Promise<boolean> => {
+    // Only run if we haven't already checked or if it's a forced check
+    if (authChecked && !isLoading) {
+      return isAuthenticated;
+    }
+
     try {
       setIsLoading(true);
       const response = await fetch('/api/auth/verify', {
         method: 'GET',
-        credentials: 'include', // Include the auth_token cookie
-        cache: 'no-store', // Don't cache the verification request
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        credentials: 'include',
+        cache: 'no-store',
       });
       
-      if (!response.ok) {
-        // Just treat any non-OK response as not authenticated
-        setIsAuthenticated(false);
-        return false;
+      const authenticated = response.ok;
+      setIsAuthenticated(authenticated);
+      
+      if (authenticated) {
+        setError(null);
       }
       
-      // If we get here, the token is valid
-      setIsAuthenticated(true);
-      setError(null);
-      return true;
+      return authenticated;
     } catch (err) {
       console.error('Auth verification error:', err);
       setIsAuthenticated(false);
@@ -196,8 +197,16 @@ export function useAuth(): AuthHookReturn {
       return false;
     } finally {
       setIsLoading(false);
+      setAuthChecked(true); // Mark that we've checked auth once
     }
-  }, []);
+  }, [authChecked, isAuthenticated, isLoading]);
+
+  // Check authentication status on hook mount - ONLY ONCE
+  useEffect(() => {
+    if (!authChecked) {
+      checkAuth();
+    }
+  }, [checkAuth, authChecked]);
 
   // First, define the type for authFetch separately for clarity
   type AuthFetchFunction = <T>(url: string, options?: RequestInit) => Promise<T>;
@@ -266,6 +275,7 @@ export function useAuth(): AuthHookReturn {
     error,
     checkAuth,
     authFetch,
-    logout
+    logout,
+    authChecked
   };
 }
