@@ -16,8 +16,8 @@ import { ResourceCategory } from "@/lib/data/resource-links";
 export default function ReviewerPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const resumeId = params.id as string;
-  const isNewUpload = searchParams.get('newUpload') === 'true';
+  const resumeId = params?.id as string || '';
+  const isNewUpload = searchParams?.get('newUpload') === 'true';
   
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
