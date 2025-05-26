@@ -19,20 +19,6 @@ const publicPaths = [
   '/api/auth/register'
 ];
 
-// Add this function to verify the token directly in middleware
-async function verifyToken(token: string): Promise<boolean> {
-  try {
-    const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || "fallback-secret-not-for-production"
-    );
-    
-    await jwtVerify(token, secret);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
@@ -41,13 +27,17 @@ export async function middleware(request: NextRequest) {
     path === route || path.startsWith(`${route}/`)
   );
   
+  const isPublicPath = publicPaths.some(route => 
+    path === route || path.startsWith(`${route}/`)
+  );
+
   // Skip middleware for API routes except those we want to protect
   if (path.startsWith('/api/') && !path.startsWith('/api/protected/')) {
     return NextResponse.next();
   }
 
   // If it's not a protected path, continue
-  if (!isProtectedPath) {
+  if (!isProtectedPath && !path.startsWith('/api/protected/')) {
     return NextResponse.next();
   }
 
@@ -55,24 +45,37 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
 
   // If no token exists and the path is protected, redirect to login
-  if (!token) {
+  if (!token && isProtectedPath) {
     const url = new URL('/login', request.url);
     url.searchParams.set('callbackUrl', encodeURI(request.url));
     return NextResponse.redirect(url);
   }
 
-  // Verify the token
-  const isValid = await verifyToken(token);
-  
-  if (!isValid) {
-    // If token verification fails, clear the invalid cookie and redirect to login
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    response.cookies.delete('auth_token');
-    response.cookies.delete('isLoggedIn');
-    return response;
+  // If there's a token and the path is a login/register page, redirect to dashboard
+  if (token && isPublicPath && (path === '/login' || path === '/register')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  return NextResponse.next();
+  try {
+    // Verify the token using your JWT_SECRET
+    if (token) {
+      const secret = new TextEncoder().encode(
+        process.env.JWT_SECRET || "fallback-secret-not-for-production"
+      );
+      
+      await jwtVerify(token, secret);
+    }
+    
+    return NextResponse.next();
+  } catch (error) {
+    // If token verification fails, clear the invalid cookie and redirect to login
+    const response = NextResponse.redirect(
+      new URL('/login', request.url)
+    );
+    
+    response.cookies.delete('auth_token');
+    return response;
+  }
 }
 
 // Configure paths the middleware should run on
