@@ -1,9 +1,5 @@
 import { StructuredResume } from '../models/analysis-types';
 
-// API configuration
-const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY!;
-const API_URL = 'https://api.perplexity.ai/chat/completions';
-
 export interface PerplexityResponse {
   id: string;
   choices: {
@@ -21,12 +17,16 @@ export interface PerplexityResponse {
   };
 }
 
-// Generate a chat completion using Perplexity API
+const API_URL = 'https://api.perplexity.ai/chat/completions';
+
+// ✅ Server-side call to Perplexity API
 export async function generatePerplexityResponse(
   prompt: string,
   model = 'sonar',
   temperature = 0.7
 ): Promise<string> {
+  const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+
   if (!PERPLEXITY_API_KEY) {
     throw new Error('PERPLEXITY_API_KEY is not set in environment variables');
   }
@@ -43,62 +43,63 @@ export async function generatePerplexityResponse(
         messages: [
           {
             role: 'system',
-            content: 'You are an expert resume analyst and career coach with deep knowledge of industry standards, ATS systems, and effective resume writing. Provide detailed, professional analysis and advice.'
+            content:
+              'You are an expert resume analyst and career coach with deep knowledge of industry standards, ATS systems, and effective resume writing. Provide detailed, professional analysis and advice.',
           },
           {
             role: 'user',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         temperature,
       }),
     });
 
+    const text = await response.text();
+
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Perplexity API error (${response.status}): ${errorText}`);
+      throw new Error(`Perplexity API error (${response.status}): ${text}`);
     }
 
-    const data: PerplexityResponse = await response.json();
+    const data: PerplexityResponse = JSON.parse(text);
     return data.choices[0]?.message?.content || '';
   } catch (error) {
     console.error('Perplexity API error:', error);
-    throw new Error(`Failed to generate analysis: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Failed to generate analysis: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`
+    );
   }
 }
 
-// Create a more structured prompt from resume content
+// ✅ Structured prompt builder
 export function createStructuredPrompt(
-  resume: StructuredResume, 
+  resume: StructuredResume,
   task: string,
   additionalContext = ''
 ): string {
-  // Get personal info
   const name = resume.user?.name || 'Applicant';
-  
-  // Get resume metadata for more personalized analysis
   const fileName = resume.fileName || 'Resume';
   const fileType = fileName.split('.').pop()?.toLowerCase() || 'unknown';
-  
-  // Get content - either use the raw content or format the sections
+
   let resumeContent: string;
-  
+
   if (resume.rawContent) {
-    // Use the raw content directly
     resumeContent = resume.rawContent;
   } else if (resume.sections && resume.sections.length > 0) {
-    // Format sections in a structured way with clear separation
-    resumeContent = resume.sections.map(section => {
-      return `## ${section.title.toUpperCase()}\n${section.content}\n`;
-    }).join('\n---\n');
+    resumeContent = resume.sections
+      .map(
+        (section) =>
+          `## ${section.title.toUpperCase()}\n${section.content}\n`
+      )
+      .join('\n---\n');
   } else if (resume.fileData) {
-    // Fall back to file data if available
     resumeContent = resume.fileData;
   } else {
-    // Last resort - empty content
-    resumeContent = "No content available for analysis";
+    resumeContent = 'No content available for analysis';
   }
-  
+
   return `
 # SPECIFIC RESUME ANALYSIS TASK
 You are analyzing a real resume for ${name}. This is NOT a hypothetical exercise.
