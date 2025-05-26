@@ -141,6 +141,7 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
     
     // Set current score and breakdown from most recent CV
     const mostRecentCV = sortedCVs[0];
+    console.log("Most recent CV data:", mostRecentCV);
     setCurrentScore(mostRecentCV.score);
     setCurrentScoreBreakdown(mostRecentCV.scores || null);
     

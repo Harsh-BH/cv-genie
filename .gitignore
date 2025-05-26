@@ -4,3 +4,5 @@ cv-genie/.env
 cv-genie/.env.local
 cv-genie/.env.development.local
 cv-genie/.env.test.local
+.vercel
+.env*.local
