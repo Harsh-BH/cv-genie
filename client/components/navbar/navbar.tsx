@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaCircleUser } from "react-icons/fa6";
 import { RiMenu3Fill, RiCloseFill } from "react-icons/ri";
 import { FaUser, FaUpload, FaSignOutAlt } from "react-icons/fa";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const {isAuthenticated, logout} = useAuth();
     const [hydrated, setHydrated] = useState(false);
     const [avatar, setAvatar] = useState('');
     const [userName, setUserName] = useState('');
@@ -18,26 +19,12 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
-        const flag = getCookie('isLoggedIn');
-        setIsAuthenticated(flag === 'true');
         setHydrated(true);
     }, []);
 
     const Logout = async () => {
-        const res = await fetch('/api/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        const data = await res.json();
-
-        if(data.success) {
-            setIsAuthenticated(false);
-            setIsMobileMenuOpen(false);
-            window.location.href = '/';
-        }
+        await logout();
+        setIsMobileMenuOpen(false);
     }
 
     const getUserDetails = async () => {
