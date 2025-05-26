@@ -242,33 +242,31 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
     }
   }, [isLoading]);
 
-  // More aggressive tab change handling
-  useEffect(() => {
-    // First reset everything
-    setChartsReady(false);
-    setAnimationProgress(0);
+  // Replace your current tab change effect with this one
+useEffect(() => {
+  console.log(`[Tab Change] Switching to tab: ${activeTab}`);
+  
+  // First hide charts while tab changes
+  setChartsReady(false);
+  setAnimationProgress(0);
+  
+  // Force re-render of all charts when tab changes
+  setTrendChartKey(prev => prev + 1);
+  setProgressChartKey(prev => prev + 1);
+  setCategoriesChartKey(prev => prev + 1);
+  setGapsChartKey(prev => prev + 1);
+  
+  // Use a more direct approach - show charts after a fixed delay
+  setTimeout(() => {
+    console.log(`[Tab Change] Making charts visible for tab: ${activeTab}`);
+    setChartsReady(true);
     
-    // Force all charts to re-render with new keys
-    setTrendChartKey(prev => prev + 1);
-    setProgressChartKey(prev => prev + 1);
-    setCategoriesChartKey(prev => prev + 1);
-    setGapsChartKey(prev => prev + 1);
-    
-    // Delay chart rendering to ensure DOM is ready
-    const renderTimer = setTimeout(() => {
-      setChartsReady(true);
-    }, 100);
-    
-    // Start animation after charts are rendered
-    const animationTimer = setTimeout(() => {
+    // Start animation after charts are made visible
+    setTimeout(() => {
       setAnimationProgress(1);
-    }, 300);
-    
-    return () => {
-      clearTimeout(renderTimer);
-      clearTimeout(animationTimer);
-    };
-  }, [activeTab]);
+    }, 100);
+  }, 300);
+}, [activeTab]);
   
   // Force chart re-render when window is resized
   useEffect(() => {
@@ -395,34 +393,68 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
     return null;
   };
 
-  // Create a chart wrapper component to handle visibility
-  const ChartWrapper = ({ 
-    isVisible, 
-    chartKey, 
-    ref, 
-    children, 
-    height 
-  }: { 
-    isVisible: boolean; 
-    chartKey: number; 
-    ref: React.RefObject<HTMLDivElement>;
-    children: React.ReactNode;
-    height: number | string;
-  }) => {
-    return (
-      <div 
-        ref={ref} 
-        className={`w-full transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-        style={{ 
-          height: typeof height === 'number' ? `${height}px` : height,
-          position: 'relative'
-        }}
-        key={`chart-wrapper-${chartKey}`}
-      >
-        {isVisible && children}
-      </div>
-    );
-  };
+  // 1. Create a more reliable ChartWrapper component
+  // Replace your current ChartWrapper component with this one
+const ChartWrapper = ({ 
+  isVisible, 
+  chartKey, 
+  ref, 
+  children, 
+  height 
+}: { 
+  isVisible: boolean; 
+  chartKey: number; 
+  ref: React.RefObject<HTMLDivElement>;
+  children: React.ReactNode;
+  height: number | string;
+}) => {
+  // CRITICAL: Remove the conditional rendering completely - always render children
+  return (
+    <div 
+      ref={ref} 
+      className="w-full transition-all duration-300"
+      style={{ 
+        height: typeof height === 'number' ? `${height}px` : height,
+        position: 'relative',
+        opacity: isVisible ? 1 : 0,
+        visibility: isVisible ? 'visible' : 'hidden',
+        pointerEvents: isVisible ? 'auto' : 'none'
+      }}
+    >
+      {/* Always render children, regardless of visibility */}
+      {children}
+    </div>
+  );
+};
+
+  // Then, update the tab change effect to properly handle visibility across all tabs
+  useEffect(() => {
+    // First reset animation
+    setAnimationProgress(0);
+    
+    // Preserve chartsReady for current tab but reset it for tab change
+    setChartsReady(false);
+    
+    // Force all charts to re-render with new keys
+    setTrendChartKey(prev => prev + 1);
+    setProgressChartKey(prev => prev + 1);
+    setCategoriesChartKey(prev => prev + 1);
+    setGapsChartKey(prev => prev + 1);
+    
+    // Use a more reliable approach for showing charts with proper timing
+    const renderTimer = setTimeout(() => {
+      setChartsReady(true);
+      
+      // Start animation after a slight delay to ensure DOM is updated
+      const animationTimer = setTimeout(() => {
+        setAnimationProgress(1);
+      }, 100);
+      
+      return () => clearTimeout(animationTimer);
+    }, 100);
+    
+    return () => clearTimeout(renderTimer);
+  }, [activeTab]);
 
   return (
     <motion.div
@@ -452,64 +484,59 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
           </TabsTrigger>
         </TabsList>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`tab-content-${activeTab}`}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
+        
+          
             {/* Overview Tab */}
             <TabsContent value="overview" className="mt-0">
               <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-                <motion.div variants={itemVariants}>
-                  <Card className="overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-md">CV Score Trend</CardTitle>
-                      <CardDescription>Your CV score improvement over time</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {renderLoadingOrError() || (
-                        monthlyData.length === 0 ? (
-                          <div className="h-64 flex items-center justify-center">
-                            <p className="text-gray-400">No CV data available yet</p>
-                          </div>
-                        ) : (
-                          <ChartWrapper 
-                            isVisible={chartsReady && activeTab === "overview"} 
-                            chartKey={trendChartKey}
-                            ref={trendChartRef}
-                            height={250}
-                          >
-                            <ResponsiveContainer width="100%" height="100%" key={`trend-chart-${trendChartKey}`}>
-                              <LineChart 
-                                data={monthlyData.slice(0, Math.floor(monthlyData.length * animationProgress))}
-                                margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                    <motion.div variants={itemVariants}>
+                      <Card className="overflow-hidden">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-md">CV Score Trend</CardTitle>
+                          <CardDescription>Your CV score improvement over time</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {renderLoadingOrError() || (
+                            monthlyData.length === 0 ? (
+                              <div className="h-64 flex items-center justify-center">
+                                <p className="text-gray-400">No CV data available yet</p>
+                              </div>
+                            ) : (
+                              <ChartWrapper 
+                                isVisible={chartsReady}
+                                chartKey={trendChartKey}
+                                ref={trendChartRef}
+                                height={250}
                               >
-                                <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                                <XAxis dataKey="month" stroke="#888" />
-                                <YAxis stroke="#888" domain={[0, 100]} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Line
-                                  type="monotone"
-                                  dataKey="score"
-                                  stroke="#8884d8"
-                                  strokeWidth={3}
-                                  dot={{ stroke: '#8884d8', strokeWidth: 2, r: 4 }}
-                                  activeDot={{ r: 8, stroke: '#8884d8', strokeWidth: 2 }}
-                                  isAnimationActive={true}
-                                  animationDuration={2000}
-                                  animationEasing="ease-in-out"
-                                />
-                              </LineChart>
-                            </ResponsiveContainer>
-                          </ChartWrapper>
-                        )
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                                <ResponsiveContainer width="100%" height="100%" key={`trend-chart-${trendChartKey}`}>
+                                  <LineChart 
+                                    data={monthlyData}
+                                    margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                                  >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                                    <XAxis dataKey="month" stroke="#888" />
+                                    <YAxis stroke="#888" domain={[0, 100]} />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend />
+                                    <Line
+                                      type="monotone"
+                                      dataKey="score"
+                                      name="CV Score"
+                                      stroke="#8884d8"
+                                      strokeWidth={2}
+                                      dot={{ r: 4 }}
+                                      activeDot={{ r: 6 }}
+                                      animationDuration={2000}
+                                      animationBegin={300}
+                                    />
+                                  </LineChart>
+                                </ResponsiveContainer>
+                              </ChartWrapper>
+                            )
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
 
                 <motion.div variants={itemVariants}>
                   <Card className="overflow-hidden">
@@ -594,6 +621,8 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
               </div>
             </TabsContent>
 
+          
+
             {/* Progress Tab */}
             <TabsContent value="progress">
               <Card>
@@ -611,7 +640,7 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
                       </div>
                     ) : (
                       <ChartWrapper 
-                        isVisible={chartsReady && activeTab === "progress"} 
+                        isVisible={chartsReady} 
                         chartKey={progressChartKey}
                         ref={progressChartRef}
                         height={400}
@@ -656,7 +685,7 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
               </Card>
             </TabsContent>
 
-            {/* Categories Tab - Using real data from API */}
+            {/* Categories Tab */}
             <TabsContent value="categories">
               <Card>
                 <CardHeader>
@@ -674,7 +703,7 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
                         </div>
                       ) : (
                         <ChartWrapper 
-                          isVisible={chartsReady && activeTab === "categories"} 
+                          isVisible={chartsReady} 
                           chartKey={categoriesChartKey}
                           ref={categoriesChartRef}
                           height={400}
@@ -703,7 +732,7 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
               </Card>
             </TabsContent>
 
-            {/* Skill Gaps Tab - Now using data derived from actual scores */}
+            {/* Gaps Tab */}
             <TabsContent value="gaps">
               <Card>
                 <CardHeader>
@@ -726,7 +755,7 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
                             Higher values indicate larger gaps that need more attention.
                           </p>
                           <ChartWrapper 
-                            isVisible={chartsReady && activeTab === "gaps"} 
+                            isVisible={chartsReady} 
                             chartKey={gapsChartKey}
                             ref={gapsChartRef}
                             height={400}
@@ -766,8 +795,8 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
                 </CardContent>
               </Card>
             </TabsContent>
-          </motion.div>
-        </AnimatePresence>
+          
+        
       </Tabs>
     </motion.div>
   );
