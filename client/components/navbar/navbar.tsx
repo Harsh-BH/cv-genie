@@ -244,10 +244,10 @@ const Navbar = () => {
                                 whileTap={{ scale: 0.95 }}
                                 className="relative overflow-visible"
                             >
-                                <Link href="/dashboard" className="text-white w-[38px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105 overflow-visible">
-                                    <div className="relative group overflow-visible">
+                                <Link href="/dashboard" className="text-white w-[40px] transition duration-200 flex justify-center items-center rounded-full border-white border-[2px] hover:border-pink-500 shadow-black shadow-md hover:shadow-pink-500/40 hover:scale-105 overflow-visible">
+                                    <div className="relative group overflow-hidden aspect-square w-[38px] h-[38px] rounded-full">
                                         {avatar ? 
-                                            <img src={avatar} width={38} height={38} className="object-cover object-center rounded-full" alt="User Avatar"/>
+                                            <img src={avatar} width={38} height={38} className="object-cover object-center w-full h-full rounded-full" alt="User Avatar"/>
                                             :
                                             <div className="text-[34.98px] text-white/60"><FaCircleUser /></div>
                                         }
