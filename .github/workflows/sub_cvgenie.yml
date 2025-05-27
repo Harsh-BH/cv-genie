@@ -13,12 +13,15 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'  
+          node-version: '20.x'  # Using 20.x for better compatibility
+          cache: 'npm'
+          cache-dependency-path: 'client/package-lock.json'
 
       - name: Setup environment
         run: |
@@ -38,6 +41,18 @@ jobs:
           cd client
           npx prisma generate
 
+      - name: Verify next.config.js has output: 'standalone'
+        run: |
+          cd client
+          # Check if next.config.js contains 'standalone' output
+          if ! grep -q "output.*standalone" next.config.js; then
+            echo "Warning: next.config.js does not contain output: 'standalone'"
+            echo "Adding output: 'standalone' to next.config.js"
+            # Create a temporary file with the added configuration
+            sed -e "/const nextConfig/a\\  output: 'standalone'," next.config.js > next.config.js.tmp
+            mv next.config.js.tmp next.config.js
+          fi
+
       - name: Build application
         run: |
           cd client
@@ -48,23 +63,55 @@ jobs:
           DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
           JWT_SECRET: "dummy-secret-for-build"
 
+      - name: Debug build output
+        run: |
+          cd client
+          echo "--- Checking for standalone output ---"
+          ls -la .next/standalone || echo "No standalone output found!"
+          echo "--- Checking Next.js build structure ---"
+          find .next -type f -name "*.js" | grep -v "cache" | head -5
+
       - name: Optimize deployment package
         run: |
           cd client
           
-          # Ensure standalone build is properly packaged
-          mkdir -p deployment
-          cp -r .next/standalone/* deployment/
-          mkdir -p deployment/.next/static
-          cp -r .next/static deployment/.next/
-          cp -r public deployment/
-          cp package.json deployment/
-          cp next.config.js deployment/ 2>/dev/null || true
-          mkdir -p deployment/prisma
-          cp prisma/schema.prisma deployment/prisma/
+          # Debug current structure
+          echo "Current .next directory structure:"
+          find .next -type d -maxdepth 3
+          
+          # Ensure standalone build is properly packaged at the ROOT level (not in a subdirectory)
+          mkdir -p ../deployment
+          
+          # Copy the standalone build (this should contain server.js at the root)
+          if [ -d ".next/standalone" ]; then
+            cp -r .next/standalone/* ../deployment/
+            echo "Copied standalone build to deployment directory"
+          else
+            echo "ERROR: No standalone build found. Check your next.config.js"
+            exit 1
+          fi
+          
+          # Add the necessary .next directory for static files
+          mkdir -p ../deployment/.next/static
+          cp -r .next/static ../deployment/.next/
+          
+          # Add public folder
+          cp -r public ../deployment/
+          
+          # Add configuration and package files
+          cp package.json ../deployment/
+          cp next.config.js ../deployment/ 2>/dev/null || true
+          
+          # Make sure Prisma has what it needs
+          mkdir -p ../deployment/prisma
+          cp prisma/schema.prisma ../deployment/prisma/
+          
+          # Ensure Prisma client runtime files are included
+          mkdir -p ../deployment/node_modules/.prisma
+          cp -r node_modules/.prisma/client ../deployment/node_modules/.prisma/
           
           # Create a simplified web.config for Azure
-          cat > deployment/web.config << 'EOF'
+          cat > ../deployment/web.config << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <configuration>
             <system.webServer>
@@ -79,15 +126,23 @@ jobs:
                   </rule>
                 </rules>
               </rewrite>
+              <iisnode
+                nodeProcessCommandLine="node"
+                watchedFiles="web.config;*.js"
+                loggingEnabled="true" />
             </system.webServer>
           </configuration>
           EOF
+          
+          # Debug the deployment directory structure
+          echo "----- DEPLOYMENT PACKAGE CONTENTS -----"
+          find ../deployment -type f | sort | head -20
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: client/deployment
+          path: deployment
 
   deploy:
     runs-on: ubuntu-latest
@@ -106,6 +161,13 @@ jobs:
           name: nextjs-app
           path: .
 
+      - name: Debug deployment package
+        run: |
+          echo "Contents of deployment package:"
+          ls -la
+          echo "Looking for server.js:"
+          find . -name "server.js" || echo "server.js not found!"
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -120,5 +182,4 @@ jobs:
           app-name: 'cvgenie'
           slot-name: 'Production'
           package: .
-          # Use the simpler node command directly - Prisma client is already generated
           startup-command: 'node server.js'
