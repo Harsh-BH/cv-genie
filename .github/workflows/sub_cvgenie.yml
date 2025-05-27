@@ -13,18 +13,118 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Upload client app as artifact
-        run: zip -r release.zip client
-        # OR use `tar -czf release.tar.gz client` if you prefer tarballs
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies and generate Prisma
+        run: |
+          cd client
+          npm ci --only=production
+          # Create a dummy .env file with placeholder DATABASE_URL for Prisma generation
+          echo "DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'" > .env
+          echo "DIRECT_URL='postgresql://dummy:dummy@localhost:5432/dummy'" >> .env
+          npx prisma generate
+
+      - name: Build application
+        run: |
+          cd client
+          npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+      - name: Prepare deployment package
+        run: |
+          cd client
           
+          # For standalone builds, we need to copy the standalone output
+          if [ -d ".next/standalone" ]; then
+            echo "Using standalone build output"
+            # Copy standalone server files
+            cp -r .next/standalone/* .
+            # Copy static files
+            cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
+            cp -r public .next/standalone/public 2>/dev/null || true
+          fi
+          
+          # Remove dev dependencies to reduce size
+          npm prune --production
+          
+          # Create web.config for Azure
+          cat > web.config << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <system.webServer>
+              <handlers>
+                <add name="iisnode" path="server.js" verb="*" modules="iisnode"/>
+              </handlers>
+              <rewrite>
+                <rules>
+                  <rule name="DynamicContent">
+                    <match url="/*" />
+                    <action type="Rewrite" url="server.js"/>
+                  </rule>
+                </rules>
+              </rewrite>
+              <iisnode
+                node_env="production"
+                nodeProcessCountPerApplication="1"
+                maxConcurrentRequestsPerProcess="1024"
+                maxNamedPipeConnectionRetry="3"
+                namedPipeConnectionRetryDelay="2000"
+                maxNamedPipeConnectionPoolSize="512"
+                maxNamedPipePooledConnectionAge="30000"
+                asyncCompletionThreadCount="0"
+                initialRequestBufferSize="4096"
+                maxRequestBufferSize="65536"
+                watchedFiles="*.js"
+                uncFileChangesPollingInterval="5000"
+                gracefulShutdownTimeout="60000"
+                loggingEnabled="true"
+                logDirectoryNameSuffix="logs"
+                debuggingEnabled="false"
+                devErrorsEnabled="false"
+                flushResponse="false"
+                enableXFF="false"
+                promoteServerVars=""
+                configOverrides="iisnode.yml"
+              />
+            </system.webServer>
+          </configuration>
+          EOF
+
+      - name: Create startup script
+        run: |
+          cd client
+          cat > startup.sh << 'EOF'
+          #!/bin/bash
+          echo "Starting application..."
+          cd /home/site/wwwroot
+          
+          # Generate Prisma client
+          echo "Generating Prisma client..."
+          npx prisma generate
+          
+          # Check if standalone server exists, otherwise use npm start
+          if [ -f "server.js" ]; then
+            echo "Starting standalone Next.js server..."
+            node server.js
+          else
+            echo "Starting Next.js application with npm..."
+            npm start
+          fi
+          EOF
+          chmod +x startup.sh
+
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: release.zip
+          path: client
 
   deploy:
     runs-on: ubuntu-latest
@@ -41,9 +141,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-app
-
-      - name: Unzip artifact
-        run: unzip release.zip
+          path: .
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -58,4 +156,5 @@ jobs:
         with:
           app-name: 'cvgenie'
           slot-name: 'Production'
-          package: client
+          package: .
+          startup-command: 'bash startup.sh'
