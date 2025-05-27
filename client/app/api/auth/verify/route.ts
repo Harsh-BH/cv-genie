@@ -37,35 +37,43 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    console.log("Verifying auth token");
+    
     if (!userId) {
+      console.log("Invalid token payload: missing userId");
       return NextResponse.json({ error: "Invalid token payload" }, { status: 401 });
     }
 
-    // Get user data with the correct field name (avatar instead of profileImage)
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        avatar: true, // Changed from profileImage to avatar
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          avatar: true,
+        }
+      });
+      
+      if (!user) {
+        console.log(`User not found with ID: ${userId}`);
+        return NextResponse.json({ error: "User not found" }, { status: 401 });
       }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 401 });
+      
+      // Return success response
+      return NextResponse.json({
+        authenticated: true,
+        user: {
+          ...user,
+          profileImage: user.avatar
+        }
+      });
+    } catch (dbError) {
+      console.error("Database error during user lookup:", dbError);
+      throw dbError; // Re-throw to be caught by the outer catch block
     }
-
-    // Return user data with consistent field naming
-    return NextResponse.json({
-      authenticated: true,
-      user: {
-        ...user,
-        profileImage: user.avatar // Map avatar to profileImage for consistency with frontend
-      }
-    });
-    
   } catch (error: unknown) {
+    // More detailed error logging
     console.error("Verification error:", error);
     return NextResponse.json({ 
       error: "Internal Server Error",

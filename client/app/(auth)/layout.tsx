@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AnimatedBackground } from "@/components/auth/AnimatedBackground";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Toaster } from "sonner";
 
 
 
@@ -684,6 +685,11 @@ function MinimalistCVIllustration() {
           </div>
         </div>
       </div>
+      <Toaster
+        position="top-right"
+        duration={4000} 
+        richColors 
+      />
     </div>
   );
 }
