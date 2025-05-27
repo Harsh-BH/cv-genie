@@ -24,62 +24,36 @@ jobs:
           echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > .env
           echo "JWT_SECRET=dummy-secret" >> .env
           npx prisma generate
-          # Ensure next.config.js has standalone output
-          if ! grep -q "output.*standalone" next.config.js; then
-            echo "Adding standalone output to next.config.js"
-            sed -i '/const nextConfig = {/a\  output: "standalone",' next.config.js
-          fi
           npm run build
+
+      - name: Debug build output
+        run: |
+          cd client
+          echo "=== CHECKING BUILD OUTPUT ==="
+          ls -la
+          echo "=== CHECKING .next FOLDER ==="
+          ls -la .next/ || echo ".next folder doesn't exist!"
+          echo "=== CHECKING FOR STANDALONE ==="
+          ls -la .next/standalone/ || echo "No standalone folder!"
+          echo "=== CHECKING next.config.js ==="
+          cat next.config.js || echo "No next.config.js found!"
 
       - name: Package for deployment
         run: |
           cd client
           mkdir -p ../deploy
           
-          # Check if standalone build exists
-          if [ -d ".next/standalone" ]; then
-            echo "Standalone build found - using it"
+          # ONLY copy what we actually need for deployment
+          if [ -f ".next/standalone/server.js" ]; then
+            echo "Found standalone server, using it"
             cp -r .next/standalone/* ../deploy/
-            mkdir -p ../deploy/.next/static
-            cp -r .next/static/* ../deploy/.next/static/
-            cp -r public/* ../deploy/public/ 2>/dev/null || true
+            cp -r .next/static ../deploy/.next/
+            cp -r public ../deploy/ 2>/dev/null || true
           else
-            echo "No standalone build - creating manual deployment"
-            # Copy built app
-            cp -r .next ../deploy/
-            cp -r public ../deploy/
-            cp package*.json ../deploy/
-            cp -r node_modules ../deploy/
-            cp -r prisma ../deploy/
-            # Create server.js
-            cat > ../deploy/server.js << 'EOF'
-          const { createServer } = require('http')
-          const { parse } = require('url')
-          const next = require('next')
-          
-          const dev = process.env.NODE_ENV !== 'production'
-          const hostname = process.env.HOSTNAME || 'localhost'
-          const port = process.env.PORT || 3000
-          
-          const app = next({ dev, hostname, port })
-          const handle = app.getRequestHandler()
-          
-          app.prepare().then(() => {
-            createServer(async (req, res) => {
-              try {
-                const parsedUrl = parse(req.url, true)
-                await handle(req, res, parsedUrl)
-              } catch (err) {
-                console.error('Error:', err)
-                res.statusCode = 500
-                res.end('Internal server error')
-              }
-            }).listen(port, (err) => {
-              if (err) throw err
-              console.log(`Ready on http://${hostname}:${port}`)
-            })
-          })
-          EOF
+            echo "ERROR: No standalone build found!"
+            echo "Contents of .next folder:"
+            find .next -type f | head -10
+            exit 1
           fi
 
       - uses: actions/upload-artifact@v4
@@ -99,6 +73,13 @@ jobs:
         with:
           name: app-build
           path: .
+
+      - name: Debug deployment package
+        run: |
+          echo "=== DEPLOYMENT PACKAGE CONTENTS ==="
+          ls -la
+          echo "=== LOOKING FOR SERVER.JS ==="
+          find . -name "server.js" -type f
 
       - uses: azure/login@v2
         with:
