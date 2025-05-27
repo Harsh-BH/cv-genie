@@ -24,24 +24,63 @@ jobs:
           echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > .env
           echo "JWT_SECRET=dummy-secret" >> .env
           npx prisma generate
+          # Ensure next.config.js has standalone output
+          if ! grep -q "output.*standalone" next.config.js; then
+            echo "Adding standalone output to next.config.js"
+            sed -i '/const nextConfig = {/a\  output: "standalone",' next.config.js
+          fi
           npm run build
 
       - name: Package for deployment
         run: |
           cd client
           mkdir -p ../deploy
-          # Copy standalone build
-          cp -r .next/standalone/* ../deploy/
-          # Copy static files
-          cp -r .next/static ../deploy/.next/
-          cp -r public ../deploy/
-          # Copy Prisma
-          cp -r node_modules/.prisma ../deploy/node_modules/
-          cp -r prisma ../deploy/
-          # Create root server.js wrapper
-          cat > ../deploy/server.js << 'EOF'
-          require('./.next/standalone/server.js')
+          
+          # Check if standalone build exists
+          if [ -d ".next/standalone" ]; then
+            echo "Standalone build found - using it"
+            cp -r .next/standalone/* ../deploy/
+            mkdir -p ../deploy/.next/static
+            cp -r .next/static/* ../deploy/.next/static/
+            cp -r public/* ../deploy/public/ 2>/dev/null || true
+          else
+            echo "No standalone build - creating manual deployment"
+            # Copy built app
+            cp -r .next ../deploy/
+            cp -r public ../deploy/
+            cp package*.json ../deploy/
+            cp -r node_modules ../deploy/
+            cp -r prisma ../deploy/
+            # Create server.js
+            cat > ../deploy/server.js << 'EOF'
+          const { createServer } = require('http')
+          const { parse } = require('url')
+          const next = require('next')
+          
+          const dev = process.env.NODE_ENV !== 'production'
+          const hostname = process.env.HOSTNAME || 'localhost'
+          const port = process.env.PORT || 3000
+          
+          const app = next({ dev, hostname, port })
+          const handle = app.getRequestHandler()
+          
+          app.prepare().then(() => {
+            createServer(async (req, res) => {
+              try {
+                const parsedUrl = parse(req.url, true)
+                await handle(req, res, parsedUrl)
+              } catch (err) {
+                console.error('Error:', err)
+                res.statusCode = 500
+                res.end('Internal server error')
+              }
+            }).listen(port, (err) => {
+              if (err) throw err
+              console.log(`Ready on http://${hostname}:${port}`)
+            })
+          })
           EOF
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
