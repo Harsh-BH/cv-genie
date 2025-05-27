@@ -41,13 +41,14 @@ jobs:
       - name: Package for deployment
         run: |
           cd client
-          mkdir -p ../deploy
-          
-          # ONLY copy what we actually need for deployment
+          mkdir -p ../deploy/.next
+
+          # Copy standalone output
           if [ -f ".next/standalone/server.js" ]; then
             echo "Found standalone server, using it"
             cp -r .next/standalone/* ../deploy/
-            cp -r .next/static ../deploy/.next/
+            cp -r .next/standalone/.next ../deploy/.next
+            cp -r .next/static ../deploy/.next/static
             cp -r public ../deploy/ 2>/dev/null || true
           else
             echo "ERROR: No standalone build found!"
