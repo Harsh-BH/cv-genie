@@ -19,14 +19,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'  # Using 20.x for better compatibility
+          node-version: '20.x'
           cache: 'npm'
           cache-dependency-path: 'client/package-lock.json'
 
       - name: Setup environment
         run: |
           cd client
-          # Create dummy .env file just for build
           echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > .env
           echo "DIRECT_URL=postgresql://dummy:dummy@localhost:5432/dummy" >> .env
           echo "JWT_SECRET=dummy-secret-for-build" >> .env
@@ -41,14 +40,12 @@ jobs:
           cd client
           npx prisma generate
 
-      - name: Verify next.config.js has output: 'standalone'
+      - name: Verify next.config.js has output standalone
         run: |
           cd client
-          # Check if next.config.js contains 'standalone' output
           if ! grep -q "output.*standalone" next.config.js; then
             echo "Warning: next.config.js does not contain output: 'standalone'"
             echo "Adding output: 'standalone' to next.config.js"
-            # Create a temporary file with the added configuration
             sed -e "/const nextConfig/a\\  output: 'standalone'," next.config.js > next.config.js.tmp
             mv next.config.js.tmp next.config.js
           fi
@@ -58,7 +55,6 @@ jobs:
           cd client
           npm run build
         env:
-          # Use literal dummy values to ensure build works
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
           DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
           JWT_SECRET: "dummy-secret-for-build"
@@ -74,15 +70,9 @@ jobs:
       - name: Optimize deployment package
         run: |
           cd client
-          
-          # Debug current structure
           echo "Current .next directory structure:"
           find .next -type d -maxdepth 3
-          
-          # Ensure standalone build is properly packaged at the ROOT level (not in a subdirectory)
           mkdir -p ../deployment
-          
-          # Copy the standalone build (this should contain server.js at the root)
           if [ -d ".next/standalone" ]; then
             cp -r .next/standalone/* ../deployment/
             echo "Copied standalone build to deployment directory"
@@ -90,27 +80,15 @@ jobs:
             echo "ERROR: No standalone build found. Check your next.config.js"
             exit 1
           fi
-          
-          # Add the necessary .next directory for static files
           mkdir -p ../deployment/.next/static
           cp -r .next/static ../deployment/.next/
-          
-          # Add public folder
           cp -r public ../deployment/
-          
-          # Add configuration and package files
           cp package.json ../deployment/
           cp next.config.js ../deployment/ 2>/dev/null || true
-          
-          # Make sure Prisma has what it needs
           mkdir -p ../deployment/prisma
           cp prisma/schema.prisma ../deployment/prisma/
-          
-          # Ensure Prisma client runtime files are included
           mkdir -p ../deployment/node_modules/.prisma
           cp -r node_modules/.prisma/client ../deployment/node_modules/.prisma/
-          
-          # Create a simplified web.config for Azure
           cat > ../deployment/web.config << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <configuration>
@@ -133,8 +111,6 @@ jobs:
             </system.webServer>
           </configuration>
           EOF
-          
-          # Debug the deployment directory structure
           echo "----- DEPLOYMENT PACKAGE CONTENTS -----"
           find ../deployment -type f | sort | head -20
 
