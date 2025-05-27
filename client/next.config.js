@@ -16,7 +16,7 @@ const nextConfig = {
     ],
   },
   // Moved from experimental as per Next.js warning
-  outputFileTracingRoot: path.join(__dirname, '../'),
+  outputFileTracingRoot: __dirname,
 };
 
 module.exports = nextConfig;
