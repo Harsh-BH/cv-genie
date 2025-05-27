@@ -98,4 +98,3 @@ jobs:
           app-name: 'cvgenie'
           slot-name: 'Production'
           package: .
-          
