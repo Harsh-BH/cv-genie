@@ -18,18 +18,24 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
+          node-version: '20.x'  # Changed to 20.x for better compatibility
 
-      - name: Install dependencies and generate Prisma
+      - name: Setup environment
         run: |
           cd client
-          # Install all dependencies (including dev dependencies needed for build)
+          # Create dummy .env file just for build
+          echo "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy" > .env
+          echo "DIRECT_URL=postgresql://dummy:dummy@localhost:5432/dummy" >> .env
+          echo "JWT_SECRET=dummy-secret-for-build" >> .env
+
+      - name: Install dependencies
+        run: |
+          cd client
           npm ci
-          # Install missing Tailwind PostCSS plugin
-          npm install @tailwindcss/postcss --save-dev
-          # Create a dummy .env file with placeholder DATABASE_URL for Prisma generation
-          echo "DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'" > .env
-          echo "DIRECT_URL='postgresql://dummy:dummy@localhost:5432/dummy'" >> .env
+
+      - name: Generate Prisma client
+        run: |
+          cd client
           npx prisma generate
 
       - name: Build application
@@ -37,28 +43,28 @@ jobs:
           cd client
           npm run build
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          # Use literal dummy values to ensure build works
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          JWT_SECRET: "dummy-secret-for-build"
 
-      - name: Prepare deployment package
+      - name: Optimize deployment package
         run: |
           cd client
           
-          # For standalone builds, we need to copy the standalone output
-          if [ -d ".next/standalone" ]; then
-            echo "Using standalone build output"
-            # Copy standalone server files
-            cp -r .next/standalone/* .
-            # Copy static files
-            cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
-            cp -r public .next/standalone/public 2>/dev/null || true
-          fi
+          # Ensure standalone build is properly packaged
+          mkdir -p deployment
+          cp -r .next/standalone/* deployment/
+          mkdir -p deployment/.next/static
+          cp -r .next/static deployment/.next/
+          cp -r public deployment/
+          cp package.json deployment/
+          cp next.config.js deployment/ 2>/dev/null || true
+          mkdir -p deployment/prisma
+          cp prisma/schema.prisma deployment/prisma/
           
-          # Remove dev dependencies to reduce size
-          npm prune --production
-          
-          # Create web.config for Azure
-          cat > web.config << 'EOF'
+          # Create a simplified web.config for Azure
+          cat > deployment/web.config << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <configuration>
             <system.webServer>
@@ -73,61 +79,15 @@ jobs:
                   </rule>
                 </rules>
               </rewrite>
-              <iisnode
-                node_env="production"
-                nodeProcessCountPerApplication="1"
-                maxConcurrentRequestsPerProcess="1024"
-                maxNamedPipeConnectionRetry="3"
-                namedPipeConnectionRetryDelay="2000"
-                maxNamedPipeConnectionPoolSize="512"
-                maxNamedPipePooledConnectionAge="30000"
-                asyncCompletionThreadCount="0"
-                initialRequestBufferSize="4096"
-                maxRequestBufferSize="65536"
-                watchedFiles="*.js"
-                uncFileChangesPollingInterval="5000"
-                gracefulShutdownTimeout="60000"
-                loggingEnabled="true"
-                logDirectoryNameSuffix="logs"
-                debuggingEnabled="false"
-                devErrorsEnabled="false"
-                flushResponse="false"
-                enableXFF="false"
-                promoteServerVars=""
-                configOverrides="iisnode.yml"
-              />
             </system.webServer>
           </configuration>
           EOF
-
-      - name: Create startup script
-        run: |
-          cd client
-          cat > startup.sh << 'EOF'
-          #!/bin/bash
-          echo "Starting application..."
-          cd /home/site/wwwroot
-          
-          # Generate Prisma client
-          echo "Generating Prisma client..."
-          npx prisma generate
-          
-          # Check if standalone server exists, otherwise use npm start
-          if [ -f "server.js" ]; then
-            echo "Starting standalone Next.js server..."
-            node server.js
-          else
-            echo "Starting Next.js application with npm..."
-            npm start
-          fi
-          EOF
-          chmod +x startup.sh
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
-          path: client
+          path: client/deployment
 
   deploy:
     runs-on: ubuntu-latest
@@ -160,4 +120,5 @@ jobs:
           app-name: 'cvgenie'
           slot-name: 'Production'
           package: .
-          startup-command: 'bash startup.sh'
+          # Use the simpler node command directly - Prisma client is already generated
+          startup-command: 'node server.js'
