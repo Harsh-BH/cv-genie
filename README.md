@@ -160,7 +160,6 @@ NEXTAUTH_URL="http://localhost:3000"
 
 # AI Services
 PERPLEXITY_API_KEY="your-perplexity-api-key"
-SONAR_API_KEY="your-sonar-api-key"
 ```
 
 4. **Initialize the database**
@@ -225,13 +224,6 @@ npm test -- components/ResumeAnalyzer.test.tsx
 
 ---
 
-## 📚 Documentation
-
-* [API Docs](#) *(To be linked)*
-* [Component Library](#) *(To be linked)*
-* [AI Integration Guide](#) *(To be linked)*
-
----
 
 ## 🤝 Contributing
 
