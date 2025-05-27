@@ -20,12 +20,24 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: Install dependencies, generate Prisma, and build
+      - name: Install dependencies and generate Prisma
         run: |
           cd client
           npm install
+          # Create a dummy .env file with placeholder DATABASE_URL for Prisma generation
+          echo "DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'" > .env
+          echo "DIRECT_URL='postgresql://dummy:dummy@localhost:5432/dummy'" >> .env
           npx prisma generate
+
+      - name: Build application
+        run: |
+          cd client
+          # Build with dummy database URL - Azure will provide the real one
           npm run build
+        env:
+          # Provide dummy environment variables for the build process
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
 
       - name: Prepare deployment package
         run: |
@@ -35,7 +47,16 @@ jobs:
           cp -r client/node_modules deployment/
           cp client/package.json deployment/
           cp client/next.config.js deployment/ || true
-          cp client/prisma/schema.prisma deployment/ || true
+          mkdir -p deployment/prisma
+          cp client/prisma/schema.prisma deployment/prisma/
+          
+          # Create a production startup script
+          echo "#!/bin/bash" > deployment/start.sh
+          echo "cd /home/site/wwwroot" >> deployment/start.sh
+          echo "npx prisma generate" >> deployment/start.sh
+          echo "npm start" >> deployment/start.sh
+          chmod +x deployment/start.sh
+          
           zip -r release.zip deployment
 
       - name: Upload artifact for deployment
