@@ -13,52 +13,13 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22.x'
-
-      - name: Install dependencies and generate Prisma
-        run: |
-          cd client
-          npm install
-          # Create a dummy .env file with placeholder DATABASE_URL for Prisma generation
-          echo "DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'" > .env
-          echo "DIRECT_URL='postgresql://dummy:dummy@localhost:5432/dummy'" >> .env
-          npx prisma generate
-
-      - name: Build application
-        run: |
-          cd client
-          # Build with dummy database URL - Azure will provide the real one
-          npm run build
-        env:
-          # Provide dummy environment variables for the build process
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
-
-      - name: Prepare deployment package
-        run: |
-          mkdir deployment
-          cp -r client/.next deployment/
-          cp -r client/public deployment/
-          cp -r client/node_modules deployment/
-          cp client/package.json deployment/
-          cp client/next.config.js deployment/ || true
-          mkdir -p deployment/prisma
-          cp client/prisma/schema.prisma deployment/prisma/
+      - name: Upload client app as artifact
+        run: zip -r release.zip client
+        # OR use `tar -czf release.tar.gz client` if you prefer tarballs
           
-          # Create a production startup script
-          echo "#!/bin/bash" > deployment/start.sh
-          echo "cd /home/site/wwwroot" >> deployment/start.sh
-          echo "npx prisma generate" >> deployment/start.sh
-          echo "npm start" >> deployment/start.sh
-          chmod +x deployment/start.sh
-          
-          zip -r release.zip deployment
-
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
@@ -97,5 +58,4 @@ jobs:
         with:
           app-name: 'cvgenie'
           slot-name: 'Production'
-          package: .
-          
+          package: client
