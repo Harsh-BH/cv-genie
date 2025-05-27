@@ -129,7 +129,7 @@ export default function Home() {
                 {hero.primaryButton}
                 </Link>
               </motion.button>
-              
+              <Link href ="/about">
               <motion.button 
                 className="px-8 py-3 bg-white/10 backdrop-blur-md rounded-full text-white font-semibold border border-white/20 shadow-lg hover:bg-white/20 transition-all duration-300 ease-in-out"
                 whileHover={{ scale: 1.05 }}
@@ -137,6 +137,8 @@ export default function Home() {
               >
                 {hero.secondaryButton}
               </motion.button>
+              </Link>
+
             </motion.div>
           </motion.div>
         </motion.div>

@@ -329,46 +329,9 @@ export function AuthForm({ type }: AuthFormProps) {
         )}
       </motion.div>
 
-      <motion.div variants={itemVariants} className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-gray-300 dark:border-gray-700" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white dark:bg-gray-900 px-2 text-gray-600 dark:text-gray-400 rounded-md">
-            Or continue with
-          </span>
-        </div>
-      </motion.div>
+      
 
-      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-        <motion.div variants={socialButtonVariants} whileHover="hover">
-          <Button 
-            variant="outline" 
-            type="button" 
-            disabled={isLoading}
-            className="w-full border-primary/20 hover:border-primary/50 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all duration-300"
-          >
-            <svg className="mr-2 h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.84 9.49.5.09.68-.22.68-.485 0-.236-.008-.866-.013-1.7-2.782.603-3.37-1.34-3.37-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.07-.608.07-.608 1.003.07 1.532 1.03 1.532 1.03.892 1.53 2.34 1.09 2.91.833.09-.647.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.09.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.91-1.296 2.747-1.027 2.747-1.027.55 1.377.202 2.394.1 2.647.64.7 1.03 1.592 1.03 2.683 0 3.842-2.34 4.687-4.566 4.935.36.308.678.92.678 1.852 0 1.336-.013 2.415-.013 2.743 0 .267.18.578.688.48C19.138 20.16 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-            </svg>
-            GitHub
-          </Button>
-        </motion.div>
-        
-        <motion.div variants={socialButtonVariants} whileHover="hover">
-          <Button 
-            variant="outline" 
-            type="button" 
-            disabled={isLoading}
-            className="w-full border-primary/20 hover:border-primary/50 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all duration-300"
-          >
-            <svg className="mr-2 h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.467 0 8.529-3.249 8.529-8.934 0-.528-.081-1.097-.202-1.625z"/>
-            </svg>
-            Google
-          </Button>
-        </motion.div>
-      </motion.div>
+     
       
       {/* Floating decorative elements */}
       <motion.div 
