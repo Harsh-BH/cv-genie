@@ -23,7 +23,10 @@ jobs:
       - name: Install dependencies and generate Prisma
         run: |
           cd client
-          npm ci --only=production
+          # Install all dependencies (including dev dependencies needed for build)
+          npm ci
+          # Install missing Tailwind PostCSS plugin
+          npm install @tailwindcss/postcss --save-dev
           # Create a dummy .env file with placeholder DATABASE_URL for Prisma generation
           echo "DATABASE_URL='postgresql://dummy:dummy@localhost:5432/dummy'" > .env
           echo "DIRECT_URL='postgresql://dummy:dummy@localhost:5432/dummy'" >> .env
