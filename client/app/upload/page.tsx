@@ -37,7 +37,6 @@ export default function UploadPage() {
 
   useEffect(() => {
       if (!authChecked) {
-        console.log('[UploadPage] Initial auth check...');
         checkAuth();
       }
     }, [authChecked, checkAuth]);

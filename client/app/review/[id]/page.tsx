@@ -298,7 +298,7 @@ export default function ReviewerPage() {
         initialCategory={sidebarCategory}
       />
       
-      {/* Header */}-
+      {/* Header */}
       {/* Header - Updated for better mobile responsiveness */}
       <motion.header 
         className="bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-10"

@@ -141,7 +141,6 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
     
     // Set current score and breakdown from most recent CV
     const mostRecentCV = sortedCVs[0];
-    console.log("Most recent CV data:", mostRecentCV);
     setCurrentScore(mostRecentCV.score);
     setCurrentScoreBreakdown(mostRecentCV.scores || null);
     
@@ -244,7 +243,6 @@ export default function AnalyticsGraphs({ userId, className = "" }: AnalyticsGra
 
   // Replace your current tab change effect with this one
 useEffect(() => {
-  console.log(`[Tab Change] Switching to tab: ${activeTab}`);
   
   // First hide charts while tab changes
   setChartsReady(false);
@@ -258,7 +256,6 @@ useEffect(() => {
   
   // Use a more direct approach - show charts after a fixed delay
   setTimeout(() => {
-    console.log(`[Tab Change] Making charts visible for tab: ${activeTab}`);
     setChartsReady(true);
     
     // Start animation after charts are made visible

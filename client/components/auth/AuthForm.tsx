@@ -63,8 +63,7 @@ export function AuthForm({ type }: AuthFormProps) {
           return;
         }
 
-        // For debugging
-        console.log("Attempting login with email:", email);
+        
         
         const response = await fetch("/api/auth/login", {
           method: "POST",
@@ -77,7 +76,6 @@ export function AuthForm({ type }: AuthFormProps) {
         });
 
         const data = await response.json();
-        console.log("Login response:", data);
 
         if (!response.ok) {
           // More specific error messages based on response status

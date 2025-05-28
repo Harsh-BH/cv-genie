@@ -63,7 +63,6 @@ export default function DashboardPage() {
       const data = await response.json();
       
       if (data.status === 200) {
-        console.log("CVs fetched successfully:", data.resumes);
         setCvs(data.resumes);
       } else {
         throw new Error(data.message || "Failed to fetch CVs");
@@ -134,10 +133,8 @@ export default function DashboardPage() {
       const responseData = await response.json();
       
       if (responseData.status === "success" && responseData.data) {
-        console.log("Analysis data received:", responseData.data);
         setAnalysisData(responseData.data);
       } else if (responseData.status === "not_found") {
-        console.log("No analysis found for this CV.");
         setError("No analysis found for this CV. Please try creating an analysis first.");
       } else {
         throw new Error(responseData.message || "Unexpected response format");
