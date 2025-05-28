@@ -195,7 +195,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/harsh1/github-repos/cv-genie/client/lib/generated",
+      "value": "C:\\Users\\aksha\\Desktop\\cv-genie\\client\\lib\\generated",
       "fromEnvVar": null
     },
     "config": {
@@ -204,14 +204,14 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-3.0.x",
+        "value": "windows",
         "native": true
       }
     ],
     "previewFeatures": [
       "metrics"
     ],
-    "sourceFilePath": "/home/harsh1/github-repos/cv-genie/client/prisma/schema.prisma",
+    "sourceFilePath": "C:\\Users\\aksha\\Desktop\\cv-genie\\client\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -225,7 +225,10 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+<<<<<<< HEAD
   "postinstall": true,
+=======
+>>>>>>> 44c4c58d2a32adec70bac7b869581447c00f5dab
   "inlineDatasources": {
     "db": {
       "url": {

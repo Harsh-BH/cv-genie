@@ -53,9 +53,19 @@ export function AuthForm({ type }: AuthFormProps) {
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
+        if (!email) {
+          toast.error("Please enter your email address");
+          return;
+        }
+
+        if (!password) {
+          toast.error("Please enter your password");
+          return;
+        }
+
         // For debugging
         console.log("Attempting login with email:", email);
-
+        
         const response = await fetch("/api/auth/login", {
           method: "POST",
           headers: {
@@ -70,6 +80,14 @@ export function AuthForm({ type }: AuthFormProps) {
         console.log("Login response:", data);
 
         if (!response.ok) {
+          // More specific error messages based on response status
+          if (response.status === 401) {
+            toast.error("Invalid email or password");
+          } else if (response.status === 403) {
+            toast.error("Your account is not verified. Please check your email.");
+          } else {
+            toast.error(data.error || "Login failed");
+          }
           throw new Error(data.error || "Login failed");
         }
 
@@ -85,17 +103,46 @@ export function AuthForm({ type }: AuthFormProps) {
 
         toast.success("Logged in successfully!");
         router.push("/");
-      } else {
+      }else {
         // Handle signup - uses FormData for file upload
         const form = event.target as HTMLFormElement;
         const formData = new FormData(form);
         
-        // Validate password match
+        // More detailed validation with specific error messages
+        const email = formData.get("email") as string;
         const password = formData.get("password") as string;
         const confirmPassword = formData.get("confirmPassword") as string;
+        const name = formData.get("name") as string;
         
+        // Email validation
+        if (!email) {
+          toast.error("Please enter your email address");
+          return;
+        }
+        
+        // Simple email format check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          toast.error("Please enter a valid email address");
+          return;
+        }
+        
+        // Password validation
+        if (!password) {
+          toast.error("Please enter a password");
+          return;
+        }
+        
+        // Password strength check (optional)
+        if (password.length < 8) {
+          toast.error("Password must be at least 8 characters long");
+          return;
+        }
+        
+        // Confirm password validation
         if (password !== confirmPassword) {
-          throw new Error("Passwords do not match");
+          toast.error("Passwords do not match");
+          return;
         }
         
         // Remove confirmPassword from formData as our API doesn't need it
@@ -114,15 +161,36 @@ export function AuthForm({ type }: AuthFormProps) {
         const data = await response.json();
 
         if (!response.ok) {
+          // More specific error messages based on common signup issues
+          if (response.status === 400 && data.error === "User already exists") {
+            toast.error("An account with this email already exists");
+          } else if (response.status === 400) {
+            toast.error(data.error || "Please check your information");
+          } else {
+            toast.error(data.error || "Failed to create account");
+          }
           throw new Error(data.error || "Signup failed");
         }
 
-        toast.success("Account created successfully! Please log in.");
+        // Success message for signup
+        toast.success("Account created successfully! Please login with your credentials.");
         router.push("/login");
       }
-    } catch (error: any) {
+    }catch (error: any) {
       console.error("Authentication error:", error);
-      toast.error(error.message || "Authentication failed");
+      
+      // Display more helpful error messages
+      if (error.message) {
+        // Error messages that were already formatted by the toast calls above
+        // No need to display again
+      } else {
+        // For unexpected errors
+        toast.error(
+          type === "login"
+            ? "Unable to sign in. Please check your network connection."
+            : "Unable to create account. Please try again later."
+        );
+      }
     } finally {
       setIsLoading(false);
     }

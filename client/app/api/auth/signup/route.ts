@@ -90,6 +90,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
+    if (password.length < 8) {
+      return NextResponse.json({ 
+        error: "Password must be at least 8 characters long" 
+      }, { status: 400 });
+    }
+
     // Check if user already exists with better error handling
     let existingUser;
     try {
@@ -109,21 +115,35 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Upload profile image if provided
+    // Upload profile image if provided
     let avatarUrl = null;
     if (files.profileImage && files.profileImage[0]) {
       const file = files.profileImage[0];
       
-      // Upload to Cloudinary
-      const upload = await cloudinary.uploader.upload(file.filepath, {
-        folder: "cv-reviewer-profiles",
-      });
-      
-      avatarUrl = upload.secure_url;
-      
-      // Delete temp file
-      fs.unlinkSync(file.filepath);
+      // Check if the file is valid before uploading
+      if (file.filepath && fs.existsSync(file.filepath) && fs.statSync(file.filepath).size > 0) {
+        try {
+          // Upload to Cloudinary
+          const upload = await cloudinary.uploader.upload(file.filepath, {
+            folder: "cv-reviewer-profiles",
+          });
+          
+          avatarUrl = upload.secure_url;
+        } catch (uploadError) {
+          console.error("Error uploading to Cloudinary:", uploadError);
+          // Continue with user creation even if image upload fails
+          // This way users can still register without a profile image
+        } finally {
+          // Delete temp file regardless of upload success or failure
+          if (fs.existsSync(file.filepath)) {
+            fs.unlinkSync(file.filepath);
+          }
+        }
+      } else {
+        console.log("Skipping image upload: File is empty or invalid");
+        // No need to try uploading an invalid file
+      }
     }
-    
     // Create user in database with better error handling
     let newUser;
     try {
