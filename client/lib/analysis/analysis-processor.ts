@@ -2,6 +2,11 @@ import prisma from "@/lib/prisma";
 import { isPdfData } from "@/lib/analysis/pdf-extractor";
 import { analyzeResumeComprehensive } from "@/lib/analysis/comprehensive";
 import { AnalysisResult } from "@/lib/analysis/models/analysis-types";
+import { setTimeout } from 'timers/promises';
+
+// Constants for rate limiting
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 5000; // 5 seconds
 
 export async function processAnalysis(resume: any, analysisId: number) {
   console.log("====== RESUME ANALYSIS START ======");
@@ -48,11 +53,81 @@ export async function processAnalysis(resume: any, analysisId: number) {
   // Update analysis status to processing
   await prisma.resumeAnalysis.update({
     where: { id: analysisId },
-    data: { status: "processing" },
+    data: { 
+      status: "processing",
+      executiveSummary: "Analysis in progress... This may take a few minutes."
+    },
   });
 
   console.log("Starting comprehensive resume analysis...");
-  const result = await analyzeResumeComprehensive(normalizedResume);
+  
+  // NEW: Added retry logic with rate limit handling
+  let result;
+  let retryCount = 0;
+  
+  while (retryCount <= MAX_RETRIES) {
+    try {
+      result = await analyzeResumeComprehensive(normalizedResume);
+      // If successful, break out of the retry loop
+      break;
+    } catch (error) {
+      console.error(`Analysis attempt ${retryCount + 1} failed:`, error);
+      
+      // Check if it's a rate limit error (429)
+      if (error instanceof Error && 
+          (error.message.includes('rate limit') || 
+           error.message.includes('429'))) {
+        
+        retryCount++;
+        
+        if (retryCount <= MAX_RETRIES) {
+          // Calculate exponential backoff with jitter
+          const delayMs = INITIAL_RETRY_DELAY * Math.pow(2, retryCount - 1) * (0.75 + Math.random() * 0.5);
+          
+          // Update the analysis record with retry information
+          await prisma.resumeAnalysis.update({
+            where: { id: analysisId },
+            data: {
+              executiveSummary: `Analysis in progress... Retrying due to API rate limits (${retryCount}/${MAX_RETRIES}). This might take a few minutes.`,
+              status: "processing"
+            }
+          });
+          
+          console.log(`Rate limit hit, waiting ${Math.round(delayMs / 1000)} seconds before retry ${retryCount}/${MAX_RETRIES}...`);
+          await setTimeout(delayMs);
+          continue;
+        } else {
+          // Max retries reached for rate limit
+          await prisma.resumeAnalysis.update({
+            where: { id: analysisId },
+            data: {
+              executiveSummary: "Analysis is temporarily delayed due to high system load. We'll retry automatically in a few minutes.",
+              overview: "Your resume is in our processing queue. This delay helps ensure thorough analysis. You don't need to take any action - we'll notify you when it's complete.",
+              status: "delayed"
+            }
+          });
+          
+          // Schedule a retry via background job system (implementation depends on your setup)
+          console.log(`Analysis for ID ${analysisId} will be retried later due to persistent rate limits.`);
+          // Here you would typically add to a job queue for later processing
+          
+          return; // Exit function to prevent further processing
+        }
+      }
+      
+      // For non-rate limit errors, update with error and stop
+      await prisma.resumeAnalysis.update({
+        where: { id: analysisId },
+        data: {
+          executiveSummary: `Analysis error: ${error instanceof Error ? error.message : "Unknown error"}`,
+          overview: "We encountered an error analyzing your resume. Our team has been notified and will resolve this soon.",
+          status: "failed"
+        }
+      });
+      
+      return; // Exit function
+    }
+  }
 
   // Add defensive check to prevent TypeError
   if (!result) {

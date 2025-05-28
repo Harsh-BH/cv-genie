@@ -131,7 +131,7 @@ Do not include any explanatory text, only the JSON object. All scores must be in
     );
     
     // Get the scores from the AI with reduced temperature for more consistent results
-    const scoresResponse = await generatePerplexityResponse(scorePrompt, 'sonar', 0.3);
+    const scoresResponse = await generatePerplexityResponse(scorePrompt, 'sonar-deep-research', 0.3);
     
     // Parse the JSON response to get scores
     try {

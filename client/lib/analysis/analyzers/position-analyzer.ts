@@ -53,7 +53,7 @@ export async function generatePositionedSuggestions(resume: StructuredResume): P
       'This detailed analysis will identify specific problem areas in the resume with actionable suggestions for improvement.'
     );
     
-    const response = await generatePerplexityResponse(sectionsPrompt, 'sonar', 0.7);
+    const response = await generatePerplexityResponse(sectionsPrompt, 'sonar-deep-research', 0.7);
     
     // Extract and parse the JSON part from the response
     const parsedSuggestions = extractJsonFromResponse(response);

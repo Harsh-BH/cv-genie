@@ -80,8 +80,8 @@ Focus only on clear grammar, spelling, punctuation, and language usage issues. D
     
     // Run both prompts in parallel
     const [grammarAnalysis, issuesResponse] = await Promise.all([
-      generatePerplexityResponse(grammarPrompt, 'sonar', 0.5),
-      generatePerplexityResponse(issuesPrompt, 'sonar', 0.3)
+      generatePerplexityResponse(grammarPrompt, 'sonar-deep-research', 0.5),
+      generatePerplexityResponse(issuesPrompt, 'sonar-deep-research', 0.3)
     ]);
     
     // Extract and parse the JSON issues

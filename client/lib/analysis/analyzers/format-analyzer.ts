@@ -43,7 +43,7 @@ Be specific and provide clear examples from the resume. Focus on practical, acti
       'This analysis provides a detailed assessment of resume formatting, structure, and visual organization with concrete examples and actionable recommendations.'
     );
     
-    return await generatePerplexityResponse(formatPrompt, 'sonar', 0.7);
+    return await generatePerplexityResponse(formatPrompt, 'sonar-deep-research', 0.7);
   } catch (error) {
     console.error('Format analysis error:', error);
     return `Error analyzing formatting: ${error instanceof Error ? error.message : 'Unknown error'}`;

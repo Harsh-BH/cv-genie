@@ -22,7 +22,7 @@ const API_URL = 'https://api.perplexity.ai/chat/completions';
 // ✅ Server-side call to Perplexity API
 export async function generatePerplexityResponse(
   prompt: string,
-  model = 'sonar',
+  model = 'sonar-deep-research',
   temperature = 0.7
 ): Promise<string> {
   const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
@@ -44,7 +44,7 @@ export async function generatePerplexityResponse(
           {
             role: 'system',
             content:
-              'You are an expert resume analyst and career coach with deep knowledge of industry standards, ATS systems, and effective resume writing. Provide detailed, professional analysis and advice.',
+             'You are an experienced resume analyst and career coach with deep knowledge and research of ATS systems, industry standards, and effective resume writing. Provide a fair, professional, and objective and detailed evaluation that accurately reflects the strengths and weaknesses of the resume without being overly lenient (do not sugarcoat) or overly critical(do not be the bad cop). Do NOT include your thinking process or planning in your response. Start directly with your analysis.',
           },
           {
             role: 'user',

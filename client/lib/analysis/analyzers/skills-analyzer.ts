@@ -41,7 +41,7 @@ Please provide a balanced assessment that acknowledges strengths while offering 
       'This analysis evaluates the resume\'s skills presentation, focusing on relevance, demonstration, and optimization for the target role.'
     );
     
-    return await generatePerplexityResponse(skillsPrompt, 'sonar', 0.6); // Reduced temperature for more focused analysis
+    return await generatePerplexityResponse(skillsPrompt, 'sonar-deep-research', 0.6); // Reduced temperature for more focused analysis
   } catch (error) {
     console.error('Skills analysis error:', error);
     return `Error analyzing skills: ${error instanceof Error ? error.message : 'Unknown error'}`;

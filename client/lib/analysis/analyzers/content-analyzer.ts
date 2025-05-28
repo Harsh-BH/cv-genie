@@ -139,10 +139,10 @@ export async function analyzeContent(resume: StructuredResume): Promise<{
     
     // Run all prompts in parallel
     const [executiveSummary, contentQuality, overview, atsCompatibility] = await Promise.all([
-      generatePerplexityResponse(summaryPrompt, 'sonar', 0.7),
-      generatePerplexityResponse(contentPrompt, 'sonar', 0.7),
-      generatePerplexityResponse(overviewPrompt, 'sonar', 0.7),
-      generatePerplexityResponse(atsPrompt, 'sonar', 0.7)
+      generatePerplexityResponse(summaryPrompt, 'sonar-deep-research', 0.7),
+      generatePerplexityResponse(contentPrompt, 'sonar-deep-research', 0.7),
+      generatePerplexityResponse(overviewPrompt, 'sonar-deep-research', 0.7),
+      generatePerplexityResponse(atsPrompt, 'sonar-deep-research', 0.7)
     ]);
     
     return { 

@@ -80,7 +80,7 @@ ${includeScoring ? '4. Scoring breakdown' : ''}`,
     );
     
     const temperature = detailLevel === 'basic' ? 0.7 : detailLevel === 'expert' ? 0.3 : 0.5;
-    return await generatePerplexityResponse(atsPrompt, 'sonar', temperature);
+    return await generatePerplexityResponse(atsPrompt, 'sonar-deep-research', temperature);
   } catch (error) {
     console.error('ATS analysis error:', error);
     return `Error analyzing ATS compatibility: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again later or contact support if the problem persists.`;

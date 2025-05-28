@@ -59,7 +59,7 @@ For each recommendation, include: (1) The specific issue, (2) Why it's problemat
       'This analysis provides a strategic resume evaluation with actionable, prioritized recommendations for improvement.'
     );
     
-    const improvementSuggestions = await generatePerplexityResponse(improvementsPrompt, 'sonar', 0.7);
+    const improvementSuggestions = await generatePerplexityResponse(improvementsPrompt, 'sonar-deep-research', 0.7);
     
     // AI-generated specific improvements
     const specificImprovementsPrompt = createStructuredPrompt(
@@ -124,7 +124,7 @@ For one project (or create a recommended project description based on experience
       'This content generation provides specific, ready-to-implement improvements across all resume sections.'
     );
     
-    const specificImprovements = await generatePerplexityResponse(specificImprovementsPrompt, 'sonar', 0.8);
+    const specificImprovements = await generatePerplexityResponse(specificImprovementsPrompt, 'sonar-deep-research', 0.8);
     
     // Enhanced parsing logic for each section
     function extractSection(text: string, sectionName: string): string {

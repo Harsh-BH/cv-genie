@@ -74,7 +74,7 @@ Be specific, actionable, and provide concrete examples from both the resume and 
       'This analysis evaluates how well the resume aligns with standards and expectations of the target industry, with detailed recommendations for improving industry fit.'
     );
     
-    return await generatePerplexityResponse(industryPrompt, 'sonar', 0.7);
+    return await generatePerplexityResponse(industryPrompt, 'sonar-deep-research', 0.7);
   } catch (error) {
     console.error('Industry analysis error:', error);
     return `Error analyzing industry fit: ${error instanceof Error ? error.message : 'Unknown error'}`;
