@@ -1,5 +1,5 @@
-name: Build (deploy later)
-# update
+name: Build and deploy
+
 on:
   push:
     branches: [sub, main2, main]
@@ -35,7 +35,6 @@ jobs:
           else
             echo "DATABASE_URL starts with: ${DATABASE_URL:0:10}"
           fi
-
 
       - name: Install dependencies
         run: |
@@ -89,8 +88,7 @@ jobs:
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> client/.env
           echo "PERPLEXITY_API_KEY=${{ secrets.PERPLEXITY_API_KEY }}" >> client/.env
           echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> client/.env
-    
-      
+
       - name: Build the project
         run: cd client && npm run build
 
@@ -100,36 +98,11 @@ jobs:
           name: build-files
           path: client/.next/
 
-#Uncomment and configure this section during deployment
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
 
-
-# deploy:
-#   needs: build
-#   if: github.ref == 'refs/heads/main'
-#   runs-on: ubuntu-latest
-#   
-#   steps:
-#   - uses: actions/checkout@v3
-#   
-#   - name: Download build artifacts
-#     uses: actions/download-artifact@v4
-#     with:
-#       name: build-files
-#       path: .next/
-#   
-#   - name: Set up Node.js
-#     uses: actions/setup-node@v3
-#     with:
-#       node-version: '18'
-#   
-#   - name: Install dependencies
-#     run: npm ci
-#   
-#   # Example deployment to Vercel, adjust as needed
-#   - name: Deploy to Vercel
-#     uses: amondnet/vercel-action@v20
-#     with:
-#       vercel-token: ${{ secrets.VERCEL_TOKEN }}
-#       vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-#       vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-#       vercel-args: '--prod'
+    steps:
+      - name: Trigger Render Deploy Hook
+        run: |
+          curl -X POST "https://api.render.com/deploy/${{ secrets.RENDER_DEPLOY_HOOK }}"
