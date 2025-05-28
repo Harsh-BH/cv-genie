@@ -271,7 +271,7 @@ export default function ReviewerPage() {
         progress={analysisProgress}
         message={
           analysisStatus === 'pending' ? "Starting analysis of your resume..." :
-          analysisStatus === 'processing' ? "-=We're giving your resume a thorough review with our AI. It should only take a short while." :
+          analysisStatus === 'processing' ? "We're giving your resume a thorough review with our AI. It should only take a short while. Hang tight!" :
           analysisProgress === 100 ? "Analysis complete! Loading your results..." :
           "Preparing your resume review..."
         }
