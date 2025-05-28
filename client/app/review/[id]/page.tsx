@@ -12,6 +12,7 @@ import ErrorMessage from "@/components/shared/ErrorMessage";
 import { AnalysisData } from "@/types/analysis";
 import ResourcesSidebar from "@/components/reviewer/ResourcesSidebar";
 import { ResourceCategory } from "@/lib/data/resource-links";
+import { downloadReportPDF } from "@/utils/reportDownloader";
 
 export default function ReviewerPage() {
   const params = useParams();
@@ -31,11 +32,11 @@ export default function ReviewerPage() {
   const [error, setError] = useState<string | null>(null);
   const [analysisStatus, setAnalysisStatus] = useState<string | null>(null);
   const [analysisId, setAnalysisId] = useState<number | null>(null);
-  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
   const [analysisProgress, setAnalysisProgress] = useState(10);
 
   // Add a ref to track if analysis has already been triggered
   const analysisTriggeredRef = useRef(false);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
   
   // Resource sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,6 +49,37 @@ export default function ReviewerPage() {
   };
 
   // Function to check analysis status
+  
+
+  // Start polling for analysis status
+ 
+
+  // Function to fetch analysis results
+  const fetchAnalysisResults = useCallback(async () => {
+    try {
+      setAnalysisProgress(95); // Almost done
+      
+      const response = await fetch(`/api/review/${resumeId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch analysis results: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setAnalysisData(data.analysis);
+      
+      // Complete loading
+      setAnalysisProgress(100);
+      setTimeout(() => setIsLoading(false), 500); // Small delay to show 100%
+      
+    } catch (err) {
+      console.error("Error fetching analysis results:", err);
+      setError(`Failed to fetch results: ${(err as Error).message}`);
+      setIsLoading(false);
+    }
+  }, [resumeId]);
+
+
   const checkAnalysisStatus = useCallback(async (id: number) => {
     if (!id) return;
     
@@ -70,18 +102,18 @@ export default function ReviewerPage() {
         setAnalysisProgress(90);
         
         // If completed, clear polling and fetch the results
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          setPollingInterval(null);
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
         }
         
         // Fetch the analysis results
         fetchAnalysisResults();
       } else if (data.status === 'failed') {
         // Handle failure
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          setPollingInterval(null);
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
         }
         throw new Error("Analysis failed. Please try again.");
       }
@@ -91,31 +123,23 @@ export default function ReviewerPage() {
       setIsLoading(false);
       
       // Clear polling on error
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-        setPollingInterval(null);
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
       }
     }
-  }, [pollingInterval]);
+  }, [fetchAnalysisResults]);
 
-  // Start polling for analysis status
+
   const startPolling = useCallback((id: number) => {
-    // Clear any existing polling
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-    }
-    
-    // Check status immediately
+    // prevent duplicate intervals
+    if (pollingRef.current) return;
+
     checkAnalysisStatus(id);
-    
-    // Set up polling interval (every 5 seconds)
-    const interval = setInterval(() => {
+    pollingRef.current = setInterval(() => {
       checkAnalysisStatus(id);
     }, 5000);
-    
-    setPollingInterval(interval);
-    
-  }, [checkAnalysisStatus, pollingInterval]);
+  }, [checkAnalysisStatus]);
 
   // Function to trigger analysis
   const triggerAnalysis = useCallback(async () => {
@@ -159,31 +183,6 @@ export default function ReviewerPage() {
       analysisTriggeredRef.current = false;
     }
   }, [resumeId, startPolling]);
-
-  // Function to fetch analysis results
-  const fetchAnalysisResults = useCallback(async () => {
-    try {
-      setAnalysisProgress(95); // Almost done
-      
-      const response = await fetch(`/api/review/${resumeId}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch analysis results: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setAnalysisData(data.analysis);
-      
-      // Complete loading
-      setAnalysisProgress(100);
-      setTimeout(() => setIsLoading(false), 500); // Small delay to show 100%
-      
-    } catch (err) {
-      console.error("Error fetching analysis results:", err);
-      setError(`Failed to fetch results: ${(err as Error).message}`);
-      setIsLoading(false);
-    }
-  }, [resumeId]);
 
   // Initial check for analysis status
   const checkInitialStatus = useCallback(async () => {
@@ -244,11 +243,11 @@ export default function ReviewerPage() {
     
     // Cleanup polling on unmount
     return () => {
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
       }
     };
-  }, [checkInitialStatus, pollingInterval]);
+  }, [checkInitialStatus]);
 
   // Handle feedback item selection
   const handleFeedbackSelect = (id: string) => {
@@ -319,10 +318,7 @@ export default function ReviewerPage() {
             </Link>
             
             <button 
-              onClick={() => {
-                // Create and download PDF report
-                alert('PDF report generation not implemented yet');
-              }}
+              onClick={() => analysisData && downloadReportPDF(resumeId, analysisData)}
               className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
