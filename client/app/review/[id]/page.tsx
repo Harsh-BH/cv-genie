@@ -298,84 +298,137 @@ export default function ReviewerPage() {
         initialCategory={sidebarCategory}
       />
       
-      {/* Header */}
+      {/* Header */}-
+      {/* Header - Updated for better mobile responsiveness */}
       <motion.header 
         className="bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-10"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              Home
-            </Link>
+        <div className="max-w-7xl mx-auto px-4 py-3 md:py-4">
+          {/* Mobile Header Layout */}
+          <div className="md:hidden">
+            <div className="flex justify-between items-center mb-2">
+              <Link
+                href="/"
+                className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-xs flex items-center transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Home
+              </Link>
+              
+              <h1 className="text-base font-bold font-space-grotesk flex items-center">
+                <svg className="w-5 h-5 mr-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 18H17V16H7V18Z" fill="currentColor" />
+                  <path d="M17 14H7V12H17V14Z" fill="currentColor" />
+                  <path d="M7 10H11V8H7V10Z" fill="currentColor" />
+                  <path fillRule="evenodd" clipRule="evenodd" d="M6 2C4.34315 2 3 3.34315 3 5V19C3 20.6569 4.34315 22 6 22H18C19.6569 22 21 20.6569 21 19V5C21 3.34315 19.6569 2 18 2H6ZM5 5C5 4.44772 5.44772 4 6 4H18C18.5523 4 19 4.44772 19 5V19C19 19.5523 18.5523 20 18 20H6C5.44772 20 5 19.5523 5 19V5Z" fill="currentColor" />
+                </svg>
+                CV Review
+              </h1>
+              
+              <button 
+                onClick={() => openResourceSidebar()}
+                className="bg-purple-600 hover:bg-purple-700 px-3 py-1.5 rounded-md text-xs flex items-center transition-colors"
+                aria-label="Resources"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </button>
+            </div>
             
-            <button 
-              onClick={() => analysisData && downloadReportPDF(resumeId, analysisData)}
-              className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Download Report
-            </button>
+            {/* Second row for Download button on mobile */}
+            <div className="flex justify-center w-full">
+              <button 
+                onClick={() => analysisData && downloadReportPDF(resumeId, analysisData)}
+                className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-md text-xs flex items-center transition-colors w-full justify-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Report
+              </button>
+            </div>
           </div>
           
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-xl font-bold font-space-grotesk flex items-center"
-          >
-            <svg className="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 18H17V16H7V18Z" fill="currentColor" />
-              <path d="M17 14H7V12H17V14Z" fill="currentColor" />
-              <path d="M7 10H11V8H7V10Z" fill="currentColor" />
-              <path fillRule="evenodd" clipRule="evenodd" d="M6 2C4.34315 2 3 3.34315 3 5V19C3 20.6569 4.34315 22 6 22H18C19.6569 22 21 20.6569 21 19V5C21 3.34315 19.6569 2 18 2H6ZM5 5C5 4.44772 5.44772 4 6 4H18C18.5523 4 19 4.44772 19 5V19C19 19.5523 18.5523 20 18 20H6C5.44772 20 5 19.5523 5 19V5Z" fill="currentColor" />
-            </svg>
-            CV Review
-          </motion.h1>
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-2"
-          >
-            <button 
-              onClick={() => openResourceSidebar()}
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+          {/* Desktop Header Layout */}
+          <div className="hidden md:flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Home
+              </Link>
+              
+              <button 
+                onClick={() => analysisData && downloadReportPDF(resumeId, analysisData)}
+                className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Report
+              </button>
+            </div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-xl font-bold font-space-grotesk flex items-center"
             >
-              <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              <svg className="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 18H17V16H7V18Z" fill="currentColor" />
+                <path d="M17 14H7V12H17V14Z" fill="currentColor" />
+                <path d="M7 10H11V8H7V10Z" fill="currentColor" />
+                <path fillRule="evenodd" clipRule="evenodd" d="M6 2C4.34315 2 3 3.34315 3 5V19C3 20.6569 4.34315 22 6 22H18C19.6569 22 21 20.6569 21 19V5C21 3.34315 19.6569 2 18 2H6ZM5 5C5 4.44772 5.44772 4 6 4H18C18.5523 4 19 4.44772 19 5V19C19 19.5523 18.5523 20 18 20H6C5.44772 20 5 19.5523 5 19V5Z" fill="currentColor" />
               </svg>
-              Resources
-            </button>
-          </motion.div>
+              CV Review
+            </motion.h1>
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-2"
+            >
+              <button 
+                onClick={() => openResourceSidebar()}
+                className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+              >
+                <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Resources
+              </button>
+            </motion.div>
+          </div>
         </div>
       </motion.header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* CV and Analysis Section */}
-        <section>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+       
+        <section className="p-4">
           <motion.div 
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16 lg:min-h-[calc(100vh-9rem)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
             {/* Left side - CV Display */}
-            <div className="order-2 lg:order-1">
+            <div className="order-2 lg:order-1 lg:h-full flex flex-col">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                className="flex-1 flex flex-col h-full"
               >
                 <CVDisplay 
                   resumeId={resumeId}
@@ -387,11 +440,12 @@ export default function ReviewerPage() {
             </div>
             
             {/* Right side - Analysis */}
-            <div className="order-1 lg:order-2">
+            <div className="order-1 lg:order-2 lg:h-full flex flex-col">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
+                className="flex-1 flex flex-col h-full"
               >
                 {analysisData && (
                   <AnalysisDisplay

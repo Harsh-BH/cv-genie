@@ -64,20 +64,33 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   
   useEffect(() => {
-    const newTabWidths: Record<string, number> = {};
-    const newTabPositions: Record<string, number> = {};
+    const calculateTabPositions = () => {
+      const newTabWidths: Record<string, number> = {};
+      const newTabPositions: Record<string, number> = {};
+      
+      // Get all tab elements using refs
+      ['overview', 'content', 'ats', 'formatting', 'skills', 'industry', 'suggestions'].forEach(id => {
+        const tabElement = tabRefs.current[id];
+        if (tabElement) {
+          newTabWidths[id] = tabElement.offsetWidth;
+          newTabPositions[id] = tabElement.offsetLeft;
+        }
+      });
+      
+      setTabWidths(newTabWidths);
+      setTabPositions(newTabPositions);
+    };
     
-    // Get all tab elements using refs
-    ['overview', 'content', 'ats', 'formatting', 'skills', 'industry', 'suggestions'].forEach(id => {
-      const tabElement = tabRefs.current[id];
-      if (tabElement) {
-        newTabWidths[id] = tabElement.offsetWidth;
-        newTabPositions[id] = tabElement.offsetLeft;
-      }
-    });
+    // Calculate initially
+    calculateTabPositions();
     
-    setTabWidths(newTabWidths);
-    setTabPositions(newTabPositions);
+    // Add resize listener to recalculate when screen size changes
+    const handleResize = () => {
+      calculateTabPositions();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   
   // Add this effect to track scroll position and update gradient visibility
@@ -176,45 +189,45 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="bg-gradient-to-b from-gray-900/80 to-gray-900/40 backdrop-blur-md rounded-xl border border-gray-700/40 shadow-xl overflow-hidden"
+      className="max-h-[calc(100vh+400px)] md:max-h-screen bg-gray-900 rounded-xl border border-gray-700/40 shadow-xl overflow-hidden h-full flex flex-col"
     >
       {/* Score overview */}
       <motion.div 
-        className="p-6 border-b border-gray-700/40 bg-gradient-to-r from-purple-900/30 to-transparent"
+        className="p-4 sm:p-6 border-b border-gray-700/40 bg-gradient-to-r from-purple-900/30 to-transparent"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
       >
         <div className="flex items-center justify-between">
           <motion.h2 
-            className="text-xl font-bold text-white flex items-center gap-2"
+            className="text-lg sm:text-xl font-bold text-white flex items-center gap-1 sm:gap-2"
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
           >
-            <svg className="w-5 h-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
             Resume Analysis
           </motion.h2>
           
           <motion.div 
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 sm:gap-2"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
           >
-            <span className="text-white/60 text-sm">Overall:</span>
+            <span className="text-white/60 text-xs sm:text-sm">Overall:</span>
             <motion.div
               className="relative"
               initial={{ rotate: -90, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               transition={{ delay: 0.8, type: "spring", stiffness: 100, damping: 10 }}
             >
-              <div className={`text-2xl font-bold ${getScoreColor(scoreBreakdown.overall)}`}>
+              <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(scoreBreakdown.overall)}`}>
                 {Math.round(scoreBreakdown.overall)}%
               </div>
               <motion.div 
-                className="text-xs absolute top-full left-1/2 -translate-x-1/2 whitespace-nowrap"
+                className="text-[10px] sm:text-xs absolute top-full left-1/2 -translate-x-1/2 whitespace-nowrap"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
@@ -226,12 +239,12 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
         </div>
 
         {/* Score breakdown */}
-        <motion.div 
-          className="grid grid-cols-3 md:grid-cols-6 gap-3 mt-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+          <motion.div 
+            className="grid grid-cols-3 md:grid-cols-6 gap-1 sm:gap-3 mt-4 sm:mt-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
           <ScoreItem 
             title="Content" 
             score={scoreBreakdown.content} 
@@ -272,7 +285,7 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
         </motion.div>
       </motion.div>
       
-      <div className="relative bg-pink-700/10">
+      <div className="relative bg-pink-700/10 scrollbar-hide">
         {/* Left gradient overlay indicator */}
         <div 
           className={`absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-purple-300/20 to-transparent pointer-events-none z-10 transition-all duration-700 ${showLeftGradient ? 'opacity-100' : 'opacity-0'}`}
@@ -344,7 +357,12 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
           <motion.div
             className="absolute bottom-0 h-0.5 bg-purple-500"
             layoutId="activeTabIndicator"
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30,
+              duration: 0.3
+            }}
             style={{
               width: tabWidths[activeTab] || 0,
               left: tabPositions[activeTab] || 0
@@ -354,7 +372,7 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
       </div>
 
       {/* Tab Content with enhanced animations */}
-      <div className="p-6 max-h-[calc(100vh-24rem)] overflow-y-auto custom-scrollbar">
+      <div className="p-2 md:p-6 md:max-h-[calc(60vh)] max-h-[calc(40vh+300px)]  overflow-y-auto custom-scrollbar">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}
@@ -368,15 +386,15 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 <div className="prose prose-invert max-w-none">
-                  <h3 className="text-lg font-semibold text-purple-300">
+                  <h3 className="text-lg font-semibold text-purple-300 ">
                     Executive Summary
                   </h3>
-                  <div dangerouslySetInnerHTML={{ __html: memoizedContent.executiveSummary }} />
+                  <div className='prose prose-invert prose-content text-xs sm:text-base w-auto break-words overflow-x-hidden bg-gradient-to-b from-pink-600/50 via-purple-400/40 to-blue-500/30 rounded-lg ' dangerouslySetInnerHTML={{ __html: memoizedContent.executiveSummary }} />
                   
-                  <h3 className="text-lg font-semibold text-purple-300 mt-6">
+                  <h3 className="text-lg font-semibold text-purple-300 mt-6 ">
                     Detailed Overview
                   </h3>
-                  <div dangerouslySetInnerHTML={{ __html: memoizedContent.overview }} />
+                  <div className='prose prose-invert prose-content text-xs sm:text-base w-auto break-words overflow-x-hidden bg-gradient-to-b from-pink-600/50 via-purple-400/40 to-blue-500/30 rounded-lg ' dangerouslySetInnerHTML={{ __html: memoizedContent.overview }} />
                 </div>
               </div>
             )}
@@ -467,7 +485,7 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
                   Improvement Suggestions
                 </motion.h3>
                 <motion.div 
-                  className="prose prose-invert max-w-none mb-6"
+                  className="prose prose-invert max-w-none mb-6 bg-gradient-to-b from-pink-600/50 via-purple-400/40 to-blue-500/30 rounded-lg"
                   variants={itemVariants}
                 >
                   <div dangerouslySetInnerHTML={{ __html: formattedContent.improvementSuggestions }} />
@@ -513,21 +531,21 @@ function TabContent({
   hideScore?: boolean;
 }) {
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-3 sm:space-y-4 w-full">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-purple-300">{title}</h3>
+        <h3 className="text-sm sm:text-lg font-semibold text-purple-300">{title}</h3>
         {!hideScore && (
-          <div className="flex flex-col items-end ml-4 flex-shrink-0">
-            <span className={`text-xl font-bold ${scoreColor}`}>
+          <div className="flex flex-col items-end ml-2 sm:ml-4 flex-shrink-0">
+            <span className={`text-md sm:text-xl font-bold ${scoreColor}`}>
               {Math.round(score)}%
             </span>
-            <span className="text-xs text-gray-400">{scoreLabel}</span>
+            <span className="text-[8px] sm:text-xs text-gray-400">{scoreLabel}</span>
           </div>
         )}
       </div>
       
       <div
-        className="prose prose-invert prose-content max-w-full break-words overflow-x-hidden"
+        className="prose prose-invert prose-content text-xs sm:text-base w-auto break-words overflow-x-hidden bg-gradient-to-b from-pink-600/50 via-purple-400/40 to-blue-500/30 rounded-lg "
         dangerouslySetInnerHTML={{ 
           __html: content.replace(
             /&lt;span class="highlight-metric"&gt;(.*?)&lt;\/span&gt;/g,
@@ -559,14 +577,14 @@ function ScoreItem({ title, score, variants, highlight = false, onClick }: {
     <motion.div 
       variants={variants}
       onClick={onClick}
-      className={`p-3 rounded-lg cursor-pointer transition-all duration-300 
+      className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-300 
         ${highlight ? 'bg-pink-900/30 border-white border-[1px]' : 'bg-gray-800/50 hover:bg-gray-800/80 border border-gray-700/40'}`}
       whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(124, 58, 237, 0.1), 0 10px 10px -5px rgba(124, 58, 237, 0.04)" }}
       whileTap={{ scale: 0.98 }}
     >
-      <p className={` ${highlight ? "text-white text-sm font-semibold" : "text-gray-400 text-sm"}`}>{title}</p>
+      <p className={` ${highlight ? "text-white text-[10px] sm:text-sm font-semibold" : "text-gray-400 text-[10px] sm:text-sm"}`}>{title}</p>
       <motion.div 
-        className={`text-xl font-bold ${getScoreColor(score)}`}
+        className={`text-xs sm:text-xl font-bold ${getScoreColor(score)}`}
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -577,8 +595,6 @@ function ScoreItem({ title, score, variants, highlight = false, onClick }: {
   );
 }
 
-// Tab component with enhanced animations
-// Tab component with enhanced animations
 const Tab = React.forwardRef(
   function Tab({ id, label, active, onClick }: { 
     id: string; 
@@ -592,7 +608,7 @@ const Tab = React.forwardRef(
       <motion.button
         ref={ref}
         onClick={onClick}
-        className={`px-6 py-3 text-sm font-medium whitespace-nowrap relative
+        className={`px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-base font-medium whitespace-nowrap relative
           ${active 
             ? 'text-white bg-white/5' 
             : 'text-gray-400 hover:text-white'}`}
@@ -607,7 +623,6 @@ const Tab = React.forwardRef(
   }
 );
 
-// Animated suggestion item component
 function SuggestionItem({ 
   suggestion, 
   index,
@@ -626,18 +641,18 @@ function SuggestionItem({
         transition: { delay: index * 0.1 }
       }}
       whileHover={{ scale: 1.01, backgroundColor: "rgba(124, 58, 237, 0.1)" }}
-      className={`p-4 rounded-lg border ${getSeverityBorder(suggestion.severity)}`}
+      className={`p-3 sm:p-4 rounded-lg border ${getSeverityBorder(suggestion.severity)}`}
       onClick={() => onSelect?.(suggestion.id)}
     >
       <div className="flex items-start justify-between">
-        <h4 className="font-medium">{suggestion.issue}</h4>
-        <span className={`text-xs px-2 py-1 rounded-full ${getSeverityBg(suggestion.severity)}`}>
+        <h4 className="font-medium text-sm sm:text-base">{suggestion.issue}</h4>
+        <span className={`text-[10px] sm:text-xs px-2 py-1 rounded-full ${getSeverityBg(suggestion.severity)}`}>
           {suggestion.severity}
         </span>
       </div>
       
       {suggestion.position?.sectionTitle && (
-        <div className="mt-1 text-sm text-gray-400">
+        <div className="mt-1 text-xs sm:text-sm text-gray-400">
           <span>In section: </span>
           <span className="font-medium text-gray-300">{suggestion.position.sectionTitle}</span>
         </div>
@@ -648,13 +663,13 @@ function SuggestionItem({
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           transition={{ delay: index * 0.1 + 0.2 }}
-          className="mt-2 p-2 bg-gray-800/60 rounded text-sm font-mono"
+          className="mt-2 p-2 bg-gray-800/60 rounded text-xs sm:text-sm font-mono"
         >
           "{suggestion.position.textSnippet}"
         </motion.div>
       )}
       
-      <div className="mt-3 text-sm">
+      <div className="mt-2 sm:mt-3 text-xs sm:text-sm">
         <p className="text-gray-300">{suggestion.reasoning}</p>
       </div>
       
@@ -663,7 +678,7 @@ function SuggestionItem({
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           transition={{ delay: index * 0.1 + 0.3 }}
-          className="mt-3 text-sm"
+          className="mt-2 sm:mt-3 text-xs sm:text-sm"
         >
           <p className="font-medium text-green-400">Suggested fix:</p>
           <p className="text-green-300">{suggestion.exampleFix}</p>

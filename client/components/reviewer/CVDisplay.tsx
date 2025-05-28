@@ -162,7 +162,7 @@ export default function CVDisplay({
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="relative w-full h-full flex items-center justify-center overflow-hidden bg-white/5 backdrop-blur-lg rounded-xl"
+      className="bg-gray-900 rounded-xl border border-gray-700/40 shadow-xl overflow-hidden h-full flex flex-col relative max-h-screen"
     >
       <div className="relative w-full h-full">
         {/* PDF/Image viewer container */}

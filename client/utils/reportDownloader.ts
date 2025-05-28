@@ -1,18 +1,6 @@
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { AnalysisData } from "@/types/analysis";
-
-let jsPDF: any;
-let autoTable: any;
-
-// Dynamic imports that only execute on the client
-if (typeof window !== 'undefined') {
-  // Use a dynamic import with Promise to load the modules only in browser
-  import('jspdf').then(module => {
-    jsPDF = module.default;
-  });
-  import('jspdf-autotable').then(module => {
-    autoTable = module.default;
-  });
-}
 
 export async function downloadReportPDF(resumeId: string, analysis: AnalysisData) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });

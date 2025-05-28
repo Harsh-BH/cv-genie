@@ -1,25 +1,25 @@
-/* ===== CV ANALYSIS RESPONSE - STRUCTURED & ENHANCED STYLING ===== */
+/* ===== CV ANALYSIS RESPONSE - REFINED & PROFESSIONAL STYLING ===== */
 
 /* ---------- CSS VARIABLES (COLOR SYSTEM) ---------- */
 :root {
-  /* Color Palette */
+  /* Color Palette - Subdued and Professional */
   --primary: #3b82f6;
   --primary-dark: #2563eb;
   --primary-light: #60a5fa;
   --secondary: #8b5cf6;
   --accent: #ec4899;
   --success: #059669;
-  --success-light: rgba(5, 150, 105, 0.1);
+  --success-light: rgba(5, 150, 105, 0.05);
   --danger: #dc2626;
-  --danger-light: rgba(220, 38, 38, 0.1);
+  --danger-light: rgba(220, 38, 38, 0.05);
   --info: #0891b2;
-  --info-light: rgba(8, 145, 178, 0.1);
+  --info-light: rgba(8, 145, 178, 0.05);
   --warning: #fbbf24;
   --warning-bg: #fffbeb;
   
   /* Text Colors */
   --text-primary: #333333;
-  --text-secondary: #4b5563;
+  --text-secondary: #7b8189;
   --text-light: #e5e7eb;
   --text-heading: #1e40af;
   
@@ -33,17 +33,17 @@
   --border-light: rgba(255, 255, 255, 0.18);
   --border-dark: #e5e7eb;
   
-  /* Effects */
-  --blur-standard: 10px;
-  --blur-heavy: 12px;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 8px 32px rgba(0, 31, 63, 0.1);
-  --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.1);
+  /* Effects - Reduced */
+  --blur-standard: 5px;
+  --blur-heavy: 8px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 31, 63, 0.07);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.07);
   
-  /* Animation Timing */
+  /* Animation Timing - Slower & More Subtle */
   --transition-fast: 0.3s;
   --transition-medium: 0.5s;
-  --transition-slow: 0.8s;
+  --transition-slow: 0.6s;
   
   /* Spacing */
   --space-xs: 0.5rem;
@@ -52,7 +52,7 @@
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   
-  /* Dark Mode Colors - Will be applied through media query */
+  /* Dark Mode Colors */
   --dark-bg-main: rgba(31, 41, 55, 0.7);
   --dark-bg-card: #374151;
   --dark-bg-highlight: #213251;
@@ -75,163 +75,100 @@
   transition: all var(--transition-fast) ease;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(var(--blur-standard));
-  -webkit-backdrop-filter: blur(var(--blur-standard));
   border: 1px solid var(--border-light);
-  
-  /* Entrance animations */
-  animation: 
-    fadeIn var(--transition-slow) ease-in-out,
-    floatIn 1.2s ease-out;
 }
 
-/* Animated gradient border effect */
+/* Subtle accent border */
 .cv-analysis-response::before {
   content: "";
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
-  background-size: 400% 400%;
-  z-index: -1;
-  border-radius: 10px;
-  animation: gradientBorder 6s ease infinite;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
   opacity: 0.7;
 }
 
-/* Glass effect variant */
+/* Glass effect variant - simplified */
 .cv-analysis-response.glass-effect {
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(var(--blur-heavy));
-  -webkit-backdrop-filter: blur(var(--blur-heavy));
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+  backdrop-filter: blur(var(--blur-standard));
+  -webkit-backdrop-filter: blur(var(--blur-standard));
   border: 1px solid var(--border-light);
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 /* ---------- TYPOGRAPHY STYLES ---------- */
-/* Main title styling */
+/* Main title styling - simplified */
 .cv-analysis-response h1 {
-  color: var(--primary);
+  color: var(--text-heading);
   font-weight: 700;
   font-size: 1.8rem;
   margin-top: var(--space-lg);
   margin-bottom: var(--space-md);
   padding-bottom: var(--space-xs);
   border-bottom: 1px solid var(--border-dark);
-  animation: textGradient 5s linear infinite, slideIn 0.7s ease-out;
-  text-shadow: 0 0 10px rgba(37, 99, 235, 0);
-  transform-style: preserve-3d;
-  perspective: 500px;
-  background: linear-gradient(90deg, var(--primary-dark), var(--secondary), var(--primary-dark));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   letter-spacing: 0.5px;
 }
 
-/* Section heading styling */
+/* Section heading styling - simplified */
 .cv-analysis-response h2 {
   color: var(--text-heading);
-  font-weight: 900;
+  font-weight: 700;
   font-size: 1.5rem;
   margin-top: var(--space-lg);
   margin-bottom: var(--space-md);
-  animation: slideIn 0.6s ease-out, headingPulse 5s ease-in-out infinite;
   position: relative;
-  background: linear-gradient(90deg, #3cc9f0, #3d97ec);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
-/* Animated underline for h2 on hover */
+/* Subtle underline for h2 */
 .cv-analysis-response h2::after {
   content: '';
   position: absolute;
-  width: 0;
-  height: 3px;
+  width: 40px;
+  height: 2px;
   bottom: -5px;
   left: 0;
-  background: linear-gradient(90deg, var(--text-heading), var(--primary-light));
-  transition: width var(--transition-fast) ease;
-}
-
-.cv-analysis-response h2:hover::after {
-  width: 100%;
+  background: var(--primary);
 }
 
 /* Subsection heading */
 .cv-analysis-response h3 {
   color: var(--text-secondary);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 1.25rem;
   margin-top: 1.25rem;
   margin-bottom: 0.75rem;
-  animation: slideIn 0.5s ease-out, fadeColor 4s ease-in-out infinite alternate;
 }
 
 /* Paragraph styling */
 .cv-analysis-response p {
   margin-bottom: var(--space-md);
-  animation: fadeIn var(--transition-slow) ease-out;
   position: relative;
-  overflow: hidden;
-}
-
-.cv-analysis-response p.reveal {
-  animation: textReveal var(--transition-medium) ease-out forwards;
 }
 
 /* ---------- DIVIDERS & SEPARATORS ---------- */
 .cv-analysis-response hr.section-divider {
   border: 0;
-  height: 3px;
+  height: 1px;
   background: linear-gradient(to right, transparent, var(--bg-divider) 50%, transparent);
   margin: var(--space-lg) 0;
-  animation: expandWidth 1.3s ease-out, shineEffect 3s ease-in-out infinite;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Shine effect for dividers */
-.cv-analysis-response hr.section-divider::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
-  animation: shine 3s infinite;
 }
 
 /* ---------- HIGHLIGHT ELEMENTS ---------- */
-.cv-analysis-response .highlight-metric {
-  color: var(--info);
-  font-weight: 600;
-  padding: 0.1rem 0.3rem;
-  background-color: var(--info-light);
-  border-radius: 4px;
-  display: inline-block;
-  transition: all var(--transition-fast) ease;
-  animation: popIn 0.5s ease-out, bounce 5s ease infinite;
-  transform-origin: center;
-}
-
-/* Update the highlight-metric class to ensure proper rendering */
+/* Update to a more subtle style */
 .highlight-metric {
-  word-break: normal !important; /* Changed from break-word */
+  word-break: normal !important;
   display: inline !important;
-  color: #60a5fa !important;
+  color: var(--primary) !important;
   font-weight: 600 !important;
   padding: 0 0.25rem !important;
-  background-color: rgba(8, 145, 178, 0.1) !important;
+  background-color: rgba(8, 145, 178, 0.05) !important;
   border-radius: 0.25rem !important;
-  max-width: none !important; /* Changed from 20% */
-  overflow-wrap: normal !important; /* Changed from break-word */
+  max-width: none !important;
+  overflow-wrap: normal !important;
 }
 
 /* Add specific handling for education sections */
@@ -253,8 +190,6 @@
   background-color: var(--success-light);
   border-radius: 4px;
   display: inline-block;
-  transition: transform var(--transition-fast) ease;
-  animation: pulse 2s infinite, floatUp 3s ease-in-out infinite;
 }
 
 .cv-analysis-response .highlight-negative {
@@ -264,92 +199,52 @@
   background-color: var(--danger-light);
   border-radius: 4px;
   display: inline-block;
-  transition: transform var(--transition-fast) ease;
-  animation: shake 5s ease-in-out infinite;
-  position: relative;
 }
 
 /* ---------- SECTION CONTAINERS ---------- */
-/* Strengths section */
+/* Strengths section - simplified */
 .cv-analysis-response .section-strengths {
   color: var(--success);
   padding: var(--space-sm);
-  border-left: 4px solid var(--success);
+  border-left: 3px solid var(--success);
   background-color: var(--success-light);
   border-radius: 0 4px 4px 0;
   margin-bottom: var(--space-md);
-  animation: slideInLeft var(--transition-slow) ease-out, glowBorder 3s infinite alternate;
-  box-shadow: 0 5px 15px rgba(5, 150, 105, 0.1);
-  transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  will-change: transform, box-shadow;
+  transition: transform 0.2s ease;
 }
 
 .cv-analysis-response .section-strengths:hover {
-  transform: scale(1.01) translateX(3px);
-  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.2);
+  transform: translateX(2px);
 }
 
-/* Weaknesses section */
+/* Weaknesses section - simplified */
 .cv-analysis-response .section-weaknesses {
   color: var(--danger);
   padding: var(--space-sm);
-  border-left: 4px solid var(--danger);
+  border-left: 3px solid var(--danger);
   background-color: var(--danger-light);
   border-radius: 0 4px 4px 0;
   margin-bottom: var(--space-md);
-  animation: slideInLeft var(--transition-slow) ease-out, glowBorderNegative 3s infinite alternate;
-  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.1);
-  transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  will-change: transform, box-shadow;
+  transition: transform 0.2s ease;
 }
 
 .cv-analysis-response .section-weaknesses:hover {
-  transform: scale(1.01) translateX(3px);
-  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
+  transform: translateX(2px);
 }
 
-/* Achievement container */
+/* Achievement container - simplified */
 .cv-analysis-response .achievement {
   background-color: var(--bg-highlight);
   padding: var(--space-xs) var(--space-sm);
   border-radius: 4px;
   margin: var(--space-xs) 0;
-  border-left: 3px solid var(--primary);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  position: relative;
-  overflow: hidden;
-  animation: fadeIn var(--transition-slow) ease-out;
-  z-index: 1;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  will-change: transform, box-shadow;
-}
-
-.cv-analysis-response .achievement::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-  z-index: -1;
-  transition: var(--transition-medium);
-}
-
-.cv-analysis-response .achievement:hover::before {
-  left: 100%;
-  animation: shimmer 1.5s;
+  border-left: 2px solid var(--primary);
+  transition: all 0.3s ease;
 }
 
 .cv-analysis-response .achievement:hover {
-  transform: translateX(5px) translateY(-5px) scale(1.02);
-  box-shadow: var(--shadow-lg);
-  border-left-width: 5px;
+  transform: translateX(3px);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ---------- LISTS STYLING ---------- */
@@ -362,31 +257,20 @@
 .cv-analysis-response li {
   margin-bottom: var(--space-xs);
   position: relative;
-
   padding-left: 1.2rem;
-  animation: fadeInUp 0.5s ease-out;
-  animation-fill-mode: both;
 }
 
-/* Sequential animation for list items */
-.cv-analysis-response li:nth-child(1) { animation-delay: 0.1s; }
-.cv-analysis-response li:nth-child(2) { animation-delay: 0.2s; }
-.cv-analysis-response li:nth-child(3) { animation-delay: 0.3s; }
-.cv-analysis-response li:nth-child(4) { animation-delay: 0.4s; }
-.cv-analysis-response li:nth-child(5) { animation-delay: 0.5s; }
-
-/* Custom bullet points with animation */
+/* Custom bullet points - simplified */
 .cv-analysis-response ul li::before {
   content: "•";
   color: var(--primary);
   position: absolute;
   left: 0;
-  animation: rotateBullet 3s linear infinite;
   display: inline-block;
   font-size: 1.2em;
 }
 
-/* Ordered list styling */
+/* Ordered list styling - simplified */
 .cv-analysis-response ol {
   counter-reset: item;
 }
@@ -409,60 +293,42 @@
   left: -0.3em;
   top: 0.2em;
   font-size: 0.8em;
-  animation: pulseNumber 2s infinite;
 }
 
 /* ---------- CARD COMPONENTS ---------- */
-/* Standard card */
+/* Standard card - simplified */
 .cv-analysis-response .analysis-card {
   background-color: var(--bg-card);
   border-radius: 6px;
   padding: var(--space-md);
   margin: var(--space-lg) 0;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(5px);
-  animation: cardAppear var(--transition-slow) ease-out;
-  will-change: transform, box-shadow;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cv-analysis-response .analysis-card:hover {
-  transform: translateY(-5px) scale(1.01);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
-/* 3D card hover effect */
-.cv-analysis-response .analysis-card.card-3d {
-  transition: transform var(--transition-medium) ease;
-  transform-style: preserve-3d;
-}
-
-.cv-analysis-response .analysis-card.card-3d:hover {
-  transform: rotateX(5deg) rotateY(5deg) translateY(-5px);
-}
-
-/* Glass card effect */
+/* Glass card effect - simplified */
 .cv-analysis-response .glass-card {
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border: 1px solid var(--border-light);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: var(--space-lg);
   margin: var(--space-lg) 0;
-  transition: all var(--transition-fast) ease;
-  will-change: transform, box-shadow;
+  transition: transform 0.2s ease;
 }
 
 .cv-analysis-response .glass-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.3);
+  transform: translateY(-3px);
 }
 
-/* Tip Box */
+/* Tip Box - simplified */
 .cv-analysis-response .tip-box {
   background-color: var(--warning-bg);
   border: 1px solid var(--warning);
@@ -470,8 +336,6 @@
   padding: var(--space-sm) var(--space-md);
   margin: 1.2rem 0;
   position: relative;
-  animation: fadeIn var(--transition-slow) ease-out, tipPulse 5s ease-in-out infinite;
-  overflow: hidden;
 }
 
 .cv-analysis-response .tip-box::before {
@@ -480,107 +344,55 @@
   font-weight: 600;
   margin-bottom: var(--space-xs);
   color: #92400e;
-  animation: wiggle 6s ease-in-out infinite;
-}
-
-/* Glass container with neon border */
-.cv-analysis-response .neon-border {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  padding: var(--space-lg);
-  margin: var(--space-xl) 0;
-  background: rgba(31, 41, 55, 0.2);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 1;
-}
-
-.cv-analysis-response .neon-border::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
-  background-size: 400% 400%;
-  z-index: -1;
-  animation: gradientBorder 3s ease infinite;
-  border-radius: 12px;
 }
 
 /* ---------- BUTTON STYLES ---------- */
-/* Standard button */
+/* Standard button - simplified */
 .cv-analysis-response .action-button {
   display: inline-block;
   padding: var(--space-xs) 1.2rem;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background: var(--primary);
   color: white;
   border: none;
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
   margin: var(--space-md) 0;
-  transition: all var(--transition-fast) ease;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  will-change: transform, box-shadow;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cv-analysis-response .action-button:hover {
+  background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
 }
 
-.cv-analysis-response .action-button::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: var(--transition-medium);
-}
-
-.cv-analysis-response .action-button:hover::after {
-  left: 100%;
-}
-
-/* Glass button */
+/* Glass button - simplified */
 .cv-analysis-response .glass-button {
-  background: rgba(59, 130, 246, 0.2);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: var(--primary-dark);
   padding: 0.6rem 1.4rem;
   border-radius: 6px;
   font-weight: 500;
-  transition: all var(--transition-fast) ease;
+  transition: all 0.2s ease;
   display: inline-block;
   margin: var(--space-md) 0;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  will-change: transform, background, box-shadow;
 }
 
 .cv-analysis-response .glass-button:hover {
-  background: rgba(59, 130, 246, 0.3);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.2);
+  background: rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
 }
 
 /* ---------- SPECIAL EFFECTS & COMPONENTS ---------- */
-/* Progress bar */
+/* Progress bar - simplified */
 .cv-analysis-response .progress-container {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background-color: var(--bg-divider);
-  border-radius: 4px;
+  border-radius: 3px;
   margin: var(--space-md) 0;
   overflow: hidden;
 }
@@ -588,25 +400,11 @@
 .cv-analysis-response .progress-bar {
   height: 100%;
   background: linear-gradient(90deg, var(--primary), var(--secondary));
-  border-radius: 4px;
-  animation: progressGrow 1.5s ease-out forwards;
-  transform-origin: left;
-  position: relative;
-  will-change: transform;
+  border-radius: 3px;
+  transition: width 1s ease-out;
 }
 
-.cv-analysis-response .progress-bar::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: progressShine 2s infinite;
-}
-
-/* Quote box */
+/* Quote box - simplified */
 .cv-analysis-response .quote {
   padding: var(--space-lg);
   position: relative;
@@ -615,172 +413,36 @@
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.05);
   border-left: 3px solid var(--primary);
-  backdrop-filter: blur(10px);
-  animation: quoteAppear var(--transition-slow) ease-out;
 }
 
 .cv-analysis-response .quote::before {
   content: "\201C";
-  font-size: 4rem;
+  font-size: 3rem;
   position: absolute;
   left: 0.5rem;
-  top: -1rem;
+  top: -0.5rem;
   color: rgba(59, 130, 246, 0.2);
   font-family: Georgia, serif;
 }
 
-/* Text effects */
-.cv-analysis-response .glow-text {
-  text-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
-  animation: textGlow 2s ease-in-out infinite alternate;
-}
-
-.cv-analysis-response .hover-underline {
-  position: relative;
-  display: inline-block;
-}
-
-.cv-analysis-response .hover-underline::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  transform: scaleX(0);
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  transform-origin: bottom right;
-  transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
-}
-
-.cv-analysis-response .hover-underline:hover::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
-}
-
-/* Wave text animation */
-.cv-analysis-response .wave-text {
-  display: inline-block;
-}
-
-.wave-text span {
-  display: inline-block;
-  animation: wave-animation 2s infinite;
-  animation-delay: calc(0.1s * var(--i));
-}
-
-/* Typewriter effect */
-.cv-analysis-response .typewriter {
-  overflow: hidden;
-  border-right: 2px solid var(--primary);
-  white-space: nowrap;
-  margin: 0 auto;
-  animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
-}
-
-/* Stat boxes */
-.cv-analysis-response .stat-box {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 1.2rem;
-  margin: var(--space-md) 0;
-  text-align: center;
-  transition: all var(--transition-fast) ease;
-  will-change: transform, box-shadow;
-}
-
-.cv-analysis-response .stat-box:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.cv-analysis-response .stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: var(--space-xs);
-}
-
-/* Spotlight effect */
-.cv-analysis-response .spotlight {
-  position: relative;
-  padding: var(--space-lg);
-  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-  animation: spotlightPulse 4s infinite;
-}
-
-/* Particle container for background effects */
-.cv-analysis-response .particles-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  background-color: rgba(59, 130, 246, 0.2);
-  border-radius: 50%;
-  backdrop-filter: blur(2px);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-}
-
-.particle:nth-child(1) {
-  top: 10%;
-  left: 15%;
-  animation: floatingParticle 20s infinite linear;
-}
-
-.particle:nth-child(2) {
-  top: 40%;
-  left: 75%;
-  animation: floatingParticle 25s infinite linear reverse;
-}
-
-.particle:nth-child(3) {
-  top: 80%;
-  left: 30%;
-  animation: floatingParticle 30s infinite linear;
-}
-
 /* ---------- SCROLLBAR CUSTOMIZATION ---------- */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  appearance: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
 .custom-scrollbar {
   display: block;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
   background-color: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background-color: #3e2546a5;
-  border-radius: 10px;
+  background-color: rgba(62, 37, 70, 0.3);
+  border-radius: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #988d9ba5;
-  border-radius: 10px;
+  background-color: rgba(152, 141, 155, 0.5);
+  border-radius: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-button {
@@ -788,41 +450,37 @@
   height: 4px;
 }
 
+.scrollbar-hide{
+  overflow:auto;
+  appearance: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ---------- RESPONSIVE ADJUSTMENTS ---------- */
 @media (max-width: 768px) {
   .cv-analysis-response {
     padding: var(--space-md);
-    width: 90%;
+    width: 100%;
   }
   
   .cv-analysis-response h1 {
-    font-size: 1.6rem;
+    font-size: 1rem;
   }
   
   .cv-analysis-response h2 {
-    font-size: 1.3rem;
-  }
-  
-  /* Disable some animations on mobile for performance */
-  .cv-analysis-response::before {
-    animation: none;
-    background-size: 200% 200%;
-  }
-  
-  .cv-analysis-response .particles-container {
-    display: none;
+    font-size: 1rem;
   }
 }
-
-
-
 
 /* ---------- DARK MODE SUPPORT ---------- */
 @media (prefers-color-scheme: dark) {
   .cv-analysis-response {
     background-color: var(--dark-bg-main);
     color: var(--dark-text-primary);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   }
   
   .cv-analysis-response h1 {
@@ -856,10 +514,6 @@
     border-left-color: var(--primary);
   }
   
-  .cv-analysis-response::before {
-    opacity: 0.4;
-  }
-  
   .cv-analysis-response .quote {
     color: var(--text-light);
   }
@@ -885,7 +539,7 @@
   }
 
   .cv-analysis-response .glass-button:hover {
-    background: rgba(59, 130, 246, 0.25);
+    background: rgba(59, 130, 246, 0.2);
   }
 }
 
