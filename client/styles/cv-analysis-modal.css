@@ -221,13 +221,7 @@
   align-items: flex-start;
 }
 
-.cv-analysis-modal-content li::before {
-  content: "•";
-  color: var(--modal-info);
-  display: inline-block;
-  width: 1em;
-  margin-left: -1em;
-}
+
 
 /* Section specific styling */
 .executive-summary h4 {

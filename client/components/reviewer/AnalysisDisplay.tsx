@@ -485,7 +485,7 @@ export default function AnalysisDisplay({ analysis, onFeedbackSelect }: Props) {
                   Improvement Suggestions
                 </motion.h3>
                 <motion.div 
-                  className="prose prose-invert max-w-none mb-6 bg-gradient-to-b from-pink-600/50 via-purple-400/40 to-blue-500/30 rounded-lg"
+                  className="prose prose-invert prose-content text-xs sm:text-base w-auto break-words overflow-x-hidden bg-gradient-to-b from-pink-600/50 via-purple-400/40 to-blue-500/30 rounded-lg"
                   variants={itemVariants}
                 >
                   <div dangerouslySetInnerHTML={{ __html: formattedContent.improvementSuggestions }} />

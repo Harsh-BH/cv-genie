@@ -148,10 +148,12 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
 
   if (!isOpen) return null;
   
+  // The main changes are in the modal layout and styling
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 cv-analysis-modal custom-scroll">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4 cv-analysis-modal custom-scroll">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -161,40 +163,38 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
           />
           
           <motion.div 
-            className="cv-analysis-modal-content max-h-[80vh] rounded-xl shadow-2xl w-full max-w-4xl relative z-10 overflow-auto"
+            className="cv-analysis-modal-content max-h-[85vh] sm:max-h-[80vh] rounded-xl shadow-2xl w-full max-w-4xl relative z-10 overflow-auto"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
-            {/* Header */}
-            <div className="modal-header p-6 flex justify-between">
-              <div className="flex flex-col gap-0 mt-auto">
-                
-                <h2 className="text-4xl font-bold text-gradient mt-auto">{cv?.fileName}</h2>
-                <p className="text-sm font-base text-gray-400">Short Summary</p>
+            {/* Header - Improved for mobile */}
+            <div className="modal-header p-3 sm:p-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+              <div className="flex flex-col gap-0">
+                <h2 className="text-2xl sm:text-4xl font-bold text-gradient">{cv?.fileName}</h2>
+                <p className="text-xs sm:text-sm font-base text-gray-400">Short Summary</p>
                 <motion.button
                   onClick={onClose}
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                   className="text-gray-400 absolute top-2 right-2 hover:text-white"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </motion.button>
               </div>
               
-              <div className="flex items-center justify-end">
-                
-                {/* Circular percentage component */}
-                <div className="flex flex-col items-center relative right-10 bg-white/10 shadow-2xl shadow-black/50 py-4 px-8 rounded-xl">
+              {/* Score card - Responsive positioning */}
+              <div className="flex items-center w-full sm:justify-end self-center sm:self-auto">
+                <div className="flex flex-row sm:flex-col items-center bg-white/10 shadow-xl shadow-black/30 py-2 px-4 sm:py-4 sm:px-8 rounded-xl">
                   <div className="text-right mr-3">
-                    <p className="text-sm text-white font-semibold">Overall Score:</p>
+                    <p className="text-xs sm:text-sm text-white font-semibold">Overall Score:</p>
                   </div>
                   
                   <motion.div
-                    className="w-16 h-16 rounded-full flex items-center justify-center"
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center"
                     style={{
                       background: `conic-gradient(#8b3cf6 ${getFormattedScore(analysisData?.overallScore) * 3.6}deg, rgba(200, 100 ,240, 0.1) 0deg)`
                     }}
@@ -202,7 +202,7 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
                     animate={{ rotate: 0 }}
                     transition={{ duration: 1, delay: 0.3 }}
                   >
-                    <div className="bg-gray-900 w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium text-white">
+                    <div className="bg-gray-900 w-9 h-9 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium text-white">
                       {getFormattedScore(analysisData?.overallScore)+"%"}
                     </div>
                   </motion.div>
@@ -210,37 +210,37 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
               </div>
             </div>
             
-            {/* Loading State */}
+            {/* Loading State - Already responsive */}
             {isLoading && (
-              <div className="flex flex-col items-center justify-center py-20">
+              <div className="flex flex-col items-center justify-center py-10 sm:py-20">
                 <motion.div 
-                  className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full pulse-animation"
+                  className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-purple-400 border-t-transparent rounded-full pulse-animation"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 />
-                <p className="mt-4 text-modal-text-muted">Analyzing your CV...</p>
+                <p className="mt-4 text-modal-text-muted text-sm sm:text-base">Analyzing your CV...</p>
               </div>
             )}
             
-            {/* Content */}
+            {/* Content - Improved for mobile */}
             {!isLoading && analysisData && (
-              <div className="p-6">
-                <div className="space-y-6">
+              <div className="p-3 sm:p-6">
+                <div className="space-y-4 sm:space-y-6">
                   {/* Executive Summary */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="analysis-section executive-summary glassmorphism rounded-lg p-6"
+                    className="analysis-section executive-summary glassmorphism rounded-lg p-3 sm:p-6"
                   >
-                    <h3 className="text-lg font-medium text-modal-text-primary mb-3">Executive Summary</h3>
-                    <div className="text-modal-text-secondary analysis-content custom-scroll">
+                    <h3 className="text-base sm:text-lg font-medium text-modal-text-primary mb-2 sm:mb-3">Executive Summary</h3>
+                    <div className="text-sm sm:text-base text-modal-text-secondary analysis-content custom-scroll">
                       {formatText(analysisData.executiveSummary).map((item, i) => {
                         if (item.type === 'formatted-html') {
                           return (
                             <div 
                               key={i} 
-                              className="formatted-analysis"
+                              className="formatted-analysis text-sm sm:text-base"
                               dangerouslySetInnerHTML={{ __html: item.content }} 
                             />
                           );
@@ -252,25 +252,25 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
                   
                   {/* Strengths and Weaknesses */}
                   <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                    className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                   >
-                    <div className="analysis-section strengths-section glassmorphism rounded-lg p-6">
-                      <h3 className="flex items-center text-lg font-medium text-modal-text-primary mb-4">
+                    <div className="analysis-section strengths-section glassmorphism rounded-lg p-3 sm:p-6">
+                      <h3 className="flex items-center text-base sm:text-lg font-medium text-modal-text-primary mb-2 sm:mb-4">
                         <div className="section-icon icon-success">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                         </div>
                         Strengths
                       </h3>
-                      <ul className="space-y-2">
+                      <ul className="space-y-1 sm:space-y-2">
                         {extractStrengthsAndWeaknesses().strengths.map((strength, i) => (
                           <motion.li 
                             key={i} 
-                            className="text-modal-text-secondary flex items-start"
+                            className="text-sm sm:text-base text-modal-text-secondary flex items-start"
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5 + i * 0.1 }}
@@ -281,20 +281,20 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
                       </ul>
                     </div>
                     
-                    <div className="analysis-section weaknesses-section glassmorphism rounded-lg p-6">
-                      <h3 className="flex items-center text-lg font-medium text-modal-text-primary mb-4">
+                    <div className="analysis-section weaknesses-section glassmorphism rounded-lg p-3 sm:p-6">
+                      <h3 className="flex items-center text-base sm:text-lg font-medium text-modal-text-primary mb-2 sm:mb-4">
                         <div className="section-icon icon-warning">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
                         </div>
                         Areas for Improvement
                       </h3>
-                      <ul className="space-y-2">
+                      <ul className="space-y-1 sm:space-y-2">
                         {extractStrengthsAndWeaknesses().weaknesses.map((weakness, i) => (
                           <motion.li 
                             key={i} 
-                            className="text-modal-text-secondary flex items-start"
+                            className="text-sm sm:text-base text-modal-text-secondary flex items-start"
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5 + i * 0.1 }}
@@ -307,31 +307,31 @@ export default function CVAnalysisModal({ cv, isOpen, onClose, analysisData, isL
                   </motion.div>
                 </div>
                 
-                {/* Footer with detailed review link */}
-                <div className="border-t border-gray-700/50 p-4 mt-6 bg-gray-900/30 flex justify-between">
+                {/* Footer with detailed review link - Improved for mobile */}
+                <div className="border-t border-gray-700/50 p-3 sm:p-4 mt-4 sm:mt-6 bg-gray-900/30 flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 flex items-center"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700 flex items-center justify-center"
                     onClick={onClose}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                     </svg>
                     Close
                   </motion.button>
                   
-                  <Link href={`/review/${cv?.id}`} passHref>
-                    <motion.a
+                  <Link href={`/review/${cv?.id}`} passHref className="w-full sm:w-auto">
+                    <motion.span
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center"
+                      className="px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 flex items-center justify-center w-full"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                       </svg>
                       View Detailed Analysis
-                    </motion.a>
+                    </motion.span>
                   </Link>
                 </div>
               </div>

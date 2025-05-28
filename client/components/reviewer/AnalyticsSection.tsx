@@ -334,31 +334,50 @@ const AnalyticsSection = ({ analysis }: AnalyticsSectionProps) => {
         className="w-full"
         onValueChange={(value) => setActiveTab(value)}
       >
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 mb-8">
-          {['overview', 'scores', 'sections', 'ats', 'skills', 'improvement'].map((tab, index) => (
-            <motion.div
-              key={tab}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <TabsTrigger 
-                value={tab}
-                className="relative overflow-hidden"
+        {/* Responsive TabsList with improved mobile layout */}
+        <div className="relative mb-8">
+          <TabsList className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 w-full overflow-x-auto scrollbar-hide h-[40px] md:h-[48px]">
+            {[
+              { id: 'overview', label: 'Overview' },
+              { id: 'scores', label: 'Scores' },
+              { id: 'sections', label: 'Sections' },
+              { id: 'ats', label: 'ATS' },
+              { id: 'skills', label: 'Skills' },
+              { id: 'improvement', label: 'Improve' }
+            ].map((tab) => (
+              <motion.div
+                key={tab.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full"
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                {activeTab === tab && (
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
-                    layoutId="activeTab"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  />
-                )}
-              </TabsTrigger>
-            </motion.div>
-          ))}
-        </TabsList>
+                <TabsTrigger 
+                  value={tab.id}
+                  className="relative overflow-hidden w-full text-xs sm:text-sm md:text-base py-2 px-1 sm:px-2"
+                >
+                  {tab.label}
+                  {activeTab === tab.id && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
+                      layoutId="activeTab"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    />
+                  )}
+                </TabsTrigger>
+              </motion.div>
+            ))}
+          </TabsList>
+
+          <div className="md:hidden absolute -bottom-4 left-0 right-0 flex justify-center">
+            <div className="flex gap-1">
+              <span className="h-1 w-4 rounded-full bg-primary/30"></span>
+              <span className="h-1 w-4 rounded-full bg-primary/70"></span>
+              <span className="h-1 w-4 rounded-full bg-primary/30"></span>
+            </div>
+          </div>
+        </div>
         
         {/* Tab Content with Animation */}
         <motion.div animate={controls}>

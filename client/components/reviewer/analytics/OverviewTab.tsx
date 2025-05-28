@@ -12,8 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { CheckCircleIcon } from "lucide-react";
-import { CustomTooltip, CHART_COLORS, CHART_ANIMATIONS } from "./ChartComponents";
+import { CustomTooltip, CHART_COLORS, CHART_ANIMATIONS, useChartColors } from "./ChartComponents";
 import { AnalysisData } from "@/types/analysis";
+import { useTheme } from "next-themes";
 
 interface OverviewTabProps {
   scoreData: Array<{ subject: string, value: number, fullMark: number }>;
@@ -44,6 +45,7 @@ interface OverviewTabProps {
 const AnimatedRadar = ({ data }: { data: Array<{ subject: string, value: number, fullMark: number }> }) => {
   const [animatedData, setAnimatedData] = useState(data.map(item => ({ ...item, value: 0 })));
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const { gridColor, axisColor } = useChartColors();
   
   useEffect(() => {
     // Animate the radar fill from center outward
@@ -74,7 +76,7 @@ const AnimatedRadar = ({ data }: { data: Array<{ subject: string, value: number,
     setHoveredIndex(null);
   };
 
-  return (
+   return (
     <ResponsiveContainer width="100%" height="100%">
       <RadarChart outerRadius={90} data={animatedData} onMouseLeave={handleMouseLeave}>
         <defs>
@@ -83,24 +85,24 @@ const AnimatedRadar = ({ data }: { data: Array<{ subject: string, value: number,
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
-        <PolarGrid stroke="hsl(var(--muted))" strokeWidth={0.5} />
+        <PolarGrid stroke={gridColor} strokeWidth={0.5} />
         <PolarAngleAxis 
           dataKey="subject" 
-          tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }} 
+          tick={{ fill: axisColor, fontSize: 12 }} 
           tickLine={false}
         />
         <PolarRadiusAxis 
           angle={30} 
           domain={[0, 100]} 
-          tick={{ fill: 'hsl(var(--foreground))' }}
-          stroke="hsl(var(--muted))"
+          tick={{ fill: axisColor }}
+          stroke={gridColor}
           tickCount={5}
           strokeDasharray="3 3"
         />
         <Radar 
           name="Score" 
           dataKey="value" 
-          stroke={hoveredIndex !== null ? "hsl(var(--primary))" : "hsl(var(--primary))"}
+          stroke="hsl(var(--primary))"
           strokeWidth={hoveredIndex !== null ? 3 : 2}
           fill="hsl(var(--primary))" 
           fillOpacity={0.5}
@@ -116,9 +118,13 @@ const AnimatedRadar = ({ data }: { data: Array<{ subject: string, value: number,
   );
 };
 
-// Animated Pie with active sector highlighting
+// 1. First, fix the renderActiveShape function to use appropriate text colors in dark mode
 const renderActiveShape = (props: any) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? '#ffffff' : 'hsl(var(--foreground))';
+  const subTextColor = isDark ? 'rgba(255, 255, 255, 0.7)' : 'hsl(var(--muted-foreground))';
   
   return (
     <g>
@@ -141,97 +147,24 @@ const renderActiveShape = (props: any) => {
         outerRadius={innerRadius - 2}
         fill={fill}
       />
-      <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill="hsl(var(--foreground))">
+      <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill={textColor}>
         {payload.name}
       </text>
-      <text x={cx} y={cy + 15} textAnchor="middle" fill="hsl(var(--foreground))" fontSize={20} fontWeight="bold">
+      <text x={cx} y={cy + 15} textAnchor="middle" fill={textColor} fontSize={20} fontWeight="bold">
         {value}
       </text>
-      <text x={cx} y={cy + 35} textAnchor="middle" fill="hsl(var(--muted-foreground))">
+      <text x={cx} y={cy + 35} textAnchor="middle" fill={subTextColor}>
         {`(${(percent * 100).toFixed(0)}%)`}
       </text>
     </g>
   );
 };
 
-const AnimatedPieChart = ({ data, innerRadius = 60, outerRadius = 80 }: { 
-  data: Array<{ name: string, count: number }>,
-  innerRadius?: number,
-  outerRadius?: number
-}) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const controls = useAnimation();
-  
-  useEffect(() => {
-    if (data.length > 0) {
-      const interval = setInterval(() => {
-        setActiveIndex(prevIndex => (prevIndex + 1) % data.length);
-      }, 3000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [data]);
-  
-  const onPieEnter = (_: any, index: number) => {
-    setActiveIndex(index);
-    setIsAnimating(true);
-    
-    controls.start({
-      scale: [1, 1.05, 1],
-      transition: { duration: 0.5 }
-    });
-  };
-  
-  const onPieLeave = () => {
-    setIsAnimating(false);
-  };
-
-  return (
-    <motion.div className="w-full h-full" animate={controls}>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <defs>
-            <filter id="glow2" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-          <Pie
-            activeIndex={activeIndex}
-            activeShape={renderActiveShape}
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={innerRadius}
-            outerRadius={outerRadius}
-            fill="#8884d8"
-            dataKey="count"
-            nameKey="name"
-            onMouseEnter={onPieEnter}
-            onMouseLeave={onPieLeave}
-            animationBegin={300}
-            animationDuration={1500}
-            animationEasing="ease-out"
-          >
-            {data.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={CHART_COLORS.ISSUE_COLORS[entry.name as keyof typeof CHART_COLORS.ISSUE_COLORS] || 
-                    CHART_COLORS.PIE_COLORS[index % CHART_COLORS.PIE_COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <RechartsTooltip content={<CustomTooltip />} />
-        </PieChart>
-      </ResponsiveContainer>
-    </motion.div>
-  );
-};
-
-// Impact Donut Chart with animation
+// 2. Update the ImpactDonutChart component to use more visible colors in dark mode
 const ImpactDonutChart = ({ score }: { score: number }) => {
   const [animatedScore, setAnimatedScore] = useState(0);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -256,8 +189,12 @@ const ImpactDonutChart = ({ score }: { score: number }) => {
       <PieChart>
         <defs>
           <linearGradient id="impactGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1} />
-            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
+            <stop offset="0%" stopColor={isDark ? "#8b5cf6" : "hsl(var(--primary))"} stopOpacity={1} />
+            <stop offset="100%" stopColor={isDark ? "#6d28d9" : "hsl(var(--primary))"} stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="emptySectionGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={isDark ? "#4b5563" : "hsl(var(--muted))"} stopOpacity={isDark ? 0.5 : 1} />
+            <stop offset="100%" stopColor={isDark ? "#374151" : "hsl(var(--muted))"} stopOpacity={isDark ? 0.3 : 0.8} />
           </linearGradient>
         </defs>
         <Pie
@@ -276,13 +213,117 @@ const ImpactDonutChart = ({ score }: { score: number }) => {
           animationBegin={300}
           animationDuration={1500}
           animationEasing="ease-out"
+          stroke={isDark ? "#1f2937" : "hsl(var(--background))"}
+          strokeWidth={2}
         >
-          <Cell fill="url(#impactGradient)" stroke="hsl(var(--background))" />
-          <Cell fill="hsl(var(--muted))" stroke="hsl(var(--background))" />
+          <Cell fill="url(#impactGradient)" />
+          <Cell fill="url(#emptySectionGradient)" />
         </Pie>
         <RechartsTooltip content={<CustomTooltip />} />
       </PieChart>
     </ResponsiveContainer>
+  );
+};
+
+// 3. Update the AnimatedPieChart component to ensure slices are visible in dark mode
+const AnimatedPieChart = ({ data, innerRadius = 60, outerRadius = 80 }: { 
+  data: Array<{ name: string, count: number }>,
+  innerRadius?: number,
+  outerRadius?: number
+}) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const controls = useAnimation();
+  const chartColors = useChartColors();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
+  useEffect(() => {
+    if (data.length > 0) {
+      const interval = setInterval(() => {
+        setActiveIndex(prevIndex => (prevIndex + 1) % data.length);
+      }, 3000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [data]);
+  
+  const onPieEnter = (_: any, index: number) => {
+    setActiveIndex(index);
+    setIsAnimating(true);
+    
+    controls.start({
+      scale: [1, 1.05, 1],
+      transition: { duration: 0.5 }
+    });
+  };
+  
+  const onPieLeave = () => {
+    setIsAnimating(false);
+  };
+  
+  return (
+    <motion.div className="w-full h-full" animate={controls}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <defs>
+            <filter id="glow2" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            
+            {/* Add specific gradients for each category to ensure visibility in dark mode */}
+            {Object.keys(chartColors.ISSUE_COLORS).map(key => (
+              <linearGradient 
+                key={`gradient-${key}`} 
+                id={`gradient-${key}`} 
+                x1="0" y1="0" x2="0" y2="1"
+              >
+                <stop 
+                  offset="0%" 
+                  stopColor={chartColors.ISSUE_COLORS[key as keyof typeof chartColors.ISSUE_COLORS]} 
+                  stopOpacity={1} 
+                />
+                <stop 
+                  offset="100%" 
+                  stopColor={chartColors.ISSUE_COLORS[key as keyof typeof chartColors.ISSUE_COLORS]} 
+                  stopOpacity={0.7} 
+                />
+              </linearGradient>
+            ))}
+          </defs>
+          <Pie
+            activeIndex={activeIndex}
+            activeShape={renderActiveShape}
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
+            fill="#8884d8"
+            dataKey="count"
+            nameKey="name"
+            onMouseEnter={onPieEnter}
+            onMouseLeave={onPieLeave}
+            animationBegin={300}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            stroke={isDark ? "#1f2937" : "#ffffff"}
+            strokeWidth={1.5}
+          >
+            {data.map((entry, index) => {
+              const key = entry.name as keyof typeof chartColors.ISSUE_COLORS;
+              const fill = key in chartColors.ISSUE_COLORS 
+                ? `url(#gradient-${key})` 
+                : chartColors.PIE_COLORS[index % chartColors.PIE_COLORS.length];
+              
+              return <Cell key={`cell-${index}`} fill={fill} />;
+            })}
+          </Pie>
+          <RechartsTooltip content={<CustomTooltip />} />
+        </PieChart>
+      </ResponsiveContainer>
+    </motion.div>
   );
 };
 

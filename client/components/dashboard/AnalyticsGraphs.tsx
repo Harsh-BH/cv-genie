@@ -469,7 +469,7 @@ const ChartWrapper = ({
         onValueChange={setActiveTab}
         className="w-full"
       >
-        <TabsList className="grid w-full grid-cols-4 mb-6">
+        <TabsList className="grid w-full sm:grid-cols-4 sm:grid-rows-1 mb-6 grid-cols-2 grid-rows-2 h-fit">
           <TabsTrigger value="overview" className="text-sm">
             Overview
           </TabsTrigger>

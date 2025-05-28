@@ -1,13 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 // Custom tooltip for all chart types with animation
 export const CustomTooltip = ({ active, payload, label, bgColor = 'hsl(224, 71%, 4%)', textColor = 'white' }: any) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   if (active && payload && payload.length) {
     return (
       <motion.div 
@@ -16,9 +20,9 @@ export const CustomTooltip = ({ active, payload, label, bgColor = 'hsl(224, 71%,
         exit={{ opacity: 0, scale: 0.8 }}
         transition={{ duration: 0.2 }}
         className="rounded-md border bg-background p-3 shadow-md backdrop-blur-sm" 
-        style={{ backgroundColor: bgColor }}
+        style={{ backgroundColor: isDark ? 'hsl(224, 71%, 10%)' : 'hsl(224, 71%, 97%)' }}
       >
-        <div className="text-sm font-medium text-foreground" style={{ color: textColor }}>
+        <div className="text-sm font-medium text-foreground">
           {label || payload[0].name}
         </div>
         <motion.div 
@@ -32,7 +36,6 @@ export const CustomTooltip = ({ active, payload, label, bgColor = 'hsl(224, 71%,
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="text-sm font-semibold flex items-center gap-2"
-          style={{ color: textColor }}
         >
           <motion.span
             initial={{ opacity: 0 }}
@@ -128,7 +131,61 @@ export const CHART_ANIMATIONS = {
   }
 };
 
-// Chart colors for use in all components
+// Function to get theme-aware colors
+export const useChartColors = () => {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return {
+      PIE_COLORS: ['hsl(220, 70%, 50%)', 'hsl(150, 60%, 50%)', 'hsl(30, 80%, 50%)', 'hsl(280, 60%, 50%)', 'hsl(100, 70%, 50%)'],
+      SECTION_COLORS: {},
+      ISSUE_COLORS: {},
+      HOVER_COLORS: {},
+      gridColor: 'hsl(0, 0%, 80%)',
+      axisColor: 'hsl(0, 0%, 60%)'
+    };
+  }
+
+  const isDark = theme === 'dark';
+  
+  return {
+    PIE_COLORS: [
+      'hsl(220, 70%, 50%)', 
+      'hsl(150, 60%, 50%)', 
+      'hsl(30, 80%, 50%)', 
+      'hsl(280, 60%, 50%)', 
+      'hsl(100, 70%, 50%)'
+    ],
+    SECTION_COLORS: {
+      Header: isDark ? 'hsl(262, 83%, 68%)' : 'hsl(262, 83%, 58%)',
+      Summary: isDark ? 'hsl(262, 70%, 60%)' : 'hsl(262, 70%, 50%)',
+      Experience: isDark ? 'hsl(250, 70%, 70%)' : 'hsl(250, 70%, 60%)',
+      Education: isDark ? 'hsl(240, 60%, 73%)' : 'hsl(240, 60%, 63%)',
+      Skills: isDark ? 'hsl(225, 70%, 70%)' : 'hsl(225, 70%, 60%)'
+    },
+    ISSUE_COLORS: {
+      Grammar: isDark ? 'hsl(346, 84%, 71%)' : 'hsl(346, 84%, 61%)',
+      Format: isDark ? 'hsl(15, 100%, 65%)' : 'hsl(15, 100%, 55%)', 
+      Content: isDark ? 'hsl(30, 100%, 70%)' : 'hsl(30, 100%, 60%)', 
+      ATS: isDark ? 'hsl(220, 70%, 60%)' : 'hsl(220, 70%, 50%)'
+    },
+    HOVER_COLORS: {
+      Grammar: isDark ? 'hsl(346, 84%, 80%)' : 'hsl(346, 84%, 70%)',
+      Format: isDark ? 'hsl(15, 100%, 75%)' : 'hsl(15, 100%, 65%)', 
+      Content: isDark ? 'hsl(30, 100%, 80%)' : 'hsl(30, 100%, 70%)', 
+      ATS: isDark ? 'hsl(220, 70%, 70%)' : 'hsl(220, 70%, 60%)'
+    },
+    gridColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+    axisColor: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)'
+  };
+};
+
+// Export static chart colors for backward compatibility
 export const CHART_COLORS = {
   PIE_COLORS: ['hsl(220, 70%, 50%)', 'hsl(150, 60%, 50%)', 'hsl(30, 80%, 50%)', 'hsl(280, 60%, 50%)', 'hsl(100, 70%, 50%)'],
   SECTION_COLORS: {
